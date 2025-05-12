@@ -21,7 +21,7 @@ class Application
 		}
 		
 		// Now we construct the workbook, and grab the default worksheet. Ready to start messing with cells
-		Workbook pWorkbook = new Workbook();
+		Workbook pWorkbook = new Workbook(Workbook.License.AGPL);
 		Worksheet pWorksheet = pWorkbook.GetWorksheetByIndex(0);
 
 		// Now that we have our image and our worksheet we'll setup a nice square grid
@@ -76,7 +76,7 @@ class Application
 			}
 		}
 
-		pWorkbook.Save("CellColorExample.xls", Workbook.FileType.FILE_TYPE_XLS);
+		pWorkbook.Save("CellColorExample.xls", Workbook.FileType.XLS);
 		return 0;
 	}
 }

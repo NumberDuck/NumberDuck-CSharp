@@ -7,7 +7,7 @@ class Application
 		System.Console.Write("Formula Example\n");
 		System.Console.Write("Create a spreadsheet with formulas!\n\n");
 		
-		Workbook pWorkbook = new Workbook();
+		Workbook pWorkbook = new Workbook(Workbook.License.AGPL);
 		Worksheet pWorksheet = pWorkbook.GetWorksheetByIndex(0);
 			
 		for (ushort i = 0; i < 5; i++)
@@ -22,11 +22,11 @@ class Application
 		pWorksheet.GetCell(2,0).SetFormula("=SUM(A1:A5)");
 		pWorksheet.GetCell(2,1).SetFormula("=AVERAGE(A1:A5)");
 			
-		pWorkbook.Save("FormulaExample.xls", Workbook.FileType.FILE_TYPE_XLS);
+		pWorkbook.Save("FormulaExample.xls", Workbook.FileType.XLS);
 
 
 
-		Workbook pWorkbookIn = new Workbook();
+		Workbook pWorkbookIn = new Workbook(Workbook.License.AGPL);
 		if (pWorkbookIn.Load("FormulaExample.xls"))
 		{
 			Worksheet pWorksheetIn = pWorkbookIn.GetWorksheetByIndex(0);
