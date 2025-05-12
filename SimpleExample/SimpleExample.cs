@@ -6,7 +6,7 @@ class Application
 	{
 		System.Console.Write("Simple Example\n");
 		
-		Workbook pWorkbook = new Workbook();
+		Workbook pWorkbook = new Workbook(Workbook.License.AGPL);
 		Worksheet pWorksheet = pWorkbook.GetWorksheetByIndex(0);
 
 		Cell pCell = pWorksheet.GetCellByAddress("A1");
@@ -14,9 +14,9 @@ class Application
 
 		pWorksheet.GetCell(1,1).SetFloat(3.1417f);
 
-		pWorkbook.Save("SimpleExample.xls", Workbook.FileType.FILE_TYPE_XLS);
+		pWorkbook.Save("SimpleExample.xls", Workbook.FileType.XLS);
 		
-		Workbook pWorkbookIn = new Workbook();
+		Workbook pWorkbookIn = new Workbook(Workbook.License.AGPL);
 		if (pWorkbookIn.Load("SimpleExample.xls"))
 		{
 			Worksheet pWorksheetIn = pWorkbookIn.GetWorksheetByIndex(0);

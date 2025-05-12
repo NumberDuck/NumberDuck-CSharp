@@ -7,7 +7,7 @@ class Application
 		System.Console.Write("Chart Example\n");
 		System.Console.Write("Embed a chart in a spreadsheet!\n\n");
 		
-		Workbook pWorkbook = new Workbook();
+		Workbook pWorkbook = new Workbook(Workbook.License.AGPL);
 		Worksheet pWorksheet = pWorkbook.GetWorksheetByIndex(0);
 
 		Cell pCell = pWorksheet.GetCellByAddress("A1");
@@ -55,7 +55,7 @@ class Application
 		pSeries = pChart.CreateSeries("=C3:C11");
 		pSeries.SetName("=C2");
 		
-		pWorkbook.Save("ChartExample.xls", Workbook.FileType.FILE_TYPE_XLS);
+		pWorkbook.Save("ChartExample.xls", Workbook.FileType.XLS);
 
 		return 0;
 	}

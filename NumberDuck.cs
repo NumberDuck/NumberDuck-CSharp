@@ -30562,14 +30562,20 @@ namespace NumberDuck
 {
 	class Workbook
 	{
+		public enum License
+		{
+			AGPL,
+			Commercial,
+		}
+
 		public enum FileType
 		{
-			FILE_TYPE_XLS,
-			FILE_TYPE_XLSX,
+			XLS,
+			XLSX,
 		}
 
 		public Secret.WorkbookImplementation m_pImpl;
-		public Workbook()
+		public Workbook(License eLicense)
 		{
 			m_pImpl = new Secret.WorkbookImplementation();
 			m_pImpl.m_pWorkbookGlobals = null;
@@ -30910,7 +30916,7 @@ namespace NumberDuck
 		public bool Save(string szFileName, FileType eFileType)
 		{
 			m_pImpl.m_pWorkbookGlobals.Clear();
-			if (eFileType == FileType.FILE_TYPE_XLS)
+			if (eFileType == FileType.XLS)
 			{
 				Secret.Vector<Secret.BiffRecordContainer> pWorksheetBiffRecordContainerVector = new Secret.Vector<Secret.BiffRecordContainer>();
 				for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
