@@ -24,14 +24,14 @@ class Application
 			
 		pWorkbook.Save("FormulaExample.xls", Workbook.FileType.XLS);
 
-
-
 		Workbook pWorkbookIn = new Workbook(Workbook.License.AGPL);
 		if (pWorkbookIn.Load("FormulaExample.xls"))
 		{
 			Worksheet pWorksheetIn = pWorkbookIn.GetWorksheetByIndex(0);
 			Cell pCellIn = pWorksheetIn.GetCell(2,1);
 			System.Console.Write("Formula: " + pCellIn.GetFormula() + "\n");
+			Value pResult = pCellIn.EvaulateFormula();
+			System.Console.Write("Result: " + pResult.GetFloat() + "\n");
 		}
 	}
 }

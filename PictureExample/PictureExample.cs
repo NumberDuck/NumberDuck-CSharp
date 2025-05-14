@@ -44,19 +44,19 @@ class Application
 		string sFileName = "DinoOut.";
 		switch (pPicture.GetFormat())
 		{
-			case Picture.Format.FORMAT_DIB: sFileName += "bmp";
+			case Picture.Format.DIB: sFileName += "bmp";
 				break;
-			case Picture.Format.FORMAT_EMF: sFileName += "emf";
+			case Picture.Format.EMF: sFileName += "emf";
 				break;
-			case Picture.Format.FORMAT_JPEG: sFileName += "jpg";
+			case Picture.Format.JPEG: sFileName += "jpg";
 				break;
-			case Picture.Format.FORMAT_PICT: sFileName += "pict";
+			case Picture.Format.PICT: sFileName += "pict";
 				break;
-			case Picture.Format.FORMAT_PNG: sFileName += "png";
+			case Picture.Format.PNG: sFileName += "png";
 				break;
-			case Picture.Format.FORMAT_TIFF: sFileName += "tiff";
+			case Picture.Format.TIFF: sFileName += "tiff";
 				break;
-			case Picture.Format.FORMAT_WMF: sFileName += "wmf";
+			case Picture.Format.WMF: sFileName += "wmf";
 				break;
 		}
 
