@@ -140,10 +140,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Cell
 	{
 		public Secret.CellImplementation m_pImpl;
@@ -244,10 +240,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Style
 	{
 		public Secret.StyleImplementation m_pImplementation;
@@ -409,10 +401,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Line
 	{
 		protected Secret.LineImplementation m_pImpl;
@@ -467,10 +455,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Marker
 	{
 		public Secret.MarkerImplementation m_pImpl;
@@ -556,10 +540,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Fill
 	{
 		protected Secret.FillImplementation m_pImpl;
@@ -607,10 +587,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Font
 	{
 		public Secret.FontImplementation m_pImpl;
@@ -704,10 +680,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Chart
 	{
 		public enum Type
@@ -951,10 +923,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Picture
 	{
 		public Secret.PictureImplementation m_pImplementation;
@@ -1061,10 +1029,6 @@ namespace NumberDuck
 		}
 
 	}
-}
-
-namespace NumberDuck
-{
 	class Worksheet
 	{
 		public Secret.WorksheetImplementation m_pImpl;
@@ -1806,6 +1770,1942 @@ namespace NumberDuck
 		}
 
 	}
+	class MD4
+	{
+		protected const int BLOCK_SIZE = 64;
+		protected uint[] m_nBuffer = new uint[4];
+		public void Process(BlobView pBlobView)
+		{
+			int nIncomingSize = pBlobView.GetSize() - pBlobView.GetOffset();
+			Reset();
+			while (pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize())
+			{
+				ProcessChunk(pBlobView);
+			}
+			int nRemainingBlockSize = nIncomingSize % BLOCK_SIZE;
+			int nPaddingSize = (BLOCK_SIZE - 8) - nRemainingBlockSize;
+			if (nPaddingSize <= 0)
+				nPaddingSize += BLOCK_SIZE;
+			Blob pFinalBlob = new Blob(true);
+			BlobView pFinalBlobView = pFinalBlob.GetBlobView();
+			pFinalBlobView.Pack(pBlobView, pBlobView.GetSize() - pBlobView.GetOffset());
+			pFinalBlobView.PackUint8(0x80);
+			for (int i = 0; i < nPaddingSize - 1; i++)
+				pFinalBlobView.PackUint8(0);
+			for (int i = 0; i < 4; i++)
+				pFinalBlobView.PackUint8((byte)((nIncomingSize * 8) >> (8 * i)));
+			pFinalBlobView.PackUint32(0);
+			pFinalBlobView.SetOffset(0);
+			while (pFinalBlobView.GetOffset() < pFinalBlobView.GetSize())
+			{
+				ProcessChunk(pFinalBlobView);
+			}
+		}
+
+		public void BlobWrite(BlobView pBlobView)
+		{
+			for (int i = 0; i < 4; i++)
+				for (int j = 0; j < 4; j++)
+					pBlobView.PackUint8((byte)(m_nBuffer[i] >> (8 * j)));
+		}
+
+		protected void Reset()
+		{
+			m_nBuffer[0] = 0x67452301;
+			m_nBuffer[1] = 0xEFCDAB89;
+			m_nBuffer[2] = 0x98BADCFE;
+			m_nBuffer[3] = 0x10325476;
+		}
+
+		protected void ProcessChunk(BlobView pBlobView)
+		{
+			int i;
+			uint A = m_nBuffer[0];
+			uint B = m_nBuffer[1];
+			uint C = m_nBuffer[2];
+			uint D = m_nBuffer[3];
+			uint[] m_nChunk = new uint[BLOCK_SIZE >> 2];
+			Secret.nbAssert.Assert(pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize());
+			for (i = 0; i < 16; i++)
+			{
+				uint c0 = pBlobView.UnpackUint8();
+				uint c1 = pBlobView.UnpackUint8();
+				uint c2 = pBlobView.UnpackUint8();
+				uint c3 = pBlobView.UnpackUint8();
+				m_nChunk[i] = c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
+			}
+			A = FF(A, B, C, D, m_nChunk[0], 3);
+			D = FF(D, A, B, C, m_nChunk[1], 7);
+			C = FF(C, D, A, B, m_nChunk[2], 11);
+			B = FF(B, C, D, A, m_nChunk[3], 19);
+			A = FF(A, B, C, D, m_nChunk[4], 3);
+			D = FF(D, A, B, C, m_nChunk[5], 7);
+			C = FF(C, D, A, B, m_nChunk[6], 11);
+			B = FF(B, C, D, A, m_nChunk[7], 19);
+			A = FF(A, B, C, D, m_nChunk[8], 3);
+			D = FF(D, A, B, C, m_nChunk[9], 7);
+			C = FF(C, D, A, B, m_nChunk[10], 11);
+			B = FF(B, C, D, A, m_nChunk[11], 19);
+			A = FF(A, B, C, D, m_nChunk[12], 3);
+			D = FF(D, A, B, C, m_nChunk[13], 7);
+			C = FF(C, D, A, B, m_nChunk[14], 11);
+			B = FF(B, C, D, A, m_nChunk[15], 19);
+			A = GG(A, B, C, D, m_nChunk[0], 3);
+			D = GG(D, A, B, C, m_nChunk[4], 5);
+			C = GG(C, D, A, B, m_nChunk[8], 9);
+			B = GG(B, C, D, A, m_nChunk[12], 13);
+			A = GG(A, B, C, D, m_nChunk[1], 3);
+			D = GG(D, A, B, C, m_nChunk[5], 5);
+			C = GG(C, D, A, B, m_nChunk[9], 9);
+			B = GG(B, C, D, A, m_nChunk[13], 13);
+			A = GG(A, B, C, D, m_nChunk[2], 3);
+			D = GG(D, A, B, C, m_nChunk[6], 5);
+			C = GG(C, D, A, B, m_nChunk[10], 9);
+			B = GG(B, C, D, A, m_nChunk[14], 13);
+			A = GG(A, B, C, D, m_nChunk[3], 3);
+			D = GG(D, A, B, C, m_nChunk[7], 5);
+			C = GG(C, D, A, B, m_nChunk[11], 9);
+			B = GG(B, C, D, A, m_nChunk[15], 13);
+			A = HH(A, B, C, D, m_nChunk[0], 3);
+			D = HH(D, A, B, C, m_nChunk[8], 9);
+			C = HH(C, D, A, B, m_nChunk[4], 11);
+			B = HH(B, C, D, A, m_nChunk[12], 15);
+			A = HH(A, B, C, D, m_nChunk[2], 3);
+			D = HH(D, A, B, C, m_nChunk[10], 9);
+			C = HH(C, D, A, B, m_nChunk[6], 11);
+			B = HH(B, C, D, A, m_nChunk[14], 15);
+			A = HH(A, B, C, D, m_nChunk[1], 3);
+			D = HH(D, A, B, C, m_nChunk[9], 9);
+			C = HH(C, D, A, B, m_nChunk[5], 11);
+			B = HH(B, C, D, A, m_nChunk[13], 15);
+			A = HH(A, B, C, D, m_nChunk[3], 3);
+			D = HH(D, A, B, C, m_nChunk[11], 9);
+			C = HH(C, D, A, B, m_nChunk[7], 11);
+			B = HH(B, C, D, A, m_nChunk[15], 15);
+			m_nBuffer[0] += A;
+			m_nBuffer[1] += B;
+			m_nBuffer[2] += C;
+			m_nBuffer[3] += D;
+		}
+
+		protected uint FF(uint a, uint b, uint c, uint d, uint x, int s)
+		{
+			uint t = a + ((b & c) | (~b & d)) + x;
+			return t << s | t >> (32 - s);
+		}
+
+		protected uint GG(uint a, uint b, uint c, uint d, uint x, int s)
+		{
+			uint t = a + ((b & (c | d)) | (c & d)) + x + 0x5A827999;
+			return t << s | t >> (32 - s);
+		}
+
+		protected uint HH(uint a, uint b, uint c, uint d, uint x, int s)
+		{
+			uint t = a + (b ^ c ^ d) + x + 0x6ED9EBA1;
+			return t << s | t >> (32 - s);
+		}
+
+	}
+	class Workbook
+	{
+		public enum License
+		{
+			AGPL,
+			Commercial,
+		}
+
+		public enum FileType
+		{
+			XLS,
+			XLSX,
+		}
+
+		public Secret.WorkbookImplementation m_pImpl;
+		public Workbook(License eLicense)
+		{
+			m_pImpl = new Secret.WorkbookImplementation();
+			m_pImpl.m_pWorkbookGlobals = null;
+			m_pImpl.m_pWorksheetVector = new Secret.OwnedVector<Worksheet>();
+			Clear();
+		}
+
+		public void Clear()
+		{
+			m_pImpl.m_pWorksheetVector.Clear();
+			if (m_pImpl.m_pWorkbookGlobals != null)
+				{
+				}
+			m_pImpl.m_pWorkbookGlobals = new Secret.WorkbookGlobals();
+			CreateWorksheet();
+		}
+
+		public bool Load(string szFileName)
+		{
+			m_pImpl.m_pWorksheetVector.Clear();
+			if (m_pImpl.m_pWorkbookGlobals != null)
+			{
+				{
+				}
+				m_pImpl.m_pWorkbookGlobals = null;
+			}
+			bool bLoaded = false;
+			Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
+			if (pCompoundFile.Load(szFileName))
+			{
+				Secret.Stream pStream = pCompoundFile.GetStreamByName("Workbook");
+				if (pStream != null)
+				{
+					pStream.SetOffset(0);
+					while (pStream.GetOffset() < pStream.GetStreamSize())
+					{
+						Secret.BiffRecord pBiffRecord = Secret.BiffRecord.CreateBiffRecord(pStream);
+						if (pBiffRecord.GetType() == Secret.BiffRecord.Type.TYPE_BOF)
+						{
+							Secret.BofRecord pBofRecord = (Secret.BofRecord)(pBiffRecord);
+							switch (pBofRecord.GetBofType())
+							{
+								case Secret.BofRecord.BofType.BOF_TYPE_WORKBOOK_GLOBALS:
+								{
+									{
+										NumberDuck.Secret.BiffRecord __3036547922 = pBiffRecord;
+										pBiffRecord = null;
+										m_pImpl.m_pWorkbookGlobals = new Secret.BiffWorkbookGlobals(__3036547922, pStream);
+									}
+									continue;
+								}
+
+								case Secret.BofRecord.BofType.BOF_TYPE_SHEET:
+								{
+									Worksheet pWorksheet;
+									{
+										NumberDuck.Secret.BiffRecord __3036547922 = pBiffRecord;
+										pBiffRecord = null;
+										pWorksheet = new Secret.BiffWorksheet(this, (Secret.BiffWorkbookGlobals)(m_pImpl.m_pWorkbookGlobals), __3036547922, pStream);
+									}
+									{
+										NumberDuck.Worksheet __3928651719 = pWorksheet;
+										pWorksheet = null;
+										m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
+									}
+									{
+										continue;
+									}
+								}
+
+								default:
+								{
+									Secret.nbAssert.Assert(false);
+									break;
+								}
+
+							}
+						}
+						Secret.nbAssert.Assert(false);
+					}
+					bLoaded = true;
+				}
+			}
+			{
+				pCompoundFile = null;
+			}
+			if (!bLoaded)
+			{
+				Secret.InternalString sFileName = new Secret.InternalString("");
+				Secret.Zip pZip = new Secret.Zip();
+				bool bContinue = pZip.LoadFile(szFileName);
+				if (bContinue)
+				{
+					Secret.OwnedVector<Secret.InternalString> sNameVector = new Secret.OwnedVector<Secret.InternalString>();
+					{
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						if (pZip.ExtractFileByName("[Content_Types].xml", pXmlBlobView))
+						{
+							Secret.XmlFile pXmlFile = new Secret.XmlFile();
+							pXmlBlobView.SetOffset(0);
+							if (pXmlFile.Load(pXmlBlobView))
+							{
+							}
+							{
+								pXmlFile = null;
+							}
+						}
+						{
+							pXmlBlob = null;
+						}
+					}
+					m_pImpl.m_pWorkbookGlobals = new Secret.XlsxWorkbookGlobals();
+					if (bContinue)
+					{
+						Secret.XmlFile pXmlFile = new Secret.XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						Secret.XmlNode pWorkbookNode = null;
+						Secret.XmlNode pSheetsNode = null;
+						Secret.XmlNode pSheetNode = null;
+						bContinue = bContinue && pZip.ExtractFileByName("xl/workbook.xml", pXmlBlobView);
+						if (bContinue)
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pWorkbookNode = pXmlFile.GetFirstChildElement("workbook");
+							if (pWorkbookNode == null)
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSheetsNode = pWorkbookNode.GetFirstChildElement("sheets");
+							if (pSheetsNode == null)
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSheetNode = pSheetsNode.GetFirstChildElement("sheet");
+							while (pSheetNode != null)
+							{
+								string szName = pSheetNode.GetAttribute("name");
+								if (szName == null)
+								{
+									bContinue = false;
+									break;
+								}
+								sNameVector.PushBack(new Secret.InternalString(szName));
+								pSheetNode = pSheetNode.GetNextSiblingElement("sheet");
+							}
+						}
+						{
+							pXmlBlob = null;
+						}
+						{
+							pXmlFile = null;
+						}
+					}
+					if (bContinue)
+					{
+						Secret.XmlFile pXmlFile = new Secret.XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						Secret.XmlNode pSstNode = null;
+						Secret.XmlNode pSiNode = null;
+						bContinue = bContinue && pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView);
+						if (bContinue)
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSstNode = pXmlFile.GetFirstChildElement("sst");
+							if (pSstNode == null)
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSiNode = pSstNode.GetFirstChildElement("si");
+							if (pSiNode == null)
+								bContinue = false;
+						}
+						while (bContinue && pSiNode != null)
+						{
+							Secret.XmlNode pTNode;
+							pTNode = pSiNode.GetFirstChildElement("t");
+							if (pTNode == null)
+							{
+								bContinue = false;
+								break;
+							}
+							string szTemp = pTNode.GetText();
+							m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
+							pSiNode = pSiNode.GetNextSiblingElement("si");
+						}
+						{
+							pXmlBlob = null;
+						}
+						{
+							pXmlFile = null;
+						}
+					}
+					if (bContinue)
+					{
+						Secret.XmlFile pXmlFile = new Secret.XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						Secret.XmlNode pStyleSheetNode = null;
+						bContinue = bContinue && pZip.ExtractFileByName("xl/styles.xml", pXmlBlobView);
+						if (bContinue)
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pStyleSheetNode = pXmlFile.GetFirstChildElement("styleSheet");
+							if (pStyleSheetNode == null)
+								bContinue = false;
+						}
+						bContinue = bContinue && Secret.XlsxWorkbookGlobals.ParseStyles(m_pImpl.m_pWorkbookGlobals, pStyleSheetNode);
+						{
+							pXmlBlob = null;
+						}
+						{
+							pXmlFile = null;
+						}
+					}
+					if (bContinue)
+					{
+						int nWorksheetIndex = 0;
+						int nNumFail = 0;
+						while (bContinue)
+						{
+							sFileName.Set("xl/worksheets/sheet");
+							sFileName.AppendInt(nWorksheetIndex);
+							sFileName.AppendString(".xml");
+							Secret.XmlFile pXmlFile = new Secret.XmlFile();
+							Blob pXmlBlob = new Blob(true);
+							BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+							if (!pZip.ExtractFileByName(sFileName.GetExternalString(), pXmlBlobView))
+							{
+								nNumFail++;
+								if (nNumFail > 5)
+								{
+									{
+										pXmlBlob = null;
+									}
+									{
+										pXmlFile = null;
+									}
+									{
+										break;
+									}
+								}
+							}
+							else
+							{
+								Secret.XmlNode pWorksheetNode;
+								pXmlBlobView.SetOffset(0);
+								if (!pXmlFile.Load(pXmlBlobView))
+								{
+									{
+										pXmlBlob = null;
+									}
+									{
+										pXmlFile = null;
+									}
+									bContinue = false;
+									{
+										break;
+									}
+								}
+								pWorksheetNode = pXmlFile.GetFirstChildElement("worksheet");
+								Secret.XlsxWorksheet pWorksheet = new Secret.XlsxWorksheet(this);
+								pWorksheet.SetName(sNameVector.Get(m_pImpl.m_pWorksheetVector.GetSize()).GetExternalString());
+								if (!pWorksheet.Parse((Secret.XlsxWorkbookGlobals)(m_pImpl.m_pWorkbookGlobals), pWorksheetNode))
+								{
+									{
+										pWorksheet = null;
+									}
+									{
+										pXmlBlob = null;
+									}
+									{
+										pXmlFile = null;
+									}
+									bContinue = false;
+									{
+										break;
+									}
+								}
+								{
+									NumberDuck.Secret.XlsxWorksheet __3928651719 = pWorksheet;
+									pWorksheet = null;
+									m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
+								}
+							}
+							nWorksheetIndex++;
+							{
+								pXmlBlob = null;
+							}
+							{
+								pXmlFile = null;
+							}
+						}
+					}
+					bLoaded = bContinue;
+					sNameVector.Clear();
+					{
+						sNameVector = null;
+					}
+				}
+				{
+					pZip = null;
+				}
+				{
+					sFileName = null;
+				}
+			}
+			if (bLoaded)
+			{
+				return true;
+			}
+			Clear();
+			{
+				return false;
+			}
+		}
+
+		public bool Save(string szFileName, FileType eFileType)
+		{
+			m_pImpl.m_pWorkbookGlobals.Clear();
+			if (eFileType == FileType.XLS)
+			{
+				Secret.Vector<Secret.BiffRecordContainer> pWorksheetBiffRecordContainerVector = new Secret.Vector<Secret.BiffRecordContainer>();
+				for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
+				{
+					Worksheet pWorksheet = m_pImpl.m_pWorksheetVector.Get(i);
+					Secret.BiffRecordContainer pBiffRecordContainer = new Secret.BiffRecordContainer();
+					Secret.BiffWorksheet.Write(pWorksheet, m_pImpl.m_pWorkbookGlobals, (ushort)(i), pBiffRecordContainer);
+					m_pImpl.m_pWorkbookGlobals.PushBiffWorksheetStreamSize(pBiffRecordContainer.GetSize());
+					pWorksheetBiffRecordContainerVector.PushBack(pBiffRecordContainer);
+					pBiffRecordContainer = null;
+				}
+				Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
+				Secret.Stream pStream = pCompoundFile.CreateStream("Workbook", Secret.Stream.Type.TYPE_USER_STREAM);
+				Secret.BiffWorkbookGlobals.Write(m_pImpl.m_pWorkbookGlobals, m_pImpl.m_pWorksheetVector, pStream);
+				for (int i = 0; i < pWorksheetBiffRecordContainerVector.GetSize(); i++)
+				{
+					Secret.BiffRecordContainer pBiffRecordContainer = pWorksheetBiffRecordContainerVector.Get(i);
+					pBiffRecordContainer.Write(pStream);
+					{
+						pBiffRecordContainer = null;
+					}
+				}
+				{
+					pWorksheetBiffRecordContainerVector = null;
+				}
+				bool bResult = pCompoundFile.Save(szFileName);
+				{
+					pCompoundFile = null;
+				}
+				{
+					return bResult;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		public uint GetNumWorksheet()
+		{
+			return (uint)(m_pImpl.m_pWorksheetVector.GetSize());
+		}
+
+		public Worksheet GetWorksheetByIndex(uint nIndex)
+		{
+			if (nIndex >= GetNumWorksheet())
+				return null;
+			return m_pImpl.m_pWorksheetVector.Get((int)(nIndex));
+		}
+
+		public Worksheet CreateWorksheet()
+		{
+			Worksheet pWorksheet = new Secret.BiffWorksheet(this);
+			int i = 0;
+			Secret.InternalString sName = new Secret.InternalString("");
+			while (true)
+			{
+				sName.Set("Sheet");
+				sName.AppendInt(++i);
+				if (pWorksheet.SetName(sName.GetExternalString()))
+					break;
+			}
+			{
+				sName = null;
+			}
+			Worksheet pTempWorksheet = pWorksheet;
+			{
+				NumberDuck.Worksheet __3928651719 = pWorksheet;
+				pWorksheet = null;
+				m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
+			}
+			{
+				return pTempWorksheet;
+			}
+		}
+
+		public void PurgeWorksheet(uint nIndex)
+		{
+			Worksheet pWorksheet = GetWorksheetByIndex(nIndex);
+			if (pWorksheet != null)
+			{
+				m_pImpl.m_pWorksheetVector.Erase((int)(nIndex));
+			}
+			if (GetNumWorksheet() == 0)
+				CreateWorksheet();
+		}
+
+		public uint GetNumStyle()
+		{
+			return m_pImpl.m_pWorkbookGlobals.GetNumStyle();
+		}
+
+		public Style GetStyleByIndex(uint nIndex)
+		{
+			return m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(nIndex));
+		}
+
+		public Style GetDefaultStyle()
+		{
+			return GetStyleByIndex(0);
+		}
+
+		public Style CreateStyle()
+		{
+			return m_pImpl.m_pWorkbookGlobals.CreateStyle();
+		}
+
+		~Workbook()
+		{
+		}
+
+	}
+	class Series
+	{
+		public Secret.SeriesImplementation m_pImpl;
+		public Series(Worksheet pWorksheet, Secret.Formula pValuesFormula)
+		{
+			m_pImpl = new Secret.SeriesImplementation(pWorksheet, pValuesFormula);
+		}
+
+		public string GetName()
+		{
+			if (m_pImpl.m_pNameFormula != null)
+				return m_pImpl.m_pNameFormula.ToChartNameString(m_pImpl.m_pWorksheet.m_pImpl);
+			return "=";
+		}
+
+		public bool SetName(string szName)
+		{
+			Secret.Formula pFormula = new Secret.Formula(szName, m_pImpl.m_pWorksheet.m_pImpl);
+			if (pFormula.ValidateForChartName(m_pImpl.m_pWorksheet.m_pImpl))
+			{
+				{
+				}
+				{
+					NumberDuck.Secret.Formula __879619620 = pFormula;
+					pFormula = null;
+					m_pImpl.m_pNameFormula = __879619620;
+				}
+				{
+					return true;
+				}
+			}
+			{
+				pFormula = null;
+			}
+			{
+				return false;
+			}
+		}
+
+		public string GetValues()
+		{
+			if (m_pImpl.m_pValuesFormula != null)
+				return m_pImpl.m_pValuesFormula.ToChartString(m_pImpl.m_pWorksheet.m_pImpl);
+			return "=";
+		}
+
+		public bool SetValues(string szValues)
+		{
+			Secret.Formula pFormula = new Secret.Formula(szValues, m_pImpl.m_pWorksheet.m_pImpl);
+			if (pFormula.ValidateForChart(m_pImpl.m_pWorksheet.m_pImpl))
+			{
+				{
+				}
+				{
+					NumberDuck.Secret.Formula __879619620 = pFormula;
+					pFormula = null;
+					m_pImpl.m_pValuesFormula = __879619620;
+				}
+				{
+					return true;
+				}
+			}
+			{
+				pFormula = null;
+			}
+			{
+				return false;
+			}
+		}
+
+		public Line GetLine()
+		{
+			return m_pImpl.m_pLine;
+		}
+
+		public Fill GetFill()
+		{
+			return m_pImpl.m_pFill;
+		}
+
+		public Marker GetMarker()
+		{
+			return m_pImpl.m_pMarker;
+		}
+
+		~Series()
+		{
+		}
+
+	}
+	class MergedCell
+	{
+		protected Secret.MergedCellImplementation m_pImpl;
+		public MergedCell(uint nX, uint nY, uint nWidth, uint nHeight)
+		{
+			m_pImpl = new Secret.MergedCellImplementation();
+			SetX(nX);
+			SetY(nY);
+			SetWidth(nWidth);
+			SetHeight(nHeight);
+		}
+
+		public uint GetX()
+		{
+			return m_pImpl.m_nX;
+		}
+
+		public void SetX(uint nX)
+		{
+			if (nX > 0xFF)
+				nX = 0xFF;
+			m_pImpl.m_nX = nX;
+		}
+
+		public uint GetY()
+		{
+			return m_pImpl.m_nY;
+		}
+
+		public void SetY(uint nY)
+		{
+			if (nY > 0xFFFF)
+				nY = 0xFFFF;
+			m_pImpl.m_nY = nY;
+		}
+
+		public uint GetWidth()
+		{
+			return m_pImpl.m_nWidth;
+		}
+
+		public void SetWidth(uint nWidth)
+		{
+			if (nWidth == 0)
+				nWidth = 1;
+			if (m_pImpl.m_nX + nWidth > 0xFF + 1)
+				nWidth = 0xFF - m_pImpl.m_nX + 1;
+			m_pImpl.m_nWidth = nWidth;
+		}
+
+		public uint GetHeight()
+		{
+			return m_pImpl.m_nHeight;
+		}
+
+		public void SetHeight(uint nHeight)
+		{
+			if (nHeight == 0)
+				nHeight = 1;
+			if (m_pImpl.m_nY + nHeight > 0xFFFF + 1)
+				nHeight = 0xFFFF - m_pImpl.m_nY + 1;
+			m_pImpl.m_nHeight = nHeight;
+		}
+
+		~MergedCell()
+		{
+		}
+
+	}
+	class Legend
+	{
+		protected Secret.LegendImplementation m_pImpl;
+		public Legend()
+		{
+			m_pImpl = new Secret.LegendImplementation();
+		}
+
+		public bool GetHidden()
+		{
+			return m_pImpl.m_bHidden;
+		}
+
+		public void SetHidden(bool bHidden)
+		{
+			m_pImpl.m_bHidden = bHidden;
+		}
+
+		public Line GetBorderLine()
+		{
+			return m_pImpl.m_pBorderLine;
+		}
+
+		public Fill GetFill()
+		{
+			return m_pImpl.m_pFill;
+		}
+
+		~Legend()
+		{
+		}
+
+	}
+	class Color
+	{
+		protected byte m_nRed;
+		protected byte m_nGreen;
+		protected byte m_nBlue;
+		public Color(byte nRed, byte nGreen, byte nBlue)
+		{
+			m_nRed = nRed;
+			m_nGreen = nGreen;
+			m_nBlue = nBlue;
+		}
+
+		public bool Equals(Color pColor)
+		{
+			if (pColor == null)
+				return false;
+			return m_nRed == pColor.m_nRed && m_nGreen == pColor.m_nGreen && m_nBlue == pColor.m_nBlue;
+		}
+
+		public byte GetRed()
+		{
+			return m_nRed;
+		}
+
+		public byte GetGreen()
+		{
+			return m_nGreen;
+		}
+
+		public byte GetBlue()
+		{
+			return m_nBlue;
+		}
+
+		public void Set(byte nRed, byte nGreen, byte nBlue)
+		{
+			m_nRed = nRed;
+			m_nGreen = nGreen;
+			m_nBlue = nBlue;
+		}
+
+		public void SetRed(byte nRed)
+		{
+			m_nRed = nRed;
+		}
+
+		public void SetGreen(byte nGreen)
+		{
+			m_nGreen = nGreen;
+		}
+
+		public void SetBlue(byte nBlue)
+		{
+			m_nBlue = nBlue;
+		}
+
+		public void SetFromColor(Color pColor)
+		{
+			m_nRed = pColor.m_nRed;
+			m_nGreen = pColor.m_nGreen;
+			m_nBlue = pColor.m_nBlue;
+		}
+
+		public void SetFromRgba(uint nRgba)
+		{
+			m_nRed = (byte)(nRgba & 0xFF);
+			m_nGreen = (byte)((nRgba >> 8) & 0xFF);
+			m_nBlue = (byte)((nRgba >> 16) & 0xFF);
+		}
+
+		public uint GetRgba()
+		{
+			return ((uint)(m_nRed) << 0) | ((uint)(m_nGreen) << 8) | ((uint)(m_nBlue) << 16) | ((uint)(0xFF) << 24);
+		}
+
+	}
+}
+
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class nbAssert
+        {
+            public static void Assert(bool result, string test, string file, int line)
+            {
+                if (!result)
+                    throw new System.Exception(test + "\n" + file + ":" + line);
+            }
+
+            public static void Assert(bool result)
+            {
+                Assert(result, "", "", 0);
+            }
+        }
+    }
+}
+
+namespace NumberDuck
+{
+    class Blob
+    {
+        private const int DEFAULT_SIZE = 1024 * 32;
+
+        internal byte[] m_pBuffer;
+        internal int m_nSize;
+        private bool m_bAutoResize;
+        private BlobView m_pBlobView;
+
+        public Blob(bool bAutoResize)
+        {
+            m_pBuffer = new byte[DEFAULT_SIZE];
+            m_nSize = 0;
+            m_bAutoResize = bAutoResize;
+            m_pBlobView = new BlobView(this, 0, 0);
+        }
+
+        public bool Load(string fileName)
+        {
+            try
+            {
+                byte[] temp = System.IO.File.ReadAllBytes(fileName);
+                m_pBuffer = temp;
+            }
+            catch
+            {
+                return false;
+            }
+
+            m_nSize = m_pBuffer.Length;
+            m_pBlobView.m_nEnd = m_nSize;
+            return true;
+        }
+
+        public bool Save(string fileName)
+        {
+            try
+            {
+                using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+                {
+                    fs.Write(m_pBuffer, 0, (int)m_nSize);
+                }
+            }
+            catch //(Exception e)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void Resize(int nSize, bool bAutoResize)
+        {
+            byte[] pOldBuffer = m_pBuffer;
+            int nBufferSize = m_pBuffer.Length;
+
+            if (bAutoResize)
+                Secret.nbAssert.Assert(m_bAutoResize);
+
+            if (nSize > nBufferSize)
+            {
+                while (nSize > nBufferSize)
+                {
+                    // if we are over 100mb, just use the target size, otherwise we'll blow out the RAMs
+                    if (nSize > 1024 * 1024 * 100)
+                        nBufferSize = nSize;
+                    else
+                        nBufferSize <<= 1;
+                }
+
+                m_pBuffer = new byte[nBufferSize];
+                pOldBuffer.CopyTo(m_pBuffer, 0);
+                pOldBuffer = null;
+            }
+            m_nSize = nSize;
+
+            m_pBlobView.m_nEnd = m_nSize;
+
+        }
+
+        public int GetSize()
+        {
+            return m_nSize;
+        }
+
+        public System.IO.Stream CreateStream(int nStart, int nEnd)
+        {
+            return new System.IO.MemoryStream(m_pBuffer, nStart, nEnd - nStart);
+        }
+
+        public uint GetMsoCrc32()
+        {
+            // https://docs.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/324014d1-39aa-4038-bbf4-f3781732f767
+            // https://github.com/chakannom/algorithm/blob/master/MsoCRC32Compute/MsoCRC32Compute/MsoCRC32Compute.cpp
+            uint[] nCache = new uint[256];
+            {
+                uint i;
+                for (i = 0; i < 256; i++)
+                {
+                    uint nBit;
+                    uint nValue = i << 24;
+                    for (nBit = 0; nBit < 8; nBit++)
+                    {
+                        if ((nValue & (0x1 << 31)) > 0)
+                            nValue = (nValue << 1) ^ 0xAF;
+                        else
+                            nValue = nValue << 1;
+                    }
+
+                    nCache[i] = nValue & 0xFFFF;
+                }
+            }
+
+            uint nCrcValue = 0;
+            {
+                uint i;
+                for (i = 0; i < m_nSize; i++)
+                {
+                    uint nIndex = nCrcValue;
+                    nIndex = nIndex >> 24;
+                    nIndex = nIndex ^ m_pBuffer[i];
+                    nCrcValue = nCrcValue << 8;
+                    nCrcValue = nCrcValue ^ nCache[nIndex];
+                    //printf("%x %lX \n", m_pBuffer[i], nCrcValue);
+                }
+            }
+
+            return nCrcValue;
+        }
+
+        public void Md4Hash(BlobView pOut)
+        {
+            for (int i = 0; i < 16; i++)
+                pOut.PackUint8(0);
+            /*unsigned char nTemp[16];
+            MD4_CTX ctx;
+            MD4_Init(&ctx);
+            MD4_Update(&ctx, (void*)m_pBuffer, m_nSize);
+            MD4_Final(nTemp, &ctx);
+
+            pOut->PackData(nTemp, 16);*/
+        }
+
+
+        /*public void Unpack(byte[] pTo, int nToOffset, int nFromOffset, int nSize)
+		{
+			Buffer.BlockCopy(pData, 0, m_pBuffer, (int)nOffset, (int)nSize);
+		}*/
+
+
+        public void UnpackData(byte[] pData, int nOffset, int nSize)
+        {
+            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
+            System.Buffer.BlockCopy(m_pBuffer, nOffset, pData, 0, nSize);
+        }
+
+
+        public void PackUint8(byte val, int nOffset) { m_pBuffer[nOffset] = val; }
+
+
+        public short UnpackInt16(int nOffset) { Secret.nbAssert.Assert(nOffset + 2 <= m_nSize); return System.BitConverter.ToInt16(m_pBuffer, nOffset); }
+        public int UnpackInt32(int nOffset) { Secret.nbAssert.Assert(nOffset + 4 <= m_nSize); return System.BitConverter.ToInt32(m_pBuffer, nOffset); }
+        public byte UnpackUint8(int nOffset) { Secret.nbAssert.Assert(nOffset + 1 <= m_nSize); return m_pBuffer[nOffset]; }
+        public ushort UnpackUint16(int nOffset) { Secret.nbAssert.Assert(nOffset + 2 <= m_nSize); return System.BitConverter.ToUInt16(m_pBuffer, nOffset); }
+        public uint UnpackUint32(int nOffset) { Secret.nbAssert.Assert(nOffset + 4 <= m_nSize); return System.BitConverter.ToUInt32(m_pBuffer, nOffset); }
+        public double UnpackDouble(int nOffset) { Secret.nbAssert.Assert(nOffset + 8 <= m_nSize); return System.BitConverter.ToDouble(m_pBuffer, nOffset); }
+
+
+        public void PackData(byte[] pData, int nOffset, int nSize)
+        {
+            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
+            System.Buffer.BlockCopy(pData, 0, m_pBuffer, nOffset, nSize);
+        }
+
+
+        public void Pack(byte[] pData, int nDataOffset, int nOffset, int nSize)
+        {
+            Secret.nbAssert.Assert(nSize > 0);
+            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
+            System.Buffer.BlockCopy(pData, nDataOffset, m_pBuffer, nOffset, nSize);
+        }
+
+
+
+
+        //m_pBlob->GetBlobView()->Pack(pBlobView, nSize);
+
+
+        //public coid UnpackData()
+
+        /*void Blob :: UnpackData(unsigned char* pData, unsigned int nOffset, unsigned int nSize)
+		{
+			CLIFFY_ASSERT(nOffset + nSize <= m_nSize);
+			memcpy(pData, m_pBuffer + nOffset, nSize);
+		}*/
+
+        public BlobView GetBlobView()
+        {
+            return m_pBlobView;
+        }
+
+        public bool Equal(Blob pOther)
+        {
+            if (m_nSize != pOther.m_nSize)
+                return false;
+
+            for (int i = 0; i < m_nSize; i++)
+                if (m_pBuffer[i] != pOther.m_pBuffer[i])
+                    return false;
+            return true;
+        }
+    }
+
+    class BlobView
+    {
+        internal int m_nStart;
+        internal int m_nEnd;
+        internal int m_nOffset;
+        internal Blob m_pBlob;
+
+
+        public BlobView(Blob pBlob, int nStart, int nEnd)
+        {
+            Secret.nbAssert.Assert(nStart <= nEnd);
+            Secret.nbAssert.Assert(nEnd <= pBlob.GetSize());
+
+            m_pBlob = pBlob;
+            m_nStart = nStart;
+            m_nEnd = nEnd;
+            m_nOffset = 0;
+        }
+
+
+
+        public Blob GetBlob()
+        {
+            return m_pBlob;
+        }
+
+
+
+        public int GetStart() { return m_nStart; }
+        public int GetEnd() { return m_nEnd; }
+        public int GetSize()
+        {
+            int nEnd = m_nEnd;
+            if (nEnd == 0)
+                nEnd = m_pBlob.GetSize();
+            return nEnd - m_nStart;
+        }
+
+        public int GetOffset() { return m_nOffset; }
+
+        public void SetOffset(int nOffset)
+        {
+            // todo: cap?
+            m_nOffset = nOffset;
+        }
+
+        public System.IO.Stream CreateStream()
+        {
+            if (this == m_pBlob.GetBlobView())
+                return m_pBlob.CreateStream(m_nStart + m_nOffset, m_nStart + m_pBlob.GetSize());
+            return m_pBlob.CreateStream(m_nStart + m_nOffset, m_nEnd);
+        }
+
+        public void Pack(BlobView pBlobView, int nSize)
+        {
+            PackAt(m_nOffset, pBlobView, nSize);
+            m_nOffset += nSize;
+        }
+
+        public void PackAt(int nOffset, BlobView pBlobView, int nSize)
+        {
+            byte[] pData = new byte[nSize];
+            pBlobView.UnpackData(pData, nSize);
+            PackDataAt(nOffset, pData, nSize);
+        }
+
+        public void PackDataAt(int nOffset, byte[] pData, int nSize)
+        {
+            int nBlobOffset = m_nStart + nOffset;
+            if (this == m_pBlob.GetBlobView())
+            {
+                if (nBlobOffset + nSize > m_pBlob.GetSize())
+                {
+                    m_pBlob.Resize(nBlobOffset + nSize, true);
+                    //this.m_nEnd = m_pBlob.GetSize();
+                }
+            }
+            else
+            {
+                Secret.nbAssert.Assert(nBlobOffset + nSize <= m_nEnd);
+            }
+            m_pBlob.PackData(pData, nBlobOffset, nSize);
+        }
+
+
+        public void Pack(byte[] pData, int nDataSize)
+        {
+            PackDataAt(m_nOffset, pData, nDataSize);
+            m_nOffset += nDataSize;
+        }
+
+        public void PackInt16(short val) { Pack(System.BitConverter.GetBytes(val), 2); }
+        public void PackInt32(int val) { Pack(System.BitConverter.GetBytes(val), 4); }
+        public void PackUint8(byte val) { Pack(System.BitConverter.GetBytes(val), 1); }
+        public void PackUint16(ushort val) { Pack(System.BitConverter.GetBytes(val), 2); }
+        public void PackUint32(uint val) { Pack(System.BitConverter.GetBytes(val), 4); }
+        public void PackDouble(double val) { Pack(System.BitConverter.GetBytes(val), 8); }
+
+
+        public void Unpack(BlobView pBlobView, int nSize)
+        {
+            UnpackAt(m_nOffset, pBlobView, nSize);
+            m_nOffset += nSize;
+        }
+
+        public void UnpackAt(int nOffset, BlobView pBlobView, int nSize)
+        {
+            byte[] pData = new byte[nSize];
+            UnpackDataAt(nOffset, pData, nSize);
+
+            pBlobView.Pack(pData, nSize);
+        }
+
+
+        public void UnpackData(byte[] pData, int nSize)
+        {
+            UnpackDataAt(m_nOffset, pData, nSize);
+            m_nOffset += nSize;
+        }
+
+        public void UnpackDataAt(int nOffset, byte[] pData, int nSize)
+        {
+            int nBlobOffset = m_nStart + nOffset;
+            int nEnd = m_nEnd;
+            if (nEnd == 0)
+                nEnd = m_pBlob.GetSize();
+            Secret.nbAssert.Assert(nBlobOffset + nSize <= nEnd);
+            m_pBlob.UnpackData(pData, nBlobOffset, nSize);
+        }
+
+
+        /*public void Unpack(BlobView pBlobView, int nSize)
+		{
+			CliffyAssert.Assert(m_nStart + m_nOffset + nSize < m_nEnd);
+
+
+
+			m_pBlob.Unpack(m_nStart + m_nOffset, nSize, pBlobView->m_pBlob, pBlobView.m_nStart + m_nOffset);
+
+			//m_pBlob.UnpackAt
+		}*/
+
+        /*void BlobView :: Unpack(BlobView* pBlobView, unsigned int nSize)
+		{
+			UnpackAt(m_nOffset, pBlobView, nSize);
+			m_nOffset += nSize;
+		}
+
+		void BlobView :: UnpackAt(unsigned int nOffset, BlobView* pBlobView, unsigned int nSize)
+		{
+			unsigned char* pData = new unsigned char[nSize];
+			UnpackDataAt(nOffset, pData,nSize);
+
+			pBlobView->PackData(pData, nSize);
+			delete [] pData;
+		}*/
+
+
+
+        public short UnpackInt16() { short nTemp = m_pBlob.UnpackInt16(m_nStart + m_nOffset); m_nOffset += 2; return nTemp; }
+        public int UnpackInt32() { int nTemp = m_pBlob.UnpackInt32(m_nStart + m_nOffset); m_nOffset += 4; return nTemp; }
+
+        public int UnpackInt32At(int nOffset) { return m_pBlob.UnpackInt32(m_nStart + nOffset); }
+
+        public byte UnpackUint8() { byte nTemp = m_pBlob.UnpackUint8(m_nStart + m_nOffset++); return nTemp; }
+        public ushort UnpackUint16() { ushort nTemp = m_pBlob.UnpackUint16(m_nStart + m_nOffset); m_nOffset += 2; return nTemp; }
+        public uint UnpackUint32() { uint nTemp = m_pBlob.UnpackUint32(m_nStart + m_nOffset); m_nOffset += 4; return nTemp; }
+        public double UnpackDouble() { double fTemp = m_pBlob.UnpackDouble(m_nStart + m_nOffset); m_nOffset += 8; return fTemp; }
+
+
+
+
+
+
+        public byte GetChecksum()
+        {
+            const int WIDTH = 8;
+            const byte TOPBIT = (1 << (WIDTH - 1));
+            const byte POLYNOMIAL = 0xD8;  /* 11011 followed by 0's */
+
+            byte remainder = 0;
+            int nEnd = m_nEnd;
+            if (nEnd == 0)
+                nEnd = m_pBlob.m_nSize;
+
+            for (int currentByte = m_nStart; currentByte < nEnd; currentByte++)
+            {
+                remainder ^= m_pBlob.m_pBuffer[currentByte];
+                for (int bit = 8; bit > 0; --bit)
+                {
+                    if ((remainder & TOPBIT) > 0)
+                    {
+                        remainder = (byte)((remainder << 1) ^ POLYNOMIAL);
+                    }
+                    else
+                    {
+                        remainder = (byte)(remainder << 1);
+                    }
+                }
+            }
+            return (remainder);
+        }
+
+
+    }
+}
+
+
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class Console
+        {
+            public static void Log(string sLog)
+            {
+                System.Console.WriteLine(sLog);
+            }
+        }
+    }
+}
+
+namespace NumberDuck
+{
+	namespace Secret
+	{
+		class ExternalString
+		{
+			public static bool Equal(string szA, string szB)
+			{
+				return string.Equals(szA, szB);
+			}
+
+			public static int GetChecksum(string szString)
+			{
+				int nResult = 0xABC123;
+				for (int i = 0; i < szString.Length; i++)
+				{
+					char c = szString[i];
+					nResult = (nResult ^ c) << 1;
+				}
+				return nResult;
+			}
+
+			public static long hextol(string szString)
+			{
+				return long.Parse(szString, System.Globalization.NumberStyles.HexNumber);
+			}
+
+			public static int atoi(string szString)
+			{
+				return int.Parse(szString);
+			}
+
+			public static long atol(string szString)
+			{
+				return long.Parse(szString);
+			}
+
+			public static double atof(string szString)
+			{
+				return double.Parse(szString);
+			}
+
+		}
+	}
+}
+
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class File
+        {
+            public static InternalString GetContents(string sxPath)
+            {
+                try
+                {
+                    return new InternalString(System.IO.File.ReadAllText(sxPath));
+                }
+                catch
+                {
+
+                }
+                return null;
+            }
+
+            public static void PutContents(string sPath, string sContents)
+            {
+                System.IO.File.WriteAllText(sPath, sContents);
+            }
+
+            public static OwnedVector<InternalString> GetRecursiveFileVector(string sPath)
+            {
+                OwnedVector<InternalString> sFileVector = new OwnedVector<InternalString>();
+                Vector<InternalString> sDirectoryVector = new Vector<InternalString>();
+
+                sDirectoryVector.PushBack(new InternalString(sPath));
+
+                while (sDirectoryVector.GetSize() > 0)
+                {
+                    string sDirectory = sDirectoryVector.PopBack().GetExternalString();
+
+                    string[] sDirectories = System.IO.Directory.GetDirectories(sDirectory);
+                    for (int i = 0; i < sDirectories.Length; i++)
+                        sDirectoryVector.PushBack(new InternalString(sDirectories[i]));
+
+                    string[] sFiles = System.IO.Directory.GetFiles(sDirectory);
+                    for (int i = 0; i < sFiles.Length; i++)
+                    {
+                        string sFile = sFiles[i];
+                        if (sFile.EndsWith(".nll") || sFile.EndsWith(".nll.def"))
+                            sFileVector.PushBack(new InternalString(sFile));
+                    }
+                }
+
+                return sFileVector;
+            }
+
+            public static InternalString GetFileDirectory(string sPath)
+            {
+                return new InternalString(System.IO.Path.GetDirectoryName(sPath));
+            }
+
+            public static void CreateDirectory(string sPath)
+            {
+                System.IO.Directory.CreateDirectory(sPath);
+            }
+        }
+    }
+}
+
+namespace NumberDuck
+{
+	namespace Secret
+	{
+		class InternalString
+		{
+			private System.Text.StringBuilder m_pStringBuilder;
+
+			public InternalString(string szString)
+			{
+				Set(szString);
+			}
+
+			public InternalString CreateClone()
+			{
+				return new InternalString(m_pStringBuilder.ToString());
+			}
+
+			public void Set(string szString)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(szString);
+			}
+
+			public string GetExternalString()
+			{
+				return m_pStringBuilder.ToString();
+			}
+
+			public void Append(string sString)
+			{
+				m_pStringBuilder.Append(sString);
+			}
+
+			public void AppendChar(char nChar)
+			{
+				m_pStringBuilder.Append(nChar);
+			}
+
+			public void AppendString(string szString)
+			{
+				m_pStringBuilder.Append(szString);
+			}
+
+			public void AppendInt(int nInt)
+			{
+				m_pStringBuilder.Append("" + nInt);
+			}
+
+			public void AppendUint32(uint nUint)
+			{
+				AppendUnsignedInt(nUint);
+			}
+
+			public void AppendUnsignedInt(uint nUint)
+			{
+				m_pStringBuilder.Append("" + nUint);
+			}
+
+			public void AppendDouble(double fDouble)
+			{
+				m_pStringBuilder.Append(fDouble.ToString("G6"));
+			}
+
+			public void PrependString(string sString)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(sString + m_pStringBuilder.ToString());
+			}
+
+			public void PrependChar(char cChar)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(cChar + m_pStringBuilder.ToString());
+			}
+
+			public void SubStr(int nStart, int nLength)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Substring(nStart, nLength));
+			}
+
+			public void CropFront(int nLength)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Substring(nLength));
+			}
+
+			public int GetLength()
+			{
+				return m_pStringBuilder.Length;
+			}
+
+			public char GetChar(int nIndex)
+			{
+				return m_pStringBuilder[nIndex];
+			}
+
+			public void BlobWriteUtf8(BlobView pBlobView, bool bZeroTerminator)
+			{
+				byte[] pData = System.Text.Encoding.UTF8.GetBytes(m_pStringBuilder.ToString());
+				pBlobView.Pack(pData, pData.Length);
+				if (bZeroTerminator)
+					pBlobView.PackUint8(0);
+			}
+
+			public void BlobWrite16Bit(BlobView pBlobView, bool bZeroTerminator)
+			{
+				byte[] pData = System.Text.Encoding.Unicode.GetBytes(m_pStringBuilder.ToString());
+				pBlobView.Pack(pData, pData.Length);
+				if (bZeroTerminator)
+					pBlobView.PackUint16(0);
+			}
+
+			public bool IsAscii()
+			{
+				return System.Text.Encoding.UTF8.GetByteCount(m_pStringBuilder.ToString()) == m_pStringBuilder.Length;
+			}
+
+			public bool IsEqual(string sString)
+			{
+				return m_pStringBuilder.ToString().Equals(sString);
+			}
+
+			public bool StartsWith(string szString)
+			{
+				return m_pStringBuilder.ToString().StartsWith(szString);
+			}
+
+			public bool EndsWith(string szString)
+			{
+				return m_pStringBuilder.ToString().EndsWith(szString);
+			}
+
+			public double ParseDouble()
+			{
+				return double.Parse(m_pStringBuilder.ToString());
+			}
+
+			public uint ParseHex()
+			{
+				string sTemp = m_pStringBuilder.ToString();
+				if (!sTemp.StartsWith("0x", System.StringComparison.Ordinal))
+					return 0;
+				sTemp = sTemp.Substring(2);
+				return uint.Parse(sTemp, System.Globalization.NumberStyles.HexNumber);
+			}
+
+			public int FindChar(char nChar)
+			{
+				return m_pStringBuilder.ToString().IndexOf((char)nChar);
+			}
+
+			public void Replace(string sxFind, string sxReplace)
+			{
+				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Replace(sxFind, sxReplace));
+			}
+		}
+	}
+}
+
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class Utils
+        {
+            public static double Pow(double fBase, double fExponent)
+            {
+                return System.Math.Pow(fBase, fExponent);
+            }
+
+            public static double ByteConvertUint64ToDouble(ulong nValue)
+            {
+                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
+                return System.BitConverter.ToDouble(nByteArray, 0);
+            }
+
+            public static int ByteConvertUint32ToInt32(uint nValue)
+            {
+                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
+                return System.BitConverter.ToInt32(nByteArray, 0);
+            }
+
+            public static uint ByteConvertInt32ToUint32(int nValue)
+            {
+                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
+                return System.BitConverter.ToUInt32(nByteArray, 0);
+            }
+
+            public static void Indent(int nTabDepth, InternalString sOut)
+            {
+                for (int i = 0; i < nTabDepth; i++)
+                    sOut.AppendChar('\t');
+            }
+        }
+    }
+}
+
+
+namespace NumberDuck
+{
+	namespace Secret
+	{
+
+		class Vector<T>
+		{
+			private System.Collections.Generic.List<T> m_pList;
+
+
+			public Vector()
+			{
+				Clear();
+			}
+
+			public void PushFront(T xObject)
+			{
+				m_pList.Insert(0, xObject);
+			}
+
+			public void PushBack(T xObject)
+			{
+				m_pList.Add(xObject);
+			}
+
+			public int GetSize()
+			{
+				return m_pList.Count;
+			}
+
+			public T Get(int nIndex)
+			{
+				return m_pList[nIndex];
+			}
+
+			public void Clear()
+			{
+				m_pList = new System.Collections.Generic.List<T>();
+			}
+
+			public void Set(int nIndex, T xObject)
+			{
+				m_pList[nIndex] = xObject;
+			}
+
+			public void Insert(int nIndex, T xObject)
+			{
+				m_pList.Insert(nIndex, xObject);
+			}
+
+			public void Erase(int nIndex)
+			{
+				m_pList.RemoveAt(nIndex);
+			}
+
+			public T PopBack()
+			{
+				int nIndex = m_pList.Count - 1;
+				T xBack = m_pList[nIndex];
+				m_pList.RemoveAt(nIndex);
+				return xBack;
+			}
+
+			public T PopFront()
+			{
+				T xFront = m_pList[0];
+				m_pList.RemoveAt(0);
+				return xFront;
+			}
+		}
+	}
+}
+
+﻿
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class XmlFile : XmlNode
+        {
+            public XmlFile() : base(null)
+            {
+            }
+
+            public bool Load(BlobView pBlobView)
+            {
+                try
+                {
+                    System.Xml.XmlDocument document = new System.Xml.XmlDocument();
+                    document.Load(pBlobView.CreateStream());
+                    m_pNode = document;
+                }
+                catch (System.Exception)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+    }
+
+
+}
+
+﻿
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        public class XmlNode
+        {
+            protected System.Xml.XmlNode m_pNode;
+
+            internal XmlNode(System.Xml.XmlNode pNode)
+            {
+                m_pNode = pNode;
+            }
+
+            public XmlNode GetFirstChildElement(string szName)
+            {
+                if (m_pNode.ChildNodes.Count > 0)
+                {
+                    if (szName == null)
+                        return new XmlNode(m_pNode.ChildNodes[0]);
+
+                    for (int i = 0; i < m_pNode.ChildNodes.Count; i++)
+                    {
+                        System.Xml.XmlNode pNode = m_pNode.ChildNodes[i];
+                        if (pNode.Name.Equals(szName))
+                            return new XmlNode(pNode);
+                    }
+                }
+                return null;
+            }
+
+            public XmlNode GetNextSiblingElement(string szName)
+            {
+                if (m_pNode.NextSibling != null)
+                    return new XmlNode(m_pNode.NextSibling);
+                return null;
+            }
+
+            public string GetValue()
+            {
+                return m_pNode.Name;
+            }
+
+            public string GetText()
+            {
+                return m_pNode.InnerText;
+            }
+
+
+            public string GetAttribute(string szName)
+            {
+                for (int i = 0; i < m_pNode.Attributes.Count; i++)
+                    if (m_pNode.Attributes[i].Name.Equals(szName))
+                        return m_pNode.Attributes[i].Value;
+                return null;
+            }
+        }
+    }
+}
+
+﻿
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        class Zip
+        {
+            System.IO.Compression.ZipArchive m_pZipArchive = null;
+
+            public Zip()
+            {
+
+            }
+
+            public bool LoadBlobView(BlobView pBlobView)
+            {
+                System.IO.Stream stream = pBlobView.CreateStream();
+
+                try
+                {
+                    m_pZipArchive = new System.IO.Compression.ZipArchive(stream);
+                }
+                catch
+                {
+                    m_pZipArchive = null;
+                    return false;
+                }
+                return true;
+            }
+
+            public bool LoadFile(string szFileName)
+            {
+                Blob pBlob = new Blob(false);
+                if (!pBlob.Load(szFileName))
+                    return false;
+                return LoadBlobView(pBlob.GetBlobView());
+            }
+
+            public int GetNumFile()
+            {
+                return m_pZipArchive.Entries.Count;
+            }
+
+            public ZipFileInfo GetFileInfo(int nIndex)
+            {
+                System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
+                return new ZipFileInfo(entry.FullName, (int)entry.Length);
+            }
+
+            public bool ExtractFileByIndex(int nIndex, BlobView pOutBlobView)
+            {
+                try
+                {
+                    System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
+                    System.IO.Stream stream = entry.Open();
+
+                    byte[] buffer = new byte[entry.Length];
+                    stream.Read(buffer, 0, (int)entry.Length);
+                    pOutBlobView.PackDataAt(pOutBlobView.GetOffset(), buffer, (int)entry.Length);
+                }
+                catch
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public bool ExtractFileByName(string szFileName, BlobView pOutBlobView)
+            {
+                for (int i = 0; i < m_pZipArchive.Entries.Count; i++)
+                {
+                    if (m_pZipArchive.Entries[i].FullName.Equals(szFileName))
+                        return ExtractFileByIndex(i, pOutBlobView);
+                }
+                return false;
+            }
+
+            public bool ExtractFileByIndexToString(int nIndex, InternalString sOut)
+            {
+                try
+                {
+                    System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
+                    System.IO.Stream stream = entry.Open();
+
+                    System.IO.StreamReader reader = new System.IO.StreamReader(stream);
+                    sOut.Append(reader.ReadToEnd());
+                }
+                catch
+                {
+                    return false;
+                }
+                return true;
+            }
+
+
+        }
+    }
+}
+
+
+﻿
+namespace NumberDuck
+{
+    namespace Secret
+    {
+        public class ZipFileInfo
+        {
+            private string m_sFileName;
+            private int m_nSize;
+            //private uint m_nCrc32;
+
+            internal ZipFileInfo(string sFileName, int nSize /*, uint nCrc32*/)
+            {
+                m_sFileName = sFileName;
+                m_nSize = nSize;
+                //m_nCrc32 = nCrc32;
+            }
+
+            public string GetFileName()
+            {
+                return m_sFileName;
+            }
+
+            public int GetSize()
+            {
+                return m_nSize;
+            }
+
+            /*public uint GetCrc32()
+            {
+                return m_nCrc32;
+            }*/
+        }
+    }
 }
 
 namespace NumberDuck
@@ -2358,13 +4258,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ParsedExpressionRecord
 		{
 			public enum Type
@@ -2777,13 +4670,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffHeader
 		{
 			public ushort m_nType;
@@ -5781,13 +7667,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffWorksheetStreamSize
 		{
 			public uint m_nSize;
@@ -5955,13 +7834,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffWorkbookGlobals : WorkbookGlobals
 		{
 			public const ushort NUM_DEFAULT_PALETTE_ENTRY = 8;
@@ -6562,13 +8434,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffStruct
 		{
 			public enum FontScheme
@@ -6597,13 +8462,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FtCmoStruct : BiffStruct
 		{
 			public FtCmoStruct()
@@ -6746,13 +8604,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SectorChain
 		{
 			protected int m_nSectorSize;
@@ -6850,13 +8701,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StreamDataStruct
 		{
 			public const int MAX_NAME_LENGTH = 32;
@@ -7150,13 +8994,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtTertiaryFOPTRecord : OfficeArtRecord
 		{
 			public OfficeArtTertiaryFOPTRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7273,13 +9110,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtSplitMenuColorContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtSplitMenuColorContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7348,13 +9178,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtSpgrContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtSpgrContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7386,13 +9209,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtSpContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtSpContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7424,13 +9240,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFSPRecord : OfficeArtRecord
 		{
 			public OfficeArtFSPRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7526,13 +9335,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFSPGRRecord : OfficeArtRecord
 		{
 			public OfficeArtFSPGRRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7581,13 +9383,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFRITContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtFRITContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7662,13 +9457,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFOPTRecord : OfficeArtRecord
 		{
 			public OfficeArtFOPTRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7818,13 +9606,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFDGRecord : OfficeArtRecord
 		{
 			public OfficeArtFDGRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7867,13 +9648,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFDGGBlockRecord : OfficeArtRecord
 		{
 			public OfficeArtFDGGBlockRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -7969,13 +9743,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFBSERecord : OfficeArtRecord
 		{
 			public OfficeArtFBSERecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8127,13 +9894,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtDggContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtDggContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8165,13 +9925,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtDgContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtDgContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8203,13 +9956,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtClientDataRecord : OfficeArtRecord
 		{
 			public OfficeArtClientDataRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8242,13 +9988,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtClientAnchorSheetRecord : OfficeArtRecord
 		{
 			public OfficeArtClientAnchorSheetRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8388,13 +10127,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtBlipRecord : OfficeArtRecord
 		{
 			public OfficeArtBlipRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8525,13 +10257,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtBStoreContainerRecord : OfficeArtRecord
 		{
 			public OfficeArtBStoreContainerRecord(OfficeArtRecordHeaderStruct pHeader, BlobView pBlobView) : base(pHeader, IS_CONTAINER, pBlobView)
@@ -8575,13 +10300,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgStrRecord : ParsedExpressionRecord
 		{
 			public PtgStrRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -8652,13 +10370,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgRefRecord : ParsedExpressionRecord
 		{
 			public PtgRefRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -8729,13 +10440,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgRef3dRecord : ParsedExpressionRecord
 		{
 			public PtgRef3dRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -8827,13 +10531,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgParenRecord : ParsedExpressionRecord
 		{
 			public PtgParenRecord() : base(TYPE, SIZE, true)
@@ -9051,13 +10748,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgOperatorRecord : ParsedExpressionRecord
 		{
 			public PtgOperatorRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9339,13 +11029,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgNumRecord : ParsedExpressionRecord
 		{
 			public PtgNumRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9396,13 +11079,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgMissArgRecord : ParsedExpressionRecord
 		{
 			public PtgMissArgRecord() : base(TYPE, SIZE, true)
@@ -9448,13 +11124,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgIntRecord : ParsedExpressionRecord
 		{
 			public PtgIntRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9505,13 +11174,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgFuncVarRecord : ParsedExpressionRecord
 		{
 			public PtgFuncVarRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9596,13 +11258,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgFuncRecord : ParsedExpressionRecord
 		{
 			public PtgFuncRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9695,13 +11350,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgBoolRecord : ParsedExpressionRecord
 		{
 			public PtgBoolRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9752,13 +11400,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrSumRecord : ParsedExpressionRecord
 		{
 			public PtgAttrSumRecord() : base(TYPE, SIZE, true)
@@ -9823,13 +11464,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrSpaceRecord : ParsedExpressionRecord
 		{
 			public PtgAttrSpaceRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -9900,13 +11534,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrSemiRecord : ParsedExpressionRecord
 		{
 			public PtgAttrSemiRecord() : base(TYPE, SIZE, true)
@@ -9962,13 +11589,6 @@ namespace NumberDuck
 			protected byte m_reserved2;
 			protected ushort m_unused;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrIfRecord : ParsedExpressionRecord
 		{
 			public PtgAttrIfRecord() : base(TYPE, SIZE, true)
@@ -10033,13 +11653,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrGotoRecord : ParsedExpressionRecord
 		{
 			public PtgAttrGotoRecord() : base(TYPE, SIZE, true)
@@ -10099,13 +11712,6 @@ namespace NumberDuck
 			protected byte m_reserved3;
 			protected ushort m_unused;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAreaRecord : ParsedExpressionRecord
 		{
 			public PtgAreaRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -10193,13 +11799,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgArea3dRecord : ParsedExpressionRecord
 		{
 			public PtgArea3dRecord(BlobView pBlobView) : base(TYPE, SIZE, true)
@@ -10300,13 +11899,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Hsl
 		{
 			public double m_fH;
@@ -10629,13 +12221,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XFCRC : BiffRecord
 		{
 			public XFCRC(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -10748,13 +12333,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XF : BiffRecord
 		{
 			public XF(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -11478,13 +13056,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class WsBoolRecord : BiffRecord
 		{
 			public WsBoolRecord() : base(TYPE, SIZE)
@@ -11518,13 +13089,6 @@ namespace NumberDuck
 
 			protected ushort m_haxFlags;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class WriteAccess : BiffRecord
 		{
 			public WriteAccess(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -11574,13 +13138,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Window2Record : BiffRecord
 		{
 			public Window2Record(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -11705,13 +13262,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Window1 : BiffRecord
 		{
 			public Window1(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -11822,13 +13372,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class WinProtect : BiffRecord
 		{
 			public WinProtect() : base(TYPE, SIZE)
@@ -11862,13 +13405,6 @@ namespace NumberDuck
 
 			protected ushort m_fLockWn;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ValueRangeRecord : BiffRecord
 		{
 			public ValueRangeRecord() : base(TYPE, SIZE)
@@ -11957,13 +13493,6 @@ namespace NumberDuck
 			protected ushort m_fMaxCross;
 			protected ushort m_unused;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class VCenterRecord : BiffRecord
 		{
 			public VCenterRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -11998,13 +13527,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class UnitsRecord : BiffRecord
 		{
 			public UnitsRecord() : base(TYPE, SIZE)
@@ -12038,13 +13560,6 @@ namespace NumberDuck
 
 			protected ushort m_unused;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class TopMarginRecord : BiffRecord
 		{
 			public TopMarginRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12079,13 +13594,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class TickRecord : BiffRecord
 		{
 			public TickRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12192,13 +13700,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Theme : BiffRecord
 		{
 			public Theme(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12336,13 +13837,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class TextRecord : BiffRecord
 		{
 			public TextRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12502,13 +13996,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SupBookRecord : BiffRecord
 		{
 			public SupBookRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12548,13 +14035,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StyleRecord : BiffRecord
 		{
 			public StyleRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12644,13 +14124,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StartBlockRecord : BiffRecord
 		{
 			public StartBlockRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12714,13 +14187,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SstRecord : BiffRecord
 		{
 			public SstRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12818,13 +14284,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ShtPropsRecord : BiffRecord
 		{
 			public ShtPropsRecord() : base(TYPE, SIZE)
@@ -12889,13 +14348,6 @@ namespace NumberDuck
 			protected byte m_mdBlank;
 			protected byte m_reserved2;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ShapePropsStreamRecord : BiffRecord
 		{
 			public ShapePropsStreamRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -12968,13 +14420,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SetupRecord : BiffRecord
 		{
 			public SetupRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13102,13 +14547,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SeriesTextRecord : BiffRecord
 		{
 			public SeriesTextRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13152,13 +14590,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SeriesRecord : BiffRecord
 		{
 			public SeriesRecord() : base(TYPE, SIZE)
@@ -13212,13 +14643,6 @@ namespace NumberDuck
 			protected ushort m_sdtBSize;
 			protected ushort m_cValBSize;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SerToCrtRecord : BiffRecord
 		{
 			public SerToCrtRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13253,13 +14677,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SelectionRecord : BiffRecord
 		{
 			public SelectionRecord() : base(TYPE, SIZE)
@@ -13325,13 +14742,6 @@ namespace NumberDuck
 			protected byte m_colFirst;
 			protected byte m_colLast;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SclRecord : BiffRecord
 		{
 			public SclRecord() : base(TYPE, SIZE)
@@ -13369,13 +14779,6 @@ namespace NumberDuck
 			protected short m_nscl;
 			protected short m_dscl;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ScatterRecord : BiffRecord
 		{
 			public ScatterRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13438,13 +14841,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SIIndexRecord : BiffRecord
 		{
 			public SIIndexRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13479,13 +14875,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RowRecord : BiffRecord
 		{
 			public RowRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13655,13 +15044,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RkRecord : BiffRecord
 		{
 			public RkRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13722,13 +15104,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RightMarginRecord : BiffRecord
 		{
 			public RightMarginRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13762,13 +15137,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RefreshAllRecord : BiffRecord
 		{
 			public RefreshAllRecord() : base(TYPE, SIZE)
@@ -13802,13 +15170,6 @@ namespace NumberDuck
 
 			protected ushort m_refreshAll;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RRTabId : BiffRecord
 		{
 			public RRTabId(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -13854,13 +15215,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ProtectRecord : BiffRecord
 		{
 			public ProtectRecord() : base(TYPE, SIZE)
@@ -13894,13 +15248,6 @@ namespace NumberDuck
 
 			protected ushort m_fLock;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Prot4RevRecord : BiffRecord
 		{
 			public Prot4RevRecord() : base(TYPE, SIZE)
@@ -13934,13 +15281,6 @@ namespace NumberDuck
 
 			protected ushort m_fRevLock;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Prot4RevPassRecord : BiffRecord
 		{
 			public Prot4RevPassRecord() : base(TYPE, SIZE)
@@ -13974,13 +15314,6 @@ namespace NumberDuck
 
 			protected ushort m_protPwdRev;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PrintSizeRecord : BiffRecord
 		{
 			public PrintSizeRecord() : base(TYPE, SIZE)
@@ -14014,13 +15347,6 @@ namespace NumberDuck
 
 			protected ushort m_printSize;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PrintRowColRecord : BiffRecord
 		{
 			public PrintRowColRecord() : base(TYPE, SIZE)
@@ -14054,13 +15380,6 @@ namespace NumberDuck
 
 			protected ushort m_printRwCol;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PrintGridRecord : BiffRecord
 		{
 			public PrintGridRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14108,13 +15427,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PosRecord : BiffRecord
 		{
 			public PosRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14189,13 +15501,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PlotGrowthRecord : BiffRecord
 		{
 			public PlotGrowthRecord() : base(TYPE, SIZE)
@@ -14233,13 +15538,6 @@ namespace NumberDuck
 			protected int m_dxPlotGrowth;
 			protected int m_dyPlotGrowth;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PlotAreaRecord : BiffRecord
 		{
 			public PlotAreaRecord() : base(TYPE, SIZE)
@@ -14269,13 +15567,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PieFormatRecord : BiffRecord
 		{
 			public PieFormatRecord() : base(TYPE, SIZE)
@@ -14309,13 +15600,6 @@ namespace NumberDuck
 
 			protected ushort m_pcExplode;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PasswordRecord : BiffRecord
 		{
 			public PasswordRecord() : base(TYPE, SIZE)
@@ -14349,13 +15633,6 @@ namespace NumberDuck
 
 			protected ushort m_wPassword;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PaletteRecord : BiffRecord
 		{
 			public PaletteRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14418,13 +15695,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ObjectLinkRecord : BiffRecord
 		{
 			public ObjectLinkRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14469,13 +15739,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ObjRecord : BiffRecord
 		{
 			public ObjRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14565,13 +15828,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class NumberRecord : BiffRecord
 		{
 			public NumberRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14637,13 +15893,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MulRkRecord : BiffRecord
 		{
 			public MulRkRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14739,13 +15988,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MulBlank : BiffRecord
 		{
 			public MulBlank(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -14856,13 +16098,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MsoDrawingRecord_Position
 		{
 			public ushort m_nCellX1;
@@ -14980,13 +16215,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MsoDrawingGroupRecord : BiffRecord
 		{
 			public MsoDrawingGroupRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15078,13 +16306,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Mms : BiffRecord
 		{
 			public Mms() : base(TYPE, SIZE)
@@ -15122,13 +16343,6 @@ namespace NumberDuck
 			protected byte m_reserved1;
 			protected byte m_reserved2;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MergeCellsRecord : BiffRecord
 		{
 			public MergeCellsRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15227,13 +16441,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MarkerFormatRecord : BiffRecord
 		{
 			public MarkerFormatRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15481,13 +16688,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LineRecord : BiffRecord
 		{
 			public LineRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15551,13 +16751,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LineFormatRecord : BiffRecord
 		{
 			public LineFormatRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15845,13 +17038,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LegendRecord : BiffRecord
 		{
 			public LegendRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15942,13 +17128,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LeftMarginRecord : BiffRecord
 		{
 			public LeftMarginRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -15983,13 +17162,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LabelSstRecord : BiffRecord
 		{
 			public LabelSstRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16059,13 +17231,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class InterfaceHdr : BiffRecord
 		{
 			public InterfaceHdr() : base(TYPE, SIZE)
@@ -16099,13 +17264,6 @@ namespace NumberDuck
 
 			protected ushort m_codePage;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class InterfaceEnd : BiffRecord
 		{
 			public InterfaceEnd() : base(TYPE, SIZE)
@@ -16135,13 +17293,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class HideObj : BiffRecord
 		{
 			public HideObj() : base(TYPE, SIZE)
@@ -16175,13 +17326,6 @@ namespace NumberDuck
 
 			protected ushort m_hideObj;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class HeaderFooterRecord : BiffRecord
 		{
 			public HeaderFooterRecord() : base(TYPE, SIZE)
@@ -16328,13 +17472,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class HCenterRecord : BiffRecord
 		{
 			public HCenterRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16370,13 +17507,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class GelFrameRecord : BiffRecord
 		{
 			public GelFrameRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16486,13 +17616,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FrameRecord : BiffRecord
 		{
 			public FrameRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16559,13 +17682,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FormulaRecord : BiffRecord
 		{
 			public FormulaRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16690,13 +17806,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Format : BiffRecord
 		{
 			public Format(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -16752,13 +17861,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FontXRecord : BiffRecord
 		{
 			public FontXRecord() : base(TYPE, SIZE)
@@ -16792,13 +17894,6 @@ namespace NumberDuck
 
 			protected ushort m_iFont;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FontRecord : BiffRecord
 		{
 			public FontRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17008,13 +18103,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ExternSheetRecord : BiffRecord
 		{
 			public ExternSheetRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17110,13 +18198,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Excel9File : BiffRecord
 		{
 			public Excel9File() : base(TYPE, SIZE)
@@ -17146,13 +18227,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class EndBlockRecord : BiffRecord
 		{
 			public EndBlockRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17208,13 +18282,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DimensionRecord : BiffRecord
 		{
 			public DimensionRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17269,13 +18336,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DefaultTextRecord : BiffRecord
 		{
 			public DefaultTextRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17310,13 +18370,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DefaultRowHeight : BiffRecord
 		{
 			public DefaultRowHeight(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17399,13 +18452,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DefColWidthRecord : BiffRecord
 		{
 			public DefColWidthRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17445,13 +18491,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Date1904 : BiffRecord
 		{
 			public Date1904() : base(TYPE, SIZE)
@@ -17485,13 +18524,6 @@ namespace NumberDuck
 
 			protected ushort m_f1904DateSystem;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DataFormatRecord : BiffRecord
 		{
 			public DataFormatRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17546,13 +18578,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class DSF : BiffRecord
 		{
 			public DSF() : base(TYPE, SIZE)
@@ -17586,13 +18611,6 @@ namespace NumberDuck
 
 			protected short m_reserved;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CrtMlFrtRecord : BiffRecord
 		{
 			public CrtMlFrtRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17635,13 +18653,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CrtLinkRecord : BiffRecord
 		{
 			public CrtLinkRecord() : base(TYPE, SIZE)
@@ -17691,13 +18702,6 @@ namespace NumberDuck
 			protected ushort m_unused3;
 			protected ushort m_unused4;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CrtLayout12ARecord : BiffRecord
 		{
 			public CrtLayout12ARecord() : base(TYPE, SIZE)
@@ -17808,13 +18812,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ColInfoRecord : BiffRecord
 		{
 			public ColInfoRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -17930,13 +18927,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CodePage : BiffRecord
 		{
 			public CodePage() : base(TYPE, SIZE)
@@ -17970,13 +18960,6 @@ namespace NumberDuck
 
 			protected short m_cv;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ChartRecord : BiffRecord
 		{
 			public ChartRecord() : base(TYPE, SIZE)
@@ -18042,13 +19025,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ChartFrtInfoRecord : BiffRecord
 		{
 			public ChartFrtInfoRecord() : base(TYPE, SIZE)
@@ -18136,13 +19112,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ChartFormatRecord : BiffRecord
 		{
 			public ChartFormatRecord() : base(TYPE, SIZE)
@@ -18203,13 +19172,6 @@ namespace NumberDuck
 			protected ushort m_reserved5;
 			protected ushort m_icrt;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Chart3DBarShapeRecord : BiffRecord
 		{
 			public Chart3DBarShapeRecord() : base(TYPE, SIZE)
@@ -18247,13 +19209,6 @@ namespace NumberDuck
 			protected byte m_riser;
 			protected byte m_taper;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CatSerRangeRecord : BiffRecord
 		{
 			public CatSerRangeRecord() : base(TYPE, SIZE)
@@ -18314,13 +19269,6 @@ namespace NumberDuck
 			protected ushort m_fReverse;
 			protected ushort m_reserved;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CatLabRecord : BiffRecord
 		{
 			public CatLabRecord() : base(TYPE, SIZE)
@@ -18387,13 +19335,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CalcPrecision : BiffRecord
 		{
 			public CalcPrecision() : base(TYPE, SIZE)
@@ -18427,13 +19368,6 @@ namespace NumberDuck
 
 			protected ushort m_fFullPrec;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CalcCountRecord : BiffRecord
 		{
 			public CalcCountRecord() : base(TYPE, SIZE)
@@ -18467,13 +19401,6 @@ namespace NumberDuck
 
 			protected ushort m_nMaxNumIteration;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BuiltInFnGroupCount : BiffRecord
 		{
 			public BuiltInFnGroupCount() : base(TYPE, SIZE)
@@ -18507,13 +19434,6 @@ namespace NumberDuck
 
 			protected ushort m_count;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BraiRecord : BiffRecord
 		{
 			public BraiRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -18614,13 +19534,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BoundSheet8Record : BiffRecord
 		{
 			public BoundSheet8Record(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -18689,13 +19602,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BottomMarginRecord : BiffRecord
 		{
 			public BottomMarginRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -18730,13 +19636,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BoolErrRecord : BiffRecord
 		{
 			public BoolErrRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -18813,13 +19712,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BookExtRecord : BiffRecord
 		{
 			public BookExtRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -18928,13 +19820,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BookBool : BiffRecord
 		{
 			public BookBool() : base(TYPE, SIZE)
@@ -19003,13 +19888,6 @@ namespace NumberDuck
 			protected ushort m_fHideBorderUnselLists;
 			protected ushort m_reserved2;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BofRecord : BiffRecord
 		{
 			public BofRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19078,13 +19956,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Blank : BiffRecord
 		{
 			public Blank(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19140,13 +20011,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffRecord_ContinueInfo
 		{
 			public int m_nOffset;
@@ -19158,13 +20022,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BeginRecord : BiffRecord
 		{
 			public BeginRecord() : base(TYPE, SIZE)
@@ -19194,13 +20051,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BarRecord : BiffRecord
 		{
 			public BarRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19289,13 +20139,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Backup : BiffRecord
 		{
 			public Backup() : base(TYPE, SIZE)
@@ -19329,13 +20172,6 @@ namespace NumberDuck
 
 			protected ushort m_fBackup;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AxisRecord : BiffRecord
 		{
 			public AxisRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19391,13 +20227,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AxisParentRecord : BiffRecord
 		{
 			public AxisParentRecord() : base(TYPE, SIZE)
@@ -19447,13 +20276,6 @@ namespace NumberDuck
 			protected uint m_unused3;
 			protected uint m_unused4;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AxisLineRecord : BiffRecord
 		{
 			public AxisLineRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19493,13 +20315,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AxesUsedRecord : BiffRecord
 		{
 			public AxesUsedRecord() : base(TYPE, SIZE)
@@ -19533,13 +20348,6 @@ namespace NumberDuck
 
 			protected ushort m_cAxes;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AxcExtRecord : BiffRecord
 		{
 			public AxcExtRecord() : base(TYPE, SIZE)
@@ -19640,13 +20448,6 @@ namespace NumberDuck
 			protected ushort m_fAutoDate;
 			protected ushort m_reserved;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AreaRecord : BiffRecord
 		{
 			public AreaRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19710,13 +20511,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AreaFormatRecord : BiffRecord
 		{
 			public AreaFormatRecord(BiffHeader pHeader, Stream pStream) : base(pHeader, pStream)
@@ -19849,13 +20643,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XTIStruct : BiffStruct
 		{
 			public XTIStruct()
@@ -19889,13 +20676,6 @@ namespace NumberDuck
 			public short m_itabFirst;
 			public short m_itabLast;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XLUnicodeStringStruct : BiffStruct
 		{
 			public XLUnicodeStringStruct()
@@ -19985,25 +20765,11 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XLUnicodeRichExtendedString_ContinueInfo
 		{
 			public int m_nOffset;
 			public byte m_fHighByte;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XLUnicodeRichExtendedString : BiffStruct
 		{
 			public XLUnicodeRichExtendedString()
@@ -20237,13 +21003,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ShortXLUnicodeStringStruct : BiffStruct
 		{
 			public ShortXLUnicodeStringStruct()
@@ -20333,13 +21092,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RwUStruct : BiffStruct
 		{
 			public RwUStruct()
@@ -20365,13 +21117,6 @@ namespace NumberDuck
 
 			public ushort m_rw;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RwStruct : BiffStruct
 		{
 			public RwStruct()
@@ -20397,13 +21142,6 @@ namespace NumberDuck
 
 			public ushort m_rw;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RkRecStruct : BiffStruct
 		{
 			public RkRecStruct()
@@ -20433,13 +21171,6 @@ namespace NumberDuck
 			public ushort m_ixfe;
 			public uint m_RK;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RgceStruct : BiffStruct
 		{
 			public RgceStruct()
@@ -20519,13 +21250,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RgceLocStruct : BiffStruct
 		{
 			public RgceLocStruct()
@@ -20559,13 +21283,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RgceAreaStruct : BiffStruct
 		{
 			public RgceAreaStruct()
@@ -20607,13 +21324,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Ref8Struct : BiffStruct
 		{
 			public Ref8Struct()
@@ -20651,13 +21361,6 @@ namespace NumberDuck
 			public ushort m_colFirst;
 			public ushort m_colLast;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PtgAttrSpaceTypeStruct : BiffStruct
 		{
 			public PtgAttrSpaceTypeStruct()
@@ -20687,13 +21390,6 @@ namespace NumberDuck
 			public byte m_type;
 			public byte m_cch;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtRecordHeaderStruct : BiffStruct
 		{
 			public OfficeArtRecordHeaderStruct()
@@ -20734,13 +21430,6 @@ namespace NumberDuck
 			public ushort m_recType;
 			public uint m_recLen;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtIDCLStruct : BiffStruct
 		{
 			public OfficeArtIDCLStruct()
@@ -20770,13 +21459,6 @@ namespace NumberDuck
 			public uint m_dgid;
 			public uint m_cspidCur;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFRITStruct : BiffStruct
 		{
 			public OfficeArtFRITStruct()
@@ -20806,13 +21488,6 @@ namespace NumberDuck
 			public ushort m_fridNew;
 			public ushort m_fridOld;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFOPTEStruct : BiffStruct
 		{
 			public OfficeArtFOPTEStruct()
@@ -20853,13 +21528,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtFOPTEOPIDStruct : BiffStruct
 		{
 			public OfficeArtFOPTEOPIDStruct()
@@ -20896,13 +21564,6 @@ namespace NumberDuck
 			public ushort m_fBid;
 			public ushort m_fComplex;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MSOCRStruct : BiffStruct
 		{
 			public MSOCRStruct()
@@ -20951,13 +21612,6 @@ namespace NumberDuck
 			public byte m_fSchemeIndex;
 			public byte m_unused2;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MD4DigestStruct : BiffStruct
 		{
 			public MD4DigestStruct()
@@ -21043,13 +21697,6 @@ namespace NumberDuck
 			public byte m_rgbUid1_14;
 			public byte m_rgbUid1_15;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class IcvFontStruct : BiffStruct
 		{
 			public IcvFontStruct()
@@ -21075,13 +21722,6 @@ namespace NumberDuck
 
 			public ushort m_icv;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class IXFCellStruct : BiffStruct
 		{
 			public IXFCellStruct()
@@ -21107,13 +21747,6 @@ namespace NumberDuck
 
 			public ushort m_ixfe;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class IHlinkStruct : BiffStruct
 		{
 			public IHlinkStruct()
@@ -21207,13 +21840,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class HyperlinkStringStruct : BiffStruct
 		{
 			public HyperlinkStringStruct()
@@ -21269,13 +21895,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class HyperlinkObjectStruct : BiffStruct
 		{
 			public HyperlinkObjectStruct()
@@ -21438,13 +22057,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FullColorExtStruct : BiffStruct
 		{
 			public FullColorExtStruct()
@@ -21510,13 +22122,6 @@ namespace NumberDuck
 			public byte m_unusedG;
 			public byte m_unusedH;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FtPioGrbitStruct : BiffStruct
 		{
 			public FtPioGrbitStruct()
@@ -21593,13 +22198,6 @@ namespace NumberDuck
 			public ushort m_fAutoLoad;
 			public ushort m_unused2;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FtCfStruct : BiffStruct
 		{
 			public FtCfStruct()
@@ -21633,13 +22231,6 @@ namespace NumberDuck
 			public ushort m_cb;
 			public ushort m_cf;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FrtHeaderStruct : BiffStruct
 		{
 			public FrtHeaderStruct()
@@ -21681,13 +22272,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FrtHeaderOldStruct : BiffStruct
 		{
 			public FrtHeaderOldStruct()
@@ -21721,13 +22305,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FrtFlagsStruct : BiffStruct
 		{
 			public FrtFlagsStruct()
@@ -21764,13 +22341,6 @@ namespace NumberDuck
 			public ushort m_fFrtAlert;
 			public ushort m_reserved;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FormulaValueStruct : BiffStruct
 		{
 			public FormulaValueStruct()
@@ -21820,13 +22390,6 @@ namespace NumberDuck
 			public byte m_byte6;
 			public ushort m_fExprO;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ExtPropStruct : BiffStruct
 		{
 			public ExtPropStruct()
@@ -21910,13 +22473,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ColStruct : BiffStruct
 		{
 			public ColStruct()
@@ -21942,13 +22498,6 @@ namespace NumberDuck
 
 			public ushort m_col;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ColRelUStruct : BiffStruct
 		{
 			public ColRelUStruct()
@@ -21985,13 +22534,6 @@ namespace NumberDuck
 			public ushort m_colRelative;
 			public ushort m_rowRelative;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CellStruct : BiffStruct
 		{
 			public CellStruct()
@@ -22029,13 +22571,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CellParsedFormulaStruct : BiffStruct
 		{
 			public CellParsedFormulaStruct()
@@ -22110,13 +22645,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BuiltInStyleStruct : BiffStruct
 		{
 			public BuiltInStyleStruct()
@@ -22146,13 +22674,6 @@ namespace NumberDuck
 			public byte m_istyBuiltIn;
 			public byte m_iLevel;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OfficeArtDimensions
 		{
 			public ushort m_nCellX1;
@@ -23531,13 +24052,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffUtils
 		{
 			public static double RkValueDecode(uint nRkValue)
@@ -23564,13 +24078,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BiffRecordContainer : WorkbookGlobals
 		{
 			public OwnedVector<BiffRecord> m_pBiffRecordVector;
@@ -23638,13 +24145,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StreamDirectoryImplementation
 		{
 			public uint m_nMinimumStandardStreamSize;
@@ -23714,13 +24214,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StreamDirectory : SectorChain
 		{
 			protected StreamDirectoryImplementation m_pImpl;
@@ -23811,13 +24304,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SectorAllocationTable : SectorChain
 		{
 			protected int m_nNumFreeSectorId;
@@ -23895,13 +24381,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SectorImplementation
 		{
 			public int m_nSectorId;
@@ -23954,13 +24433,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MasterSectorAllocationTable : SectorAllocationTable
 		{
 			public const int INITIAL_SECTOR_ID_ARRAY_SIZE = 109;
@@ -24071,13 +24543,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CompoundFileHeader
 		{
 			public const int MAGIC_WORD_SIZE = 8;
@@ -24210,13 +24675,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CompoundFile
 		{
 			public const int HEADER_SIZE = 512;
@@ -24538,13 +24996,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Token
 		{
 			public enum Type
@@ -27029,13 +27480,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SumToken : Token
 		{
 			public SumToken(byte nParameterCount) : base(Type.TYPE_FUNC_SUM, SubType.SUB_TYPE_FUNCTION, nParameterCount)
@@ -27123,13 +27567,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StringToken : Token
 		{
 			protected InternalString m_sString;
@@ -27168,13 +27605,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SpaceToken : Token
 		{
 			public enum SpaceType
@@ -27223,13 +27653,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OperatorToken : Token
 		{
 			protected InternalString m_sOperator;
@@ -27343,13 +27766,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class NumToken : Token
 		{
 			protected double m_fNumber;
@@ -27375,13 +27791,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MissArgToken : Token
 		{
 			public MissArgToken() : base(Type.TYPE_MISS_ARG, SubType.SUB_TYPE_VARIABLE, 0)
@@ -27403,13 +27812,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class IntToken : Token
 		{
 			protected ushort m_nInt;
@@ -27435,13 +27837,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ParseFunctionData
 		{
 			public int m_nCount;
@@ -28275,13 +28670,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CoordinateToken : Token
 		{
 			protected Coordinate m_pCoordinate;
@@ -28318,13 +28706,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Coordinate3dToken : Token
 		{
 			protected Coordinate3d m_pCoordinate3d;
@@ -28416,13 +28797,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class BoolToken : Token
 		{
 			protected bool m_bBool;
@@ -28453,13 +28827,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class AreaToken : Token
 		{
 			protected Area m_pArea;
@@ -28494,13 +28861,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class Area3dToken : Token
 		{
 			protected Area3d m_pArea3d;
@@ -28579,24 +28939,17 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class RedBlackNode
 		{
-			public enum Color
+			public enum NodeColor
 			{
 				COLOR_RED = 0,
 				COLOR_BLACK,
 			}
 
-			public virtual RedBlackNode.Color GetColor()
+			public virtual RedBlackNode.NodeColor GetColor()
 			{
-				return Color.COLOR_RED;
+				return NodeColor.COLOR_RED;
 			}
 
 			public virtual RedBlackNode GetParent()
@@ -28627,13 +28980,13 @@ namespace NumberDuck
 		}
 		class RedBlackNodeImplementation : RedBlackNode
 		{
-			public Color m_eColor;
+			public NodeColor m_eColor;
 			public RedBlackNodeImplementation m_pParent;
 			public RedBlackNodeImplementation[] m_pChild = new RedBlackNodeImplementation[2];
 			public object m_pObject;
 			public RedBlackNodeImplementation(object pObject)
 			{
-				m_eColor = RedBlackNode.Color.COLOR_BLACK;
+				m_eColor = RedBlackNode.NodeColor.COLOR_BLACK;
 				m_pObject = pObject;
 				m_pParent = null;
 				m_pChild[0] = null;
@@ -28660,7 +29013,7 @@ namespace NumberDuck
 				return null;
 			}
 
-			public override RedBlackNode.Color GetColor()
+			public override RedBlackNode.NodeColor GetColor()
 			{
 				return m_eColor;
 			}
@@ -28735,7 +29088,7 @@ namespace NumberDuck
 						return true;
 					}
 				}
-				pNewNode.m_eColor = RedBlackNode.Color.COLOR_RED;
+				pNewNode.m_eColor = RedBlackNode.NodeColor.COLOR_RED;
 				RedBlackNodeImplementation pNode = m_pImpl.m_pRootNode;
 				while (true)
 				{
@@ -28762,24 +29115,24 @@ namespace NumberDuck
 						{
 							if (pTempNode.m_pParent == null)
 							{
-								pTempNode.m_eColor = RedBlackNode.Color.COLOR_BLACK;
+								pTempNode.m_eColor = RedBlackNode.NodeColor.COLOR_BLACK;
 								{
 									return true;
 								}
 							}
-							if (pTempNode.m_pParent.m_eColor == RedBlackNode.Color.COLOR_BLACK)
+							if (pTempNode.m_pParent.m_eColor == RedBlackNode.NodeColor.COLOR_BLACK)
 							{
 								{
 									return true;
 								}
 							}
 							RedBlackNodeImplementation pUncle = pTempNode.GetUncle();
-							if (pUncle != null && pUncle.m_eColor == RedBlackNode.Color.COLOR_RED)
+							if (pUncle != null && pUncle.m_eColor == RedBlackNode.NodeColor.COLOR_RED)
 							{
-								pTempNode.m_pParent.m_eColor = RedBlackNode.Color.COLOR_BLACK;
-								pUncle.m_eColor = RedBlackNode.Color.COLOR_BLACK;
+								pTempNode.m_pParent.m_eColor = RedBlackNode.NodeColor.COLOR_BLACK;
+								pUncle.m_eColor = RedBlackNode.NodeColor.COLOR_BLACK;
 								pTempNode = pTempNode.GetGrandparent();
-								pTempNode.m_eColor = RedBlackNode.Color.COLOR_RED;
+								pTempNode.m_eColor = RedBlackNode.NodeColor.COLOR_RED;
 								continue;
 							}
 							RedBlackNodeImplementation pGrandparent = pTempNode.GetGrandparent();
@@ -28795,8 +29148,8 @@ namespace NumberDuck
 							}
 							pUncle = pTempNode.GetUncle();
 							pGrandparent = pTempNode.GetGrandparent();
-							pTempNode.m_pParent.m_eColor = RedBlackNode.Color.COLOR_BLACK;
-							pGrandparent.m_eColor = RedBlackNode.Color.COLOR_RED;
+							pTempNode.m_pParent.m_eColor = RedBlackNode.NodeColor.COLOR_BLACK;
+							pGrandparent.m_eColor = RedBlackNode.NodeColor.COLOR_RED;
 							if (pTempNode == pTempNode.m_pParent.m_pChild[0])
 								m_pImpl.Rotate(pGrandparent, 1);
 							else
@@ -28941,13 +29294,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class TableElement<T> where T : class
 		{
 			public int m_nColumn;
@@ -29065,13 +29411,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PngImageInfo
 		{
 			public int m_nWidth;
@@ -29126,154 +29465,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class MD4
-	{
-		protected const int BLOCK_SIZE = 64;
-		protected uint[] m_nBuffer = new uint[4];
-		public void Process(BlobView pBlobView)
-		{
-			int nIncomingSize = pBlobView.GetSize() - pBlobView.GetOffset();
-			Reset();
-			while (pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize())
-			{
-				ProcessChunk(pBlobView);
-			}
-			int nRemainingBlockSize = nIncomingSize % BLOCK_SIZE;
-			int nPaddingSize = (BLOCK_SIZE - 8) - nRemainingBlockSize;
-			if (nPaddingSize <= 0)
-				nPaddingSize += BLOCK_SIZE;
-			Blob pFinalBlob = new Blob(true);
-			BlobView pFinalBlobView = pFinalBlob.GetBlobView();
-			pFinalBlobView.Pack(pBlobView, pBlobView.GetSize() - pBlobView.GetOffset());
-			pFinalBlobView.PackUint8(0x80);
-			for (int i = 0; i < nPaddingSize - 1; i++)
-				pFinalBlobView.PackUint8(0);
-			for (int i = 0; i < 4; i++)
-				pFinalBlobView.PackUint8((byte)((nIncomingSize * 8) >> (8 * i)));
-			pFinalBlobView.PackUint32(0);
-			pFinalBlobView.SetOffset(0);
-			while (pFinalBlobView.GetOffset() < pFinalBlobView.GetSize())
-			{
-				ProcessChunk(pFinalBlobView);
-			}
-		}
-
-		public void BlobWrite(BlobView pBlobView)
-		{
-			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 4; j++)
-					pBlobView.PackUint8((byte)(m_nBuffer[i] >> (8 * j)));
-		}
-
-		protected void Reset()
-		{
-			m_nBuffer[0] = 0x67452301;
-			m_nBuffer[1] = 0xEFCDAB89;
-			m_nBuffer[2] = 0x98BADCFE;
-			m_nBuffer[3] = 0x10325476;
-		}
-
-		protected void ProcessChunk(BlobView pBlobView)
-		{
-			int i;
-			uint A = m_nBuffer[0];
-			uint B = m_nBuffer[1];
-			uint C = m_nBuffer[2];
-			uint D = m_nBuffer[3];
-			uint[] m_nChunk = new uint[BLOCK_SIZE >> 2];
-			Secret.nbAssert.Assert(pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize());
-			for (i = 0; i < 16; i++)
-			{
-				uint c0 = pBlobView.UnpackUint8();
-				uint c1 = pBlobView.UnpackUint8();
-				uint c2 = pBlobView.UnpackUint8();
-				uint c3 = pBlobView.UnpackUint8();
-				m_nChunk[i] = c0 | (c1 << 8) | (c2 << 16) | (c3 << 24);
-			}
-			A = FF(A, B, C, D, m_nChunk[0], 3);
-			D = FF(D, A, B, C, m_nChunk[1], 7);
-			C = FF(C, D, A, B, m_nChunk[2], 11);
-			B = FF(B, C, D, A, m_nChunk[3], 19);
-			A = FF(A, B, C, D, m_nChunk[4], 3);
-			D = FF(D, A, B, C, m_nChunk[5], 7);
-			C = FF(C, D, A, B, m_nChunk[6], 11);
-			B = FF(B, C, D, A, m_nChunk[7], 19);
-			A = FF(A, B, C, D, m_nChunk[8], 3);
-			D = FF(D, A, B, C, m_nChunk[9], 7);
-			C = FF(C, D, A, B, m_nChunk[10], 11);
-			B = FF(B, C, D, A, m_nChunk[11], 19);
-			A = FF(A, B, C, D, m_nChunk[12], 3);
-			D = FF(D, A, B, C, m_nChunk[13], 7);
-			C = FF(C, D, A, B, m_nChunk[14], 11);
-			B = FF(B, C, D, A, m_nChunk[15], 19);
-			A = GG(A, B, C, D, m_nChunk[0], 3);
-			D = GG(D, A, B, C, m_nChunk[4], 5);
-			C = GG(C, D, A, B, m_nChunk[8], 9);
-			B = GG(B, C, D, A, m_nChunk[12], 13);
-			A = GG(A, B, C, D, m_nChunk[1], 3);
-			D = GG(D, A, B, C, m_nChunk[5], 5);
-			C = GG(C, D, A, B, m_nChunk[9], 9);
-			B = GG(B, C, D, A, m_nChunk[13], 13);
-			A = GG(A, B, C, D, m_nChunk[2], 3);
-			D = GG(D, A, B, C, m_nChunk[6], 5);
-			C = GG(C, D, A, B, m_nChunk[10], 9);
-			B = GG(B, C, D, A, m_nChunk[14], 13);
-			A = GG(A, B, C, D, m_nChunk[3], 3);
-			D = GG(D, A, B, C, m_nChunk[7], 5);
-			C = GG(C, D, A, B, m_nChunk[11], 9);
-			B = GG(B, C, D, A, m_nChunk[15], 13);
-			A = HH(A, B, C, D, m_nChunk[0], 3);
-			D = HH(D, A, B, C, m_nChunk[8], 9);
-			C = HH(C, D, A, B, m_nChunk[4], 11);
-			B = HH(B, C, D, A, m_nChunk[12], 15);
-			A = HH(A, B, C, D, m_nChunk[2], 3);
-			D = HH(D, A, B, C, m_nChunk[10], 9);
-			C = HH(C, D, A, B, m_nChunk[6], 11);
-			B = HH(B, C, D, A, m_nChunk[14], 15);
-			A = HH(A, B, C, D, m_nChunk[1], 3);
-			D = HH(D, A, B, C, m_nChunk[9], 9);
-			C = HH(C, D, A, B, m_nChunk[5], 11);
-			B = HH(B, C, D, A, m_nChunk[13], 15);
-			A = HH(A, B, C, D, m_nChunk[3], 3);
-			D = HH(D, A, B, C, m_nChunk[11], 9);
-			C = HH(C, D, A, B, m_nChunk[7], 11);
-			B = HH(B, C, D, A, m_nChunk[15], 15);
-			m_nBuffer[0] += A;
-			m_nBuffer[1] += B;
-			m_nBuffer[2] += C;
-			m_nBuffer[3] += D;
-		}
-
-		protected uint FF(uint a, uint b, uint c, uint d, uint x, int s)
-		{
-			uint t = a + ((b & c) | (~b & d)) + x;
-			return t << s | t >> (32 - s);
-		}
-
-		protected uint GG(uint a, uint b, uint c, uint d, uint x, int s)
-		{
-			uint t = a + ((b & (c | d)) | (c & d)) + x + 0x5A827999;
-			return t << s | t >> (32 - s);
-		}
-
-		protected uint HH(uint a, uint b, uint c, uint d, uint x, int s)
-		{
-			uint t = a + (b ^ c ^ d) + x + 0x6ED9EBA1;
-			return t << s | t >> (32 - s);
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class JpegImageInfo
 		{
 			public int m_nWidth;
@@ -29342,13 +29533,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XlsxWorksheet : Worksheet
 		{
 			public XlsxWorksheet(Workbook pWorkbook) : base(pWorkbook)
@@ -29479,13 +29663,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class XlsxWorkbookGlobals : WorkbookGlobals
 		{
 			public static bool LoadVector(Vector<XmlNode> pVector, XmlNode pStyleSheetNode, string szParent, string szChild)
@@ -30044,13 +30221,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ColumnInfo
 		{
 			public ushort m_nWidth;
@@ -30569,13 +30739,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class WorkbookImplementation
 		{
 			public WorkbookGlobals m_pWorkbookGlobals;
@@ -30592,487 +30755,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class Workbook
-	{
-		public enum License
-		{
-			AGPL,
-			Commercial,
-		}
-
-		public enum FileType
-		{
-			XLS,
-			XLSX,
-		}
-
-		public Secret.WorkbookImplementation m_pImpl;
-		public Workbook(License eLicense)
-		{
-			m_pImpl = new Secret.WorkbookImplementation();
-			m_pImpl.m_pWorkbookGlobals = null;
-			m_pImpl.m_pWorksheetVector = new Secret.OwnedVector<Worksheet>();
-			Clear();
-		}
-
-		public void Clear()
-		{
-			m_pImpl.m_pWorksheetVector.Clear();
-			if (m_pImpl.m_pWorkbookGlobals != null)
-				{
-				}
-			m_pImpl.m_pWorkbookGlobals = new Secret.WorkbookGlobals();
-			CreateWorksheet();
-		}
-
-		public bool Load(string szFileName)
-		{
-			m_pImpl.m_pWorksheetVector.Clear();
-			if (m_pImpl.m_pWorkbookGlobals != null)
-			{
-				{
-				}
-				m_pImpl.m_pWorkbookGlobals = null;
-			}
-			bool bLoaded = false;
-			Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
-			if (pCompoundFile.Load(szFileName))
-			{
-				Secret.Stream pStream = pCompoundFile.GetStreamByName("Workbook");
-				if (pStream != null)
-				{
-					pStream.SetOffset(0);
-					while (pStream.GetOffset() < pStream.GetStreamSize())
-					{
-						Secret.BiffRecord pBiffRecord = Secret.BiffRecord.CreateBiffRecord(pStream);
-						if (pBiffRecord.GetType() == Secret.BiffRecord.Type.TYPE_BOF)
-						{
-							Secret.BofRecord pBofRecord = (Secret.BofRecord)(pBiffRecord);
-							switch (pBofRecord.GetBofType())
-							{
-								case Secret.BofRecord.BofType.BOF_TYPE_WORKBOOK_GLOBALS:
-								{
-									{
-										NumberDuck.Secret.BiffRecord __3036547922 = pBiffRecord;
-										pBiffRecord = null;
-										m_pImpl.m_pWorkbookGlobals = new Secret.BiffWorkbookGlobals(__3036547922, pStream);
-									}
-									continue;
-								}
-
-								case Secret.BofRecord.BofType.BOF_TYPE_SHEET:
-								{
-									Worksheet pWorksheet;
-									{
-										NumberDuck.Secret.BiffRecord __3036547922 = pBiffRecord;
-										pBiffRecord = null;
-										pWorksheet = new Secret.BiffWorksheet(this, (Secret.BiffWorkbookGlobals)(m_pImpl.m_pWorkbookGlobals), __3036547922, pStream);
-									}
-									{
-										NumberDuck.Worksheet __3928651719 = pWorksheet;
-										pWorksheet = null;
-										m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
-									}
-									{
-										continue;
-									}
-								}
-
-								default:
-								{
-									Secret.nbAssert.Assert(false);
-									break;
-								}
-
-							}
-						}
-						Secret.nbAssert.Assert(false);
-					}
-					bLoaded = true;
-				}
-			}
-			{
-				pCompoundFile = null;
-			}
-			if (!bLoaded)
-			{
-				Secret.InternalString sFileName = new Secret.InternalString("");
-				Secret.Zip pZip = new Secret.Zip();
-				bool bContinue = pZip.LoadFile(szFileName);
-				if (bContinue)
-				{
-					Secret.OwnedVector<Secret.InternalString> sNameVector = new Secret.OwnedVector<Secret.InternalString>();
-					{
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						if (pZip.ExtractFileByName("[Content_Types].xml", pXmlBlobView))
-						{
-							Secret.XmlFile pXmlFile = new Secret.XmlFile();
-							pXmlBlobView.SetOffset(0);
-							if (pXmlFile.Load(pXmlBlobView))
-							{
-							}
-							{
-								pXmlFile = null;
-							}
-						}
-						{
-							pXmlBlob = null;
-						}
-					}
-					m_pImpl.m_pWorkbookGlobals = new Secret.XlsxWorkbookGlobals();
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pWorkbookNode = null;
-						Secret.XmlNode pSheetsNode = null;
-						Secret.XmlNode pSheetNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/workbook.xml", pXmlBlobView);
-						if (bContinue)
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pWorkbookNode = pXmlFile.GetFirstChildElement("workbook");
-							if (pWorkbookNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSheetsNode = pWorkbookNode.GetFirstChildElement("sheets");
-							if (pSheetsNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSheetNode = pSheetsNode.GetFirstChildElement("sheet");
-							while (pSheetNode != null)
-							{
-								string szName = pSheetNode.GetAttribute("name");
-								if (szName == null)
-								{
-									bContinue = false;
-									break;
-								}
-								sNameVector.PushBack(new Secret.InternalString(szName));
-								pSheetNode = pSheetNode.GetNextSiblingElement("sheet");
-							}
-						}
-						{
-							pXmlBlob = null;
-						}
-						{
-							pXmlFile = null;
-						}
-					}
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pSstNode = null;
-						Secret.XmlNode pSiNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView);
-						if (bContinue)
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSstNode = pXmlFile.GetFirstChildElement("sst");
-							if (pSstNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSiNode = pSstNode.GetFirstChildElement("si");
-							if (pSiNode == null)
-								bContinue = false;
-						}
-						while (bContinue && pSiNode != null)
-						{
-							Secret.XmlNode pTNode;
-							pTNode = pSiNode.GetFirstChildElement("t");
-							if (pTNode == null)
-							{
-								bContinue = false;
-								break;
-							}
-							string szTemp = pTNode.GetText();
-							m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
-							pSiNode = pSiNode.GetNextSiblingElement("si");
-						}
-						{
-							pXmlBlob = null;
-						}
-						{
-							pXmlFile = null;
-						}
-					}
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pStyleSheetNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/styles.xml", pXmlBlobView);
-						if (bContinue)
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pStyleSheetNode = pXmlFile.GetFirstChildElement("styleSheet");
-							if (pStyleSheetNode == null)
-								bContinue = false;
-						}
-						bContinue = bContinue && Secret.XlsxWorkbookGlobals.ParseStyles(m_pImpl.m_pWorkbookGlobals, pStyleSheetNode);
-						{
-							pXmlBlob = null;
-						}
-						{
-							pXmlFile = null;
-						}
-					}
-					if (bContinue)
-					{
-						int nWorksheetIndex = 0;
-						int nNumFail = 0;
-						while (bContinue)
-						{
-							sFileName.Set("xl/worksheets/sheet");
-							sFileName.AppendInt(nWorksheetIndex);
-							sFileName.AppendString(".xml");
-							Secret.XmlFile pXmlFile = new Secret.XmlFile();
-							Blob pXmlBlob = new Blob(true);
-							BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-							if (!pZip.ExtractFileByName(sFileName.GetExternalString(), pXmlBlobView))
-							{
-								nNumFail++;
-								if (nNumFail > 5)
-								{
-									{
-										pXmlBlob = null;
-									}
-									{
-										pXmlFile = null;
-									}
-									{
-										break;
-									}
-								}
-							}
-							else
-							{
-								Secret.XmlNode pWorksheetNode;
-								pXmlBlobView.SetOffset(0);
-								if (!pXmlFile.Load(pXmlBlobView))
-								{
-									{
-										pXmlBlob = null;
-									}
-									{
-										pXmlFile = null;
-									}
-									bContinue = false;
-									{
-										break;
-									}
-								}
-								pWorksheetNode = pXmlFile.GetFirstChildElement("worksheet");
-								Secret.XlsxWorksheet pWorksheet = new Secret.XlsxWorksheet(this);
-								pWorksheet.SetName(sNameVector.Get(m_pImpl.m_pWorksheetVector.GetSize()).GetExternalString());
-								if (!pWorksheet.Parse((Secret.XlsxWorkbookGlobals)(m_pImpl.m_pWorkbookGlobals), pWorksheetNode))
-								{
-									{
-										pWorksheet = null;
-									}
-									{
-										pXmlBlob = null;
-									}
-									{
-										pXmlFile = null;
-									}
-									bContinue = false;
-									{
-										break;
-									}
-								}
-								{
-									NumberDuck.Secret.XlsxWorksheet __3928651719 = pWorksheet;
-									pWorksheet = null;
-									m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
-								}
-							}
-							nWorksheetIndex++;
-							{
-								pXmlBlob = null;
-							}
-							{
-								pXmlFile = null;
-							}
-						}
-					}
-					bLoaded = bContinue;
-					sNameVector.Clear();
-					{
-						sNameVector = null;
-					}
-				}
-				{
-					pZip = null;
-				}
-				{
-					sFileName = null;
-				}
-			}
-			if (bLoaded)
-			{
-				return true;
-			}
-			Clear();
-			{
-				return false;
-			}
-		}
-
-		public bool Save(string szFileName, FileType eFileType)
-		{
-			m_pImpl.m_pWorkbookGlobals.Clear();
-			if (eFileType == FileType.XLS)
-			{
-				Secret.Vector<Secret.BiffRecordContainer> pWorksheetBiffRecordContainerVector = new Secret.Vector<Secret.BiffRecordContainer>();
-				for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
-				{
-					Worksheet pWorksheet = m_pImpl.m_pWorksheetVector.Get(i);
-					Secret.BiffRecordContainer pBiffRecordContainer = new Secret.BiffRecordContainer();
-					Secret.BiffWorksheet.Write(pWorksheet, m_pImpl.m_pWorkbookGlobals, (ushort)(i), pBiffRecordContainer);
-					m_pImpl.m_pWorkbookGlobals.PushBiffWorksheetStreamSize(pBiffRecordContainer.GetSize());
-					pWorksheetBiffRecordContainerVector.PushBack(pBiffRecordContainer);
-					pBiffRecordContainer = null;
-				}
-				Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
-				Secret.Stream pStream = pCompoundFile.CreateStream("Workbook", Secret.Stream.Type.TYPE_USER_STREAM);
-				Secret.BiffWorkbookGlobals.Write(m_pImpl.m_pWorkbookGlobals, m_pImpl.m_pWorksheetVector, pStream);
-				for (int i = 0; i < pWorksheetBiffRecordContainerVector.GetSize(); i++)
-				{
-					Secret.BiffRecordContainer pBiffRecordContainer = pWorksheetBiffRecordContainerVector.Get(i);
-					pBiffRecordContainer.Write(pStream);
-					{
-						pBiffRecordContainer = null;
-					}
-				}
-				{
-					pWorksheetBiffRecordContainerVector = null;
-				}
-				bool bResult = pCompoundFile.Save(szFileName);
-				{
-					pCompoundFile = null;
-				}
-				{
-					return bResult;
-				}
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		public uint GetNumWorksheet()
-		{
-			return (uint)(m_pImpl.m_pWorksheetVector.GetSize());
-		}
-
-		public Worksheet GetWorksheetByIndex(uint nIndex)
-		{
-			if (nIndex >= GetNumWorksheet())
-				return null;
-			return m_pImpl.m_pWorksheetVector.Get((int)(nIndex));
-		}
-
-		public Worksheet CreateWorksheet()
-		{
-			Worksheet pWorksheet = new Secret.BiffWorksheet(this);
-			int i = 0;
-			Secret.InternalString sName = new Secret.InternalString("");
-			while (true)
-			{
-				sName.Set("Sheet");
-				sName.AppendInt(++i);
-				if (pWorksheet.SetName(sName.GetExternalString()))
-					break;
-			}
-			{
-				sName = null;
-			}
-			Worksheet pTempWorksheet = pWorksheet;
-			{
-				NumberDuck.Worksheet __3928651719 = pWorksheet;
-				pWorksheet = null;
-				m_pImpl.m_pWorksheetVector.PushBack(__3928651719);
-			}
-			{
-				return pTempWorksheet;
-			}
-		}
-
-		public void PurgeWorksheet(uint nIndex)
-		{
-			Worksheet pWorksheet = GetWorksheetByIndex(nIndex);
-			if (pWorksheet != null)
-			{
-				m_pImpl.m_pWorksheetVector.Erase((int)(nIndex));
-			}
-			if (GetNumWorksheet() == 0)
-				CreateWorksheet();
-		}
-
-		public uint GetNumStyle()
-		{
-			return m_pImpl.m_pWorkbookGlobals.GetNumStyle();
-		}
-
-		public Style GetStyleByIndex(uint nIndex)
-		{
-			return m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(nIndex));
-		}
-
-		public Style GetDefaultStyle()
-		{
-			return GetStyleByIndex(0);
-		}
-
-		public Style CreateStyle()
-		{
-			return m_pImpl.m_pWorkbookGlobals.CreateStyle();
-		}
-
-		~Workbook()
-		{
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ValueImplementation
 		{
 			public Value.Type m_eType;
@@ -31226,13 +30908,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class StyleImplementation
 		{
 			public Font m_pFont;
@@ -31271,13 +30946,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SharedString
 		{
 			public InternalString m_sString;
@@ -31361,13 +31029,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class SeriesImplementation
 		{
 			public Worksheet m_pWorksheet;
@@ -31514,107 +31175,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class Series
-	{
-		public Secret.SeriesImplementation m_pImpl;
-		public Series(Worksheet pWorksheet, Secret.Formula pValuesFormula)
-		{
-			m_pImpl = new Secret.SeriesImplementation(pWorksheet, pValuesFormula);
-		}
-
-		public string GetName()
-		{
-			if (m_pImpl.m_pNameFormula != null)
-				return m_pImpl.m_pNameFormula.ToChartNameString(m_pImpl.m_pWorksheet.m_pImpl);
-			return "=";
-		}
-
-		public bool SetName(string szName)
-		{
-			Secret.Formula pFormula = new Secret.Formula(szName, m_pImpl.m_pWorksheet.m_pImpl);
-			if (pFormula.ValidateForChartName(m_pImpl.m_pWorksheet.m_pImpl))
-			{
-				{
-				}
-				{
-					NumberDuck.Secret.Formula __879619620 = pFormula;
-					pFormula = null;
-					m_pImpl.m_pNameFormula = __879619620;
-				}
-				{
-					return true;
-				}
-			}
-			{
-				pFormula = null;
-			}
-			{
-				return false;
-			}
-		}
-
-		public string GetValues()
-		{
-			if (m_pImpl.m_pValuesFormula != null)
-				return m_pImpl.m_pValuesFormula.ToChartString(m_pImpl.m_pWorksheet.m_pImpl);
-			return "=";
-		}
-
-		public bool SetValues(string szValues)
-		{
-			Secret.Formula pFormula = new Secret.Formula(szValues, m_pImpl.m_pWorksheet.m_pImpl);
-			if (pFormula.ValidateForChart(m_pImpl.m_pWorksheet.m_pImpl))
-			{
-				{
-				}
-				{
-					NumberDuck.Secret.Formula __879619620 = pFormula;
-					pFormula = null;
-					m_pImpl.m_pValuesFormula = __879619620;
-				}
-				{
-					return true;
-				}
-			}
-			{
-				pFormula = null;
-			}
-			{
-				return false;
-			}
-		}
-
-		public Line GetLine()
-		{
-			return m_pImpl.m_pLine;
-		}
-
-		public Fill GetFill()
-		{
-			return m_pImpl.m_pFill;
-		}
-
-		public Marker GetMarker()
-		{
-			return m_pImpl.m_pMarker;
-		}
-
-		~Series()
-		{
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class PictureImplementation
 		{
 			public uint m_nX;
@@ -31648,13 +31208,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MergedCellImplementation
 		{
 			public uint m_nX;
@@ -31662,86 +31215,6 @@ namespace NumberDuck
 			public uint m_nWidth;
 			public uint m_nHeight;
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class MergedCell
-	{
-		protected Secret.MergedCellImplementation m_pImpl;
-		public MergedCell(uint nX, uint nY, uint nWidth, uint nHeight)
-		{
-			m_pImpl = new Secret.MergedCellImplementation();
-			SetX(nX);
-			SetY(nY);
-			SetWidth(nWidth);
-			SetHeight(nHeight);
-		}
-
-		public uint GetX()
-		{
-			return m_pImpl.m_nX;
-		}
-
-		public void SetX(uint nX)
-		{
-			if (nX > 0xFF)
-				nX = 0xFF;
-			m_pImpl.m_nX = nX;
-		}
-
-		public uint GetY()
-		{
-			return m_pImpl.m_nY;
-		}
-
-		public void SetY(uint nY)
-		{
-			if (nY > 0xFFFF)
-				nY = 0xFFFF;
-			m_pImpl.m_nY = nY;
-		}
-
-		public uint GetWidth()
-		{
-			return m_pImpl.m_nWidth;
-		}
-
-		public void SetWidth(uint nWidth)
-		{
-			if (nWidth == 0)
-				nWidth = 1;
-			if (m_pImpl.m_nX + nWidth > 0xFF + 1)
-				nWidth = 0xFF - m_pImpl.m_nX + 1;
-			m_pImpl.m_nWidth = nWidth;
-		}
-
-		public uint GetHeight()
-		{
-			return m_pImpl.m_nHeight;
-		}
-
-		public void SetHeight(uint nHeight)
-		{
-			if (nHeight == 0)
-				nHeight = 1;
-			if (m_pImpl.m_nY + nHeight > 0xFFFF + 1)
-				nHeight = 0xFFFF - m_pImpl.m_nY + 1;
-			m_pImpl.m_nHeight = nHeight;
-		}
-
-		~MergedCell()
-		{
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class MarkerImplementation
 		{
 			public Marker.Type m_eType;
@@ -31832,13 +31305,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LineImplementation
 		{
 			public Line.Type m_eType;
@@ -31870,13 +31336,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class LegendImplementation
 		{
 			public bool m_bHidden;
@@ -31894,50 +31353,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class Legend
-	{
-		protected Secret.LegendImplementation m_pImpl;
-		public Legend()
-		{
-			m_pImpl = new Secret.LegendImplementation();
-		}
-
-		public bool GetHidden()
-		{
-			return m_pImpl.m_bHidden;
-		}
-
-		public void SetHidden(bool bHidden)
-		{
-			m_pImpl.m_bHidden = bHidden;
-		}
-
-		public Line GetBorderLine()
-		{
-			return m_pImpl.m_pBorderLine;
-		}
-
-		public Fill GetFill()
-		{
-			return m_pImpl.m_pFill;
-		}
-
-		~Legend()
-		{
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FontImplementation
 		{
 			public InternalString m_sName;
@@ -31961,13 +31376,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class FillImplementation
 		{
 			public Fill.Type m_eType;
@@ -32001,93 +31409,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	class Color
-	{
-		protected byte m_nRed;
-		protected byte m_nGreen;
-		protected byte m_nBlue;
-		public Color(byte nRed, byte nGreen, byte nBlue)
-		{
-			m_nRed = nRed;
-			m_nGreen = nGreen;
-			m_nBlue = nBlue;
-		}
-
-		public bool Equals(Color pColor)
-		{
-			if (pColor == null)
-				return false;
-			return m_nRed == pColor.m_nRed && m_nGreen == pColor.m_nGreen && m_nBlue == pColor.m_nBlue;
-		}
-
-		public byte GetRed()
-		{
-			return m_nRed;
-		}
-
-		public byte GetGreen()
-		{
-			return m_nGreen;
-		}
-
-		public byte GetBlue()
-		{
-			return m_nBlue;
-		}
-
-		public void Set(byte nRed, byte nGreen, byte nBlue)
-		{
-			m_nRed = nRed;
-			m_nGreen = nGreen;
-			m_nBlue = nBlue;
-		}
-
-		public void SetRed(byte nRed)
-		{
-			m_nRed = nRed;
-		}
-
-		public void SetGreen(byte nGreen)
-		{
-			m_nGreen = nGreen;
-		}
-
-		public void SetBlue(byte nBlue)
-		{
-			m_nBlue = nBlue;
-		}
-
-		public void SetFromColor(Color pColor)
-		{
-			m_nRed = pColor.m_nRed;
-			m_nGreen = pColor.m_nGreen;
-			m_nBlue = pColor.m_nBlue;
-		}
-
-		public void SetFromRgba(uint nRgba)
-		{
-			m_nRed = (byte)(nRgba & 0xFF);
-			m_nGreen = (byte)((nRgba >> 8) & 0xFF);
-			m_nBlue = (byte)((nRgba >> 16) & 0xFF);
-		}
-
-		public uint GetRgba()
-		{
-			return ((uint)(m_nRed) << 0) | ((uint)(m_nGreen) << 8) | ((uint)(m_nBlue) << 16) | ((uint)(0xFF) << 24);
-		}
-
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class ChartImplementation
 		{
 			public Worksheet m_pWorksheet;
@@ -32245,13 +31566,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class CellImplementation
 		{
 			public Worksheet m_pWorksheet;
@@ -32272,13 +31586,6 @@ namespace NumberDuck
 			}
 
 		}
-	}
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
 		class OwnedVector<T> where T : class
 		{
 			protected Vector<T> m_pVector;
@@ -32350,1066 +31657,5 @@ namespace NumberDuck
 
 		}
 	}
-}
-
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class nbAssert
-        {
-            public static void Assert(bool result, string test, string file, int line)
-            {
-                if (!result)
-                    throw new System.Exception(test + "\n" + file + ":" + line);
-            }
-
-            public static void Assert(bool result)
-            {
-                Assert(result, "", "", 0);
-            }
-        }
-    }
-}
-
-namespace NumberDuck
-{
-    class Blob
-    {
-        private const int DEFAULT_SIZE = 1024 * 32;
-
-        internal byte[] m_pBuffer;
-        internal int m_nSize;
-        private bool m_bAutoResize;
-        private BlobView m_pBlobView;
-
-        public Blob(bool bAutoResize)
-        {
-            m_pBuffer = new byte[DEFAULT_SIZE];
-            m_nSize = 0;
-            m_bAutoResize = bAutoResize;
-            m_pBlobView = new BlobView(this, 0, 0);
-        }
-
-        public bool Load(string fileName)
-        {
-            try
-            {
-                byte[] temp = System.IO.File.ReadAllBytes(fileName);
-                m_pBuffer = temp;
-            }
-            catch
-            {
-                return false;
-            }
-
-            m_nSize = m_pBuffer.Length;
-            m_pBlobView.m_nEnd = m_nSize;
-            return true;
-        }
-
-        public bool Save(string fileName)
-        {
-            try
-            {
-                using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write))
-                {
-                    fs.Write(m_pBuffer, 0, (int)m_nSize);
-                }
-            }
-            catch //(Exception e)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public void Resize(int nSize, bool bAutoResize)
-        {
-            byte[] pOldBuffer = m_pBuffer;
-            int nBufferSize = m_pBuffer.Length;
-
-            if (bAutoResize)
-                Secret.nbAssert.Assert(m_bAutoResize);
-
-            if (nSize > nBufferSize)
-            {
-                while (nSize > nBufferSize)
-                {
-                    // if we are over 100mb, just use the target size, otherwise we'll blow out the RAMs
-                    if (nSize > 1024 * 1024 * 100)
-                        nBufferSize = nSize;
-                    else
-                        nBufferSize <<= 1;
-                }
-
-                m_pBuffer = new byte[nBufferSize];
-                pOldBuffer.CopyTo(m_pBuffer, 0);
-                pOldBuffer = null;
-            }
-            m_nSize = nSize;
-
-            m_pBlobView.m_nEnd = m_nSize;
-
-        }
-
-        public int GetSize()
-        {
-            return m_nSize;
-        }
-
-        public System.IO.Stream CreateStream(int nStart, int nEnd)
-        {
-            return new System.IO.MemoryStream(m_pBuffer, nStart, nEnd - nStart);
-        }
-
-        public uint GetMsoCrc32()
-        {
-            // https://docs.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/324014d1-39aa-4038-bbf4-f3781732f767
-            // https://github.com/chakannom/algorithm/blob/master/MsoCRC32Compute/MsoCRC32Compute/MsoCRC32Compute.cpp
-            uint[] nCache = new uint[256];
-            {
-                uint i;
-                for (i = 0; i < 256; i++)
-                {
-                    uint nBit;
-                    uint nValue = i << 24;
-                    for (nBit = 0; nBit < 8; nBit++)
-                    {
-                        if ((nValue & (0x1 << 31)) > 0)
-                            nValue = (nValue << 1) ^ 0xAF;
-                        else
-                            nValue = nValue << 1;
-                    }
-
-                    nCache[i] = nValue & 0xFFFF;
-                }
-            }
-
-            uint nCrcValue = 0;
-            {
-                uint i;
-                for (i = 0; i < m_nSize; i++)
-                {
-                    uint nIndex = nCrcValue;
-                    nIndex = nIndex >> 24;
-                    nIndex = nIndex ^ m_pBuffer[i];
-                    nCrcValue = nCrcValue << 8;
-                    nCrcValue = nCrcValue ^ nCache[nIndex];
-                    //printf("%x %lX \n", m_pBuffer[i], nCrcValue);
-                }
-            }
-
-            return nCrcValue;
-        }
-
-        public void Md4Hash(BlobView pOut)
-        {
-            for (int i = 0; i < 16; i++)
-                pOut.PackUint8(0);
-            /*unsigned char nTemp[16];
-            MD4_CTX ctx;
-            MD4_Init(&ctx);
-            MD4_Update(&ctx, (void*)m_pBuffer, m_nSize);
-            MD4_Final(nTemp, &ctx);
-
-            pOut->PackData(nTemp, 16);*/
-        }
-
-
-        /*public void Unpack(byte[] pTo, int nToOffset, int nFromOffset, int nSize)
-		{
-			Buffer.BlockCopy(pData, 0, m_pBuffer, (int)nOffset, (int)nSize);
-		}*/
-
-
-        public void UnpackData(byte[] pData, int nOffset, int nSize)
-        {
-            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
-            System.Buffer.BlockCopy(m_pBuffer, nOffset, pData, 0, nSize);
-        }
-
-
-        public void PackUint8(byte val, int nOffset) { m_pBuffer[nOffset] = val; }
-
-
-        public short UnpackInt16(int nOffset) { Secret.nbAssert.Assert(nOffset + 2 <= m_nSize); return System.BitConverter.ToInt16(m_pBuffer, nOffset); }
-        public int UnpackInt32(int nOffset) { Secret.nbAssert.Assert(nOffset + 4 <= m_nSize); return System.BitConverter.ToInt32(m_pBuffer, nOffset); }
-        public byte UnpackUint8(int nOffset) { Secret.nbAssert.Assert(nOffset + 1 <= m_nSize); return m_pBuffer[nOffset]; }
-        public ushort UnpackUint16(int nOffset) { Secret.nbAssert.Assert(nOffset + 2 <= m_nSize); return System.BitConverter.ToUInt16(m_pBuffer, nOffset); }
-        public uint UnpackUint32(int nOffset) { Secret.nbAssert.Assert(nOffset + 4 <= m_nSize); return System.BitConverter.ToUInt32(m_pBuffer, nOffset); }
-        public double UnpackDouble(int nOffset) { Secret.nbAssert.Assert(nOffset + 8 <= m_nSize); return System.BitConverter.ToDouble(m_pBuffer, nOffset); }
-
-
-        public void PackData(byte[] pData, int nOffset, int nSize)
-        {
-            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
-            System.Buffer.BlockCopy(pData, 0, m_pBuffer, nOffset, nSize);
-        }
-
-
-        public void Pack(byte[] pData, int nDataOffset, int nOffset, int nSize)
-        {
-            Secret.nbAssert.Assert(nSize > 0);
-            Secret.nbAssert.Assert(nOffset + nSize <= m_nSize);
-            System.Buffer.BlockCopy(pData, nDataOffset, m_pBuffer, nOffset, nSize);
-        }
-
-
-
-
-        //m_pBlob->GetBlobView()->Pack(pBlobView, nSize);
-
-
-        //public coid UnpackData()
-
-        /*void Blob :: UnpackData(unsigned char* pData, unsigned int nOffset, unsigned int nSize)
-		{
-			CLIFFY_ASSERT(nOffset + nSize <= m_nSize);
-			memcpy(pData, m_pBuffer + nOffset, nSize);
-		}*/
-
-        public BlobView GetBlobView()
-        {
-            return m_pBlobView;
-        }
-
-        public bool Equal(Blob pOther)
-        {
-            if (m_nSize != pOther.m_nSize)
-                return false;
-
-            for (int i = 0; i < m_nSize; i++)
-                if (m_pBuffer[i] != pOther.m_pBuffer[i])
-                    return false;
-            return true;
-        }
-    }
-
-    class BlobView
-    {
-        internal int m_nStart;
-        internal int m_nEnd;
-        internal int m_nOffset;
-        internal Blob m_pBlob;
-
-
-        public BlobView(Blob pBlob, int nStart, int nEnd)
-        {
-            Secret.nbAssert.Assert(nStart <= nEnd);
-            Secret.nbAssert.Assert(nEnd <= pBlob.GetSize());
-
-            m_pBlob = pBlob;
-            m_nStart = nStart;
-            m_nEnd = nEnd;
-            m_nOffset = 0;
-        }
-
-
-
-        public Blob GetBlob()
-        {
-            return m_pBlob;
-        }
-
-
-
-        public int GetStart() { return m_nStart; }
-        public int GetEnd() { return m_nEnd; }
-        public int GetSize()
-        {
-            int nEnd = m_nEnd;
-            if (nEnd == 0)
-                nEnd = m_pBlob.GetSize();
-            return nEnd - m_nStart;
-        }
-
-        public int GetOffset() { return m_nOffset; }
-
-        public void SetOffset(int nOffset)
-        {
-            // todo: cap?
-            m_nOffset = nOffset;
-        }
-
-        public System.IO.Stream CreateStream()
-        {
-            if (this == m_pBlob.GetBlobView())
-                return m_pBlob.CreateStream(m_nStart + m_nOffset, m_nStart + m_pBlob.GetSize());
-            return m_pBlob.CreateStream(m_nStart + m_nOffset, m_nEnd);
-        }
-
-        public void Pack(BlobView pBlobView, int nSize)
-        {
-            PackAt(m_nOffset, pBlobView, nSize);
-            m_nOffset += nSize;
-        }
-
-        public void PackAt(int nOffset, BlobView pBlobView, int nSize)
-        {
-            byte[] pData = new byte[nSize];
-            pBlobView.UnpackData(pData, nSize);
-            PackDataAt(nOffset, pData, nSize);
-        }
-
-        public void PackDataAt(int nOffset, byte[] pData, int nSize)
-        {
-            int nBlobOffset = m_nStart + nOffset;
-            if (this == m_pBlob.GetBlobView())
-            {
-                if (nBlobOffset + nSize > m_pBlob.GetSize())
-                {
-                    m_pBlob.Resize(nBlobOffset + nSize, true);
-                    //this.m_nEnd = m_pBlob.GetSize();
-                }
-            }
-            else
-            {
-                Secret.nbAssert.Assert(nBlobOffset + nSize <= m_nEnd);
-            }
-            m_pBlob.PackData(pData, nBlobOffset, nSize);
-        }
-
-
-        public void Pack(byte[] pData, int nDataSize)
-        {
-            PackDataAt(m_nOffset, pData, nDataSize);
-            m_nOffset += nDataSize;
-        }
-
-        public void PackInt16(short val) { Pack(System.BitConverter.GetBytes(val), 2); }
-        public void PackInt32(int val) { Pack(System.BitConverter.GetBytes(val), 4); }
-        public void PackUint8(byte val) { Pack(System.BitConverter.GetBytes(val), 1); }
-        public void PackUint16(ushort val) { Pack(System.BitConverter.GetBytes(val), 2); }
-        public void PackUint32(uint val) { Pack(System.BitConverter.GetBytes(val), 4); }
-        public void PackDouble(double val) { Pack(System.BitConverter.GetBytes(val), 8); }
-
-
-        public void Unpack(BlobView pBlobView, int nSize)
-        {
-            UnpackAt(m_nOffset, pBlobView, nSize);
-            m_nOffset += nSize;
-        }
-
-        public void UnpackAt(int nOffset, BlobView pBlobView, int nSize)
-        {
-            byte[] pData = new byte[nSize];
-            UnpackDataAt(nOffset, pData, nSize);
-
-            pBlobView.Pack(pData, nSize);
-        }
-
-
-        public void UnpackData(byte[] pData, int nSize)
-        {
-            UnpackDataAt(m_nOffset, pData, nSize);
-            m_nOffset += nSize;
-        }
-
-        public void UnpackDataAt(int nOffset, byte[] pData, int nSize)
-        {
-            int nBlobOffset = m_nStart + nOffset;
-            int nEnd = m_nEnd;
-            if (nEnd == 0)
-                nEnd = m_pBlob.GetSize();
-            Secret.nbAssert.Assert(nBlobOffset + nSize <= nEnd);
-            m_pBlob.UnpackData(pData, nBlobOffset, nSize);
-        }
-
-
-        /*public void Unpack(BlobView pBlobView, int nSize)
-		{
-			CliffyAssert.Assert(m_nStart + m_nOffset + nSize < m_nEnd);
-
-
-
-			m_pBlob.Unpack(m_nStart + m_nOffset, nSize, pBlobView->m_pBlob, pBlobView.m_nStart + m_nOffset);
-
-			//m_pBlob.UnpackAt
-		}*/
-
-        /*void BlobView :: Unpack(BlobView* pBlobView, unsigned int nSize)
-		{
-			UnpackAt(m_nOffset, pBlobView, nSize);
-			m_nOffset += nSize;
-		}
-
-		void BlobView :: UnpackAt(unsigned int nOffset, BlobView* pBlobView, unsigned int nSize)
-		{
-			unsigned char* pData = new unsigned char[nSize];
-			UnpackDataAt(nOffset, pData,nSize);
-
-			pBlobView->PackData(pData, nSize);
-			delete [] pData;
-		}*/
-
-
-
-        public short UnpackInt16() { short nTemp = m_pBlob.UnpackInt16(m_nStart + m_nOffset); m_nOffset += 2; return nTemp; }
-        public int UnpackInt32() { int nTemp = m_pBlob.UnpackInt32(m_nStart + m_nOffset); m_nOffset += 4; return nTemp; }
-
-        public int UnpackInt32At(int nOffset) { return m_pBlob.UnpackInt32(m_nStart + nOffset); }
-
-        public byte UnpackUint8() { byte nTemp = m_pBlob.UnpackUint8(m_nStart + m_nOffset++); return nTemp; }
-        public ushort UnpackUint16() { ushort nTemp = m_pBlob.UnpackUint16(m_nStart + m_nOffset); m_nOffset += 2; return nTemp; }
-        public uint UnpackUint32() { uint nTemp = m_pBlob.UnpackUint32(m_nStart + m_nOffset); m_nOffset += 4; return nTemp; }
-        public double UnpackDouble() { double fTemp = m_pBlob.UnpackDouble(m_nStart + m_nOffset); m_nOffset += 8; return fTemp; }
-
-
-
-
-
-
-        public byte GetChecksum()
-        {
-            const int WIDTH = 8;
-            const byte TOPBIT = (1 << (WIDTH - 1));
-            const byte POLYNOMIAL = 0xD8;  /* 11011 followed by 0's */
-
-            byte remainder = 0;
-            int nEnd = m_nEnd;
-            if (nEnd == 0)
-                nEnd = m_pBlob.m_nSize;
-
-            for (int currentByte = m_nStart; currentByte < nEnd; currentByte++)
-            {
-                remainder ^= m_pBlob.m_pBuffer[currentByte];
-                for (int bit = 8; bit > 0; --bit)
-                {
-                    if ((remainder & TOPBIT) > 0)
-                    {
-                        remainder = (byte)((remainder << 1) ^ POLYNOMIAL);
-                    }
-                    else
-                    {
-                        remainder = (byte)(remainder << 1);
-                    }
-                }
-            }
-            return (remainder);
-        }
-
-
-    }
-}
-
-
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class Console
-        {
-            public static void Log(string sLog)
-            {
-                System.Console.WriteLine(sLog);
-            }
-        }
-    }
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
-		class ExternalString
-		{
-			public static bool Equal(string szA, string szB)
-			{
-				return string.Equals(szA, szB);
-			}
-
-			public static int GetChecksum(string szString)
-			{
-				int nResult = 0xABC123;
-				for (int i = 0; i < szString.Length; i++)
-				{
-					char c = szString[i];
-					nResult = (nResult ^ c) << 1;
-				}
-				return nResult;
-			}
-
-			public static long hextol(string szString)
-			{
-				return long.Parse(szString, System.Globalization.NumberStyles.HexNumber);
-			}
-
-			public static int atoi(string szString)
-			{
-				return int.Parse(szString);
-			}
-
-			public static long atol(string szString)
-			{
-				return long.Parse(szString);
-			}
-
-			public static double atof(string szString)
-			{
-				return double.Parse(szString);
-			}
-
-		}
-	}
-}
-
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class File
-        {
-            public static InternalString GetContents(string sxPath)
-            {
-                try
-                {
-                    return new InternalString(System.IO.File.ReadAllText(sxPath));
-                }
-                catch
-                {
-
-                }
-                return null;
-            }
-
-            public static void PutContents(string sPath, string sContents)
-            {
-                System.IO.File.WriteAllText(sPath, sContents);
-            }
-
-            public static OwnedVector<InternalString> GetRecursiveFileVector(string sPath)
-            {
-                OwnedVector<InternalString> sFileVector = new OwnedVector<InternalString>();
-                Vector<InternalString> sDirectoryVector = new Vector<InternalString>();
-
-                sDirectoryVector.PushBack(new InternalString(sPath));
-
-                while (sDirectoryVector.GetSize() > 0)
-                {
-                    string sDirectory = sDirectoryVector.PopBack().GetExternalString();
-
-                    string[] sDirectories = System.IO.Directory.GetDirectories(sDirectory);
-                    for (int i = 0; i < sDirectories.Length; i++)
-                        sDirectoryVector.PushBack(new InternalString(sDirectories[i]));
-
-                    string[] sFiles = System.IO.Directory.GetFiles(sDirectory);
-                    for (int i = 0; i < sFiles.Length; i++)
-                    {
-                        string sFile = sFiles[i];
-                        if (sFile.EndsWith(".nll") || sFile.EndsWith(".nll.def"))
-                            sFileVector.PushBack(new InternalString(sFile));
-                    }
-                }
-
-                return sFileVector;
-            }
-
-            public static InternalString GetFileDirectory(string sPath)
-            {
-                return new InternalString(System.IO.Path.GetDirectoryName(sPath));
-            }
-
-            public static void CreateDirectory(string sPath)
-            {
-                System.IO.Directory.CreateDirectory(sPath);
-            }
-        }
-    }
-}
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
-		class InternalString
-		{
-			private System.Text.StringBuilder m_pStringBuilder;
-
-			public InternalString(string szString)
-			{
-				Set(szString);
-			}
-
-			public InternalString CreateClone()
-			{
-				return new InternalString(m_pStringBuilder.ToString());
-			}
-
-			public void Set(string szString)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(szString);
-			}
-
-			public string GetExternalString()
-			{
-				return m_pStringBuilder.ToString();
-			}
-
-			public void Append(string sString)
-			{
-				m_pStringBuilder.Append(sString);
-			}
-
-			public void AppendChar(char nChar)
-			{
-				m_pStringBuilder.Append(nChar);
-			}
-
-			public void AppendString(string szString)
-			{
-				m_pStringBuilder.Append(szString);
-			}
-
-			public void AppendInt(int nInt)
-			{
-				m_pStringBuilder.Append("" + nInt);
-			}
-
-			public void AppendUint32(uint nUint)
-			{
-				AppendUnsignedInt(nUint);
-			}
-
-			public void AppendUnsignedInt(uint nUint)
-			{
-				m_pStringBuilder.Append("" + nUint);
-			}
-
-			public void AppendDouble(double fDouble)
-			{
-				m_pStringBuilder.Append(fDouble.ToString("G6"));
-			}
-
-			public void PrependString(string sString)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(sString + m_pStringBuilder.ToString());
-			}
-
-			public void PrependChar(char cChar)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(cChar + m_pStringBuilder.ToString());
-			}
-
-			public void SubStr(int nStart, int nLength)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Substring(nStart, nLength));
-			}
-
-			public void CropFront(int nLength)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Substring(nLength));
-			}
-
-			public int GetLength()
-			{
-				return m_pStringBuilder.Length;
-			}
-
-			public char GetChar(int nIndex)
-			{
-				return m_pStringBuilder[nIndex];
-			}
-
-			public void BlobWriteUtf8(BlobView pBlobView, bool bZeroTerminator)
-			{
-				byte[] pData = System.Text.Encoding.UTF8.GetBytes(m_pStringBuilder.ToString());
-				pBlobView.Pack(pData, pData.Length);
-				if (bZeroTerminator)
-					pBlobView.PackUint8(0);
-			}
-
-			public void BlobWrite16Bit(BlobView pBlobView, bool bZeroTerminator)
-			{
-				byte[] pData = System.Text.Encoding.Unicode.GetBytes(m_pStringBuilder.ToString());
-				pBlobView.Pack(pData, pData.Length);
-				if (bZeroTerminator)
-					pBlobView.PackUint16(0);
-			}
-
-			public bool IsAscii()
-			{
-				return System.Text.Encoding.UTF8.GetByteCount(m_pStringBuilder.ToString()) == m_pStringBuilder.Length;
-			}
-
-			public bool IsEqual(string sString)
-			{
-				return m_pStringBuilder.ToString().Equals(sString);
-			}
-
-			public bool StartsWith(string szString)
-			{
-				return m_pStringBuilder.ToString().StartsWith(szString);
-			}
-
-			public bool EndsWith(string szString)
-			{
-				return m_pStringBuilder.ToString().EndsWith(szString);
-			}
-
-			public double ParseDouble()
-			{
-				return double.Parse(m_pStringBuilder.ToString());
-			}
-
-			public uint ParseHex()
-			{
-				string sTemp = m_pStringBuilder.ToString();
-				if (!sTemp.StartsWith("0x", System.StringComparison.Ordinal))
-					return 0;
-				sTemp = sTemp.Substring(2);
-				return uint.Parse(sTemp, System.Globalization.NumberStyles.HexNumber);
-			}
-
-			public int FindChar(char nChar)
-			{
-				return m_pStringBuilder.ToString().IndexOf((char)nChar);
-			}
-
-			public void Replace(string sxFind, string sxReplace)
-			{
-				m_pStringBuilder = new System.Text.StringBuilder(m_pStringBuilder.ToString().Replace(sxFind, sxReplace));
-			}
-		}
-	}
-}
-
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class Utils
-        {
-            public static double Pow(double fBase, double fExponent)
-            {
-                return System.Math.Pow(fBase, fExponent);
-            }
-
-            public static double ByteConvertUint64ToDouble(ulong nValue)
-            {
-                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
-                return System.BitConverter.ToDouble(nByteArray, 0);
-            }
-
-            public static int ByteConvertUint32ToInt32(uint nValue)
-            {
-                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
-                return System.BitConverter.ToInt32(nByteArray, 0);
-            }
-
-            public static uint ByteConvertInt32ToUint32(int nValue)
-            {
-                byte[] nByteArray = System.BitConverter.GetBytes(nValue);
-                return System.BitConverter.ToUInt32(nByteArray, 0);
-            }
-
-            public static void Indent(int nTabDepth, InternalString sOut)
-            {
-                for (int i = 0; i < nTabDepth; i++)
-                    sOut.AppendChar('\t');
-            }
-        }
-    }
-}
-
-
-namespace NumberDuck
-{
-	namespace Secret
-	{
-
-		class Vector<T>
-		{
-			private System.Collections.Generic.List<T> m_pList;
-
-
-			public Vector()
-			{
-				Clear();
-			}
-
-			public void PushFront(T xObject)
-			{
-				m_pList.Insert(0, xObject);
-			}
-
-			public void PushBack(T xObject)
-			{
-				m_pList.Add(xObject);
-			}
-
-			public int GetSize()
-			{
-				return m_pList.Count;
-			}
-
-			public T Get(int nIndex)
-			{
-				return m_pList[nIndex];
-			}
-
-			public void Clear()
-			{
-				m_pList = new System.Collections.Generic.List<T>();
-			}
-
-			public void Set(int nIndex, T xObject)
-			{
-				m_pList[nIndex] = xObject;
-			}
-
-			public void Insert(int nIndex, T xObject)
-			{
-				m_pList.Insert(nIndex, xObject);
-			}
-
-			public void Erase(int nIndex)
-			{
-				m_pList.RemoveAt(nIndex);
-			}
-
-			public T PopBack()
-			{
-				int nIndex = m_pList.Count - 1;
-				T xBack = m_pList[nIndex];
-				m_pList.RemoveAt(nIndex);
-				return xBack;
-			}
-
-			public T PopFront()
-			{
-				T xFront = m_pList[0];
-				m_pList.RemoveAt(0);
-				return xFront;
-			}
-		}
-	}
-}
-
-﻿
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class XmlFile : XmlNode
-        {
-            public XmlFile() : base(null)
-            {
-            }
-
-            public bool Load(BlobView pBlobView)
-            {
-                try
-                {
-                    System.Xml.XmlDocument document = new System.Xml.XmlDocument();
-                    document.Load(pBlobView.CreateStream());
-                    m_pNode = document;
-                }
-                catch (System.Exception)
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
-    }
-
-
-}
-
-﻿
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        public class XmlNode
-        {
-            protected System.Xml.XmlNode m_pNode;
-
-            internal XmlNode(System.Xml.XmlNode pNode)
-            {
-                m_pNode = pNode;
-            }
-
-            public XmlNode GetFirstChildElement(string szName)
-            {
-                if (m_pNode.ChildNodes.Count > 0)
-                {
-                    if (szName == null)
-                        return new XmlNode(m_pNode.ChildNodes[0]);
-
-                    for (int i = 0; i < m_pNode.ChildNodes.Count; i++)
-                    {
-                        System.Xml.XmlNode pNode = m_pNode.ChildNodes[i];
-                        if (pNode.Name.Equals(szName))
-                            return new XmlNode(pNode);
-                    }
-                }
-                return null;
-            }
-
-            public XmlNode GetNextSiblingElement(string szName)
-            {
-                if (m_pNode.NextSibling != null)
-                    return new XmlNode(m_pNode.NextSibling);
-                return null;
-            }
-
-            public string GetValue()
-            {
-                return m_pNode.Name;
-            }
-
-            public string GetText()
-            {
-                return m_pNode.InnerText;
-            }
-
-
-            public string GetAttribute(string szName)
-            {
-                for (int i = 0; i < m_pNode.Attributes.Count; i++)
-                    if (m_pNode.Attributes[i].Name.Equals(szName))
-                        return m_pNode.Attributes[i].Value;
-                return null;
-            }
-        }
-    }
-}
-
-﻿
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        class Zip
-        {
-            System.IO.Compression.ZipArchive m_pZipArchive = null;
-
-            public Zip()
-            {
-
-            }
-
-            public bool LoadBlobView(BlobView pBlobView)
-            {
-                System.IO.Stream stream = pBlobView.CreateStream();
-
-                try
-                {
-                    m_pZipArchive = new System.IO.Compression.ZipArchive(stream);
-                }
-                catch
-                {
-                    m_pZipArchive = null;
-                    return false;
-                }
-                return true;
-            }
-
-            public bool LoadFile(string szFileName)
-            {
-                Blob pBlob = new Blob(false);
-                if (!pBlob.Load(szFileName))
-                    return false;
-                return LoadBlobView(pBlob.GetBlobView());
-            }
-
-            public int GetNumFile()
-            {
-                return m_pZipArchive.Entries.Count;
-            }
-
-            public ZipFileInfo GetFileInfo(int nIndex)
-            {
-                System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
-                return new ZipFileInfo(entry.FullName, (int)entry.Length);
-            }
-
-            public bool ExtractFileByIndex(int nIndex, BlobView pOutBlobView)
-            {
-                try
-                {
-                    System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
-                    System.IO.Stream stream = entry.Open();
-
-                    byte[] buffer = new byte[entry.Length];
-                    stream.Read(buffer, 0, (int)entry.Length);
-                    pOutBlobView.PackDataAt(pOutBlobView.GetOffset(), buffer, (int)entry.Length);
-                }
-                catch
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            public bool ExtractFileByName(string szFileName, BlobView pOutBlobView)
-            {
-                for (int i = 0; i < m_pZipArchive.Entries.Count; i++)
-                {
-                    if (m_pZipArchive.Entries[i].FullName.Equals(szFileName))
-                        return ExtractFileByIndex(i, pOutBlobView);
-                }
-                return false;
-            }
-
-            public bool ExtractFileByIndexToString(int nIndex, InternalString sOut)
-            {
-                try
-                {
-                    System.IO.Compression.ZipArchiveEntry entry = m_pZipArchive.Entries[nIndex];
-                    System.IO.Stream stream = entry.Open();
-
-                    System.IO.StreamReader reader = new System.IO.StreamReader(stream);
-                    sOut.Append(reader.ReadToEnd());
-                }
-                catch
-                {
-                    return false;
-                }
-                return true;
-            }
-
-
-        }
-    }
-}
-
-
-﻿
-namespace NumberDuck
-{
-    namespace Secret
-    {
-        public class ZipFileInfo
-        {
-            private string m_sFileName;
-            private int m_nSize;
-            //private uint m_nCrc32;
-
-            internal ZipFileInfo(string sFileName, int nSize /*, uint nCrc32*/)
-            {
-                m_sFileName = sFileName;
-                m_nSize = nSize;
-                //m_nCrc32 = nCrc32;
-            }
-
-            public string GetFileName()
-            {
-                return m_sFileName;
-            }
-
-            public int GetSize()
-            {
-                return m_nSize;
-            }
-
-            /*public uint GetCrc32()
-            {
-                return m_nCrc32;
-            }*/
-        }
-    }
 }
 
