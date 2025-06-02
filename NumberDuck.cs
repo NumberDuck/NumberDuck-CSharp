@@ -1906,6 +1906,10 @@ namespace NumberDuck
 			return t << s | t >> (32 - s);
 		}
 
+		public MD4()
+		{
+		}
+
 	}
 	class Workbook
 	{
@@ -4674,6 +4678,10 @@ namespace NumberDuck
 		{
 			public ushort m_nType;
 			public uint m_nSize;
+			public BiffHeader()
+			{
+			}
+
 		}
 		class BiffRecord
 		{
@@ -7670,6 +7678,10 @@ namespace NumberDuck
 		class BiffWorksheetStreamSize
 		{
 			public uint m_nSize;
+			public BiffWorksheetStreamSize()
+			{
+			}
+
 		}
 		class WorkbookGlobals
 		{
@@ -8718,6 +8730,10 @@ namespace NumberDuck
 			public int m_nSectorId;
 			public uint m_nStreamSize;
 			public byte[] m_pUnused = new byte[4];
+			public StreamDataStruct()
+			{
+			}
+
 		}
 		class Stream
 		{
@@ -11931,8 +11947,8 @@ namespace NumberDuck
 				double fR = pColor.GetRed() / 255.0;
 				double fG = pColor.GetGreen() / 255.0;
 				double fB = pColor.GetBlue() / 255.0;
-				double fMin = min(fR, min(fG, fB));
-				double fMax = max(fR, max(fG, fB));
+				double fMin = haxmin(fR, haxmin(fG, fB));
+				double fMax = haxmax(fR, haxmax(fG, fB));
 				m_fH = (fMin + fMax) / 2.0;
 				m_fS = m_fH;
 				m_fL = m_fH;
@@ -11955,12 +11971,12 @@ namespace NumberDuck
 				}
 			}
 
-			protected double max(double a, double b)
+			protected double haxmax(double a, double b)
 			{
 				return a > b ? a : b;
 			}
 
-			protected double min(double a, double b)
+			protected double haxmin(double a, double b)
 			{
 				return a < b ? a : b;
 			}
@@ -11978,6 +11994,10 @@ namespace NumberDuck
 				if (t < 2.0 / 3.0)
 					return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
 				return p;
+			}
+
+			public Hsl()
+			{
 			}
 
 		}
@@ -16108,6 +16128,10 @@ namespace NumberDuck
 			public ushort m_nSubCellX2;
 			public ushort m_nCellY2;
 			public ushort m_nSubCellY2;
+			public MsoDrawingRecord_Position()
+			{
+			}
+
 		}
 		class MsoDrawingRecord : BiffRecord
 		{
@@ -20769,6 +20793,10 @@ namespace NumberDuck
 		{
 			public int m_nOffset;
 			public byte m_fHighByte;
+			public XLUnicodeRichExtendedString_ContinueInfo()
+			{
+			}
+
 		}
 		class XLUnicodeRichExtendedString : BiffStruct
 		{
@@ -22684,6 +22712,10 @@ namespace NumberDuck
 			public ushort m_nSubCellX2;
 			public ushort m_nCellY2;
 			public ushort m_nSubCellY2;
+			public OfficeArtDimensions()
+			{
+			}
+
 		}
 		class BiffWorksheet : Worksheet
 		{
@@ -24179,7 +24211,7 @@ namespace NumberDuck
 
 			public void RedBlackTreeWalk(RedBlackNode pNode, Stream pStorage)
 			{
-				Stream pStream = (Stream)(pNode.GetObject());
+				Stream pStream = (Stream)(pNode.GetStoredObject());
 				if (pNode.GetParent() == null)
 				{
 					pStorage.SetLeftChildNodeStreamId(-1);
@@ -24192,7 +24224,7 @@ namespace NumberDuck
 				{
 					if (pNode.GetChild(nDirection) != null)
 					{
-						Stream pChild = (Stream)(pNode.GetChild(nDirection).GetObject());
+						Stream pChild = (Stream)(pNode.GetChild(nDirection).GetStoredObject());
 						if (nDirection == 0)
 							pStream.SetLeftChildNodeStreamId(pChild.GetStreamId());
 						else
@@ -24207,6 +24239,10 @@ namespace NumberDuck
 							pStream.SetRightChildNodeStreamId(-1);
 					}
 				}
+			}
+
+			public StreamDirectoryImplementation()
+			{
 			}
 
 			~StreamDirectoryImplementation()
@@ -24233,7 +24269,7 @@ namespace NumberDuck
 			public Stream GetStreamByIndex(int nStreamDirectoryId)
 			{
 				nbAssert.Assert(nStreamDirectoryId >= 0);
-				nbAssert.Assert((uint)(nStreamDirectoryId) < GetNumStream());
+				nbAssert.Assert(nStreamDirectoryId < GetNumStream());
 				return m_pImpl.m_pStreamVector.Get(nStreamDirectoryId);
 			}
 
@@ -24385,6 +24421,10 @@ namespace NumberDuck
 		{
 			public int m_nSectorId;
 			public BlobView m_pBlobView;
+			public SectorImplementation()
+			{
+			}
+
 			~SectorImplementation()
 			{
 			}
@@ -24757,7 +24797,7 @@ namespace NumberDuck
 						}
 						nbAssert.Assert(m_pMasterSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nMasterSectorAllocationTableSize));
 						m_pSectorAllocationTable = new SectorAllocationTable(1 << m_pHeader.m_nSectorSize);
-						for (int i = 0; i < m_pHeader.m_nSectorAllocationTableSize; i++)
+						for (int i = 0; i < (int)(m_pHeader.m_nSectorAllocationTableSize); i++)
 							m_pSectorAllocationTable.AppendSector(GetSector(m_pMasterSectorAllocationTable.GetSectorId(i), false));
 						nbAssert.Assert(m_pSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nSectorAllocationTableSize));
 						m_pShortSectorAllocationTable = new SectorAllocationTable(1 << m_pHeader.m_nSectorSize);
@@ -27840,6 +27880,10 @@ namespace NumberDuck
 		class ParseFunctionData
 		{
 			public int m_nCount;
+			public ParseFunctionData()
+			{
+			}
+
 		}
 		class ParseSpaceData
 		{
@@ -28972,7 +29016,7 @@ namespace NumberDuck
 				return null;
 			}
 
-			public virtual object GetObject()
+			public virtual object GetStoredObject()
 			{
 				return null;
 			}
@@ -29038,7 +29082,7 @@ namespace NumberDuck
 				return m_pChild[nDirection];
 			}
 
-			public override object GetObject()
+			public override object GetStoredObject()
 			{
 				return m_pObject;
 			}
@@ -29092,7 +29136,7 @@ namespace NumberDuck
 				RedBlackNodeImplementation pNode = m_pImpl.m_pRootNode;
 				while (true)
 				{
-					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetObject(), pObject);
+					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetStoredObject(), pObject);
 					nbAssert.Assert(nComparison >= -1);
 					nbAssert.Assert(nComparison <= 1);
 					if (nComparison == 0)
@@ -29181,7 +29225,7 @@ namespace NumberDuck
 				RedBlackNodeImplementation pNode = m_pImpl.m_pRootNode;
 				while (pNode != null)
 				{
-					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetObject(), pObject);
+					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetStoredObject(), pObject);
 					nbAssert.Assert(nComparison >= -1);
 					nbAssert.Assert(nComparison <= 1);
 					if (nComparison == 0)
@@ -29289,6 +29333,10 @@ namespace NumberDuck
 				}
 			}
 
+			public RedBlackTreeImplementation()
+			{
+			}
+
 			~RedBlackTreeImplementation()
 			{
 			}
@@ -29298,13 +29346,17 @@ namespace NumberDuck
 		{
 			public int m_nColumn;
 			public int m_nRow;
-			public T m_xObject = null;
+			public T m_xObject;
 			~TableElement()
 			{
 				if (m_xObject != null)
 					{
 						m_xObject = null;
 					}
+			}
+
+			public TableElement()
+			{
 			}
 
 		}
@@ -29415,10 +29467,14 @@ namespace NumberDuck
 		{
 			public int m_nWidth;
 			public int m_nHeight;
+			public PngImageInfo()
+			{
+			}
+
 		}
 		class PngLoader
 		{
-			protected PngImageInfo m_pImageInfo = null;
+			protected PngImageInfo m_pImageInfo;
 			public PngImageInfo Load(Blob pBlob)
 			{
 				if (m_pImageInfo != null)
@@ -29460,6 +29516,10 @@ namespace NumberDuck
 				return m_pImageInfo;
 			}
 
+			public PngLoader()
+			{
+			}
+
 			~PngLoader()
 			{
 			}
@@ -29469,10 +29529,14 @@ namespace NumberDuck
 		{
 			public int m_nWidth;
 			public int m_nHeight;
+			public JpegImageInfo()
+			{
+			}
+
 		}
 		class JpegLoader
 		{
-			protected JpegImageInfo m_pImageInfo = null;
+			protected JpegImageInfo m_pImageInfo;
 			public JpegImageInfo Load(Blob pBlob)
 			{
 				if (m_pImageInfo != null)
@@ -29526,6 +29590,10 @@ namespace NumberDuck
 					}
 				}
 				return m_pImageInfo;
+			}
+
+			public JpegLoader()
+			{
 			}
 
 			~JpegLoader()
@@ -30225,10 +30293,18 @@ namespace NumberDuck
 		{
 			public ushort m_nWidth;
 			public bool m_bHidden;
+			public ColumnInfo()
+			{
+			}
+
 		}
 		class RowInfo
 		{
 			public ushort m_nHeight;
+			public RowInfo()
+			{
+			}
+
 		}
 		class Coordinate
 		{
@@ -30754,6 +30830,10 @@ namespace NumberDuck
 				}
 			}
 
+			public WorkbookImplementation()
+			{
+			}
+
 		}
 		class ValueImplementation
 		{
@@ -30951,6 +31031,10 @@ namespace NumberDuck
 			public InternalString m_sString;
 			public int m_nChecksum;
 			public int m_nIndex;
+			public SharedString()
+			{
+			}
+
 			~SharedString()
 			{
 			}
@@ -31214,6 +31298,10 @@ namespace NumberDuck
 			public uint m_nY;
 			public uint m_nWidth;
 			public uint m_nHeight;
+			public MergedCellImplementation()
+			{
+			}
+
 		}
 		class MarkerImplementation
 		{
@@ -31579,6 +31667,10 @@ namespace NumberDuck
 			public void SetFormula(Formula pFormula)
 			{
 				m_pValue.m_pImpl.SetFormula(pFormula, m_pWorksheet);
+			}
+
+			public CellImplementation()
+			{
 			}
 
 			~CellImplementation()

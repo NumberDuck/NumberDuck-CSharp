@@ -1,5 +1,5 @@
 # Number Duck
-v3.0.3 [J173]
+v3.0.7 [J16]
 
 Copyright (C) 2012-2025, File Scribe
 
@@ -11,7 +11,7 @@ Number Duck is a programming library for developers to read and write Microsoft 
 See NumberDuck.html for API details, or check the example folders.
 
 ## 🚧 Installation
-Since Number Duck is delivered as source, you can just drop the `NumberDuck.cs` file into your project.
+Since Number Duck is delivered as source, you can just drop `NumberDuck.cs` into your project.
 
 ## 💾 Saving and Loading a Spreadsheet
 Here is a simple example of writing to a spreadsheet, and then reading it back in.
