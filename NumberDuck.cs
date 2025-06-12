@@ -83,7 +83,7 @@ namespace NumberDuck
 					}
 
 				}
-				Secret.nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 			return false;
 		}
@@ -1825,7 +1825,7 @@ namespace NumberDuck
 			uint C = m_nBuffer[2];
 			uint D = m_nBuffer[3];
 			uint[] m_nChunk = new uint[BLOCK_SIZE >> 2];
-			Secret.nbAssert.Assert(pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize());
+			NumbatLogic.Assert.Plz(pBlobView.GetOffset() + BLOCK_SIZE <= pBlobView.GetSize());
 			for (i = 0; i < 16; i++)
 			{
 				uint c0 = pBlobView.UnpackUint8();
@@ -1999,13 +1999,13 @@ namespace NumberDuck
 
 								default:
 								{
-									Secret.nbAssert.Assert(false);
+									NumbatLogic.Assert.Plz(false);
 									break;
 								}
 
 							}
 						}
-						Secret.nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 					}
 					bLoaded = true;
 				}
@@ -2669,6 +2669,23 @@ namespace NumberDuck
             }
         }
     }
+}
+
+namespace NumbatLogic
+{
+	class Assert
+	{
+		public static void Plz(bool result, string test, string file, int line)
+		{
+			if (!result)
+				throw new System.Exception(test + "\n" + file + ":" + line);
+		}
+
+		public static void Plz(bool result)
+		{
+			Plz(result, "", "", 0);
+		}
+	}
 }
 
 namespace NumberDuck
@@ -3906,7 +3923,7 @@ namespace NumberDuck
 				m_pOfficeArtRecordVector = new OwnedVector<OfficeArtRecord>();
 				if (m_bIsContainer)
 				{
-					nbAssert.Assert(m_pHeader.m_recVer == 0xF);
+					NumbatLogic.Assert.Plz(m_pHeader.m_recVer == 0xF);
 					while (pBlobView.GetOffset() < (int)(m_pHeader.m_recLen) && pBlobView.GetOffset() < pBlobView.GetSize())
 					{
 						OfficeArtRecord pOfficeArtRecord = CreateOfficeArtRecord(pBlobView);
@@ -3972,7 +3989,7 @@ namespace NumberDuck
 			{
 				int nBefore = pBlobView.GetOffset();
 				m_pHeader.BlobWrite(pBlobView);
-				nbAssert.Assert(pBlobView.GetOffset() - nBefore == OfficeArtRecordHeaderStruct.SIZE);
+				NumbatLogic.Assert.Plz(pBlobView.GetOffset() - nBefore == OfficeArtRecordHeaderStruct.SIZE);
 				if (m_bIsContainer)
 				{
 					for (int i = 0; i < m_pOfficeArtRecordVector.GetSize(); i++)
@@ -3982,35 +3999,35 @@ namespace NumberDuck
 				{
 					BlobWrite(pBlobView);
 				}
-				nbAssert.Assert(pBlobView.GetOffset() - nBefore == (int)(OfficeArtRecordHeaderStruct.SIZE + m_pHeader.m_recLen));
+				NumbatLogic.Assert.Plz(pBlobView.GetOffset() - nBefore == (int)(OfficeArtRecordHeaderStruct.SIZE + m_pHeader.m_recLen));
 			}
 
 			public virtual void BlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public virtual void BlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public ushort GetNumOfficeArtRecord()
 			{
-				nbAssert.Assert(m_bIsContainer);
+				NumbatLogic.Assert.Plz(m_bIsContainer);
 				return (ushort)(m_pOfficeArtRecordVector.GetSize());
 			}
 
 			public OfficeArtRecord GetOfficeArtRecordByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(m_bIsContainer);
-				nbAssert.Assert(nIndex < m_pOfficeArtRecordVector.GetSize());
+				NumbatLogic.Assert.Plz(m_bIsContainer);
+				NumbatLogic.Assert.Plz(nIndex < m_pOfficeArtRecordVector.GetSize());
 				return m_pOfficeArtRecordVector.Get(nIndex);
 			}
 
 			public OfficeArtRecord FindOfficeArtRecordByType(Type eType)
 			{
-				nbAssert.Assert(m_bIsContainer);
+				NumbatLogic.Assert.Plz(m_bIsContainer);
 				for (int i = 0; i < m_pOfficeArtRecordVector.GetSize(); i++)
 				{
 					OfficeArtRecord pOfficeArtRecord = m_pOfficeArtRecordVector.Get(i);
@@ -4028,14 +4045,14 @@ namespace NumberDuck
 
 			public virtual void AddOfficeArtRecord(OfficeArtRecord pOfficeArtRecord)
 			{
-				nbAssert.Assert(m_bIsContainer);
+				NumbatLogic.Assert.Plz(m_bIsContainer);
 				m_pHeader.m_recLen += pOfficeArtRecord.GetRecursiveSize();
 				m_pOfficeArtRecordVector.PushBack(pOfficeArtRecord);
 			}
 
 			public static OfficeArtRecord CreateOfficeArtRecord(BlobView pBlobView)
 			{
-				nbAssert.Assert(pBlobView.GetOffset() < pBlobView.GetSize());
+				NumbatLogic.Assert.Plz(pBlobView.GetOffset() < pBlobView.GetSize());
 				if (pBlobView.GetSize() - pBlobView.GetOffset() < (int)(OfficeArtRecordHeaderStruct.SIZE))
 					return null;
 				OfficeArtRecordHeaderStruct pHeader = new OfficeArtRecordHeaderStruct();
@@ -4495,12 +4512,12 @@ namespace NumberDuck
 
 			public virtual void BlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public virtual void BlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public static ParsedExpressionRecord CreateParsedExpressionRecord(BlobView pBlobView)
@@ -7592,11 +7609,11 @@ namespace NumberDuck
 			{
 				BlobWrite(pTempBlobView);
 				pTempBlobView.SetOffset(0);
-				nbAssert.Assert(pTempBlobView.GetSize() == (int)(m_pHeader.m_nSize));
+				NumbatLogic.Assert.Plz(pTempBlobView.GetSize() == (int)(m_pHeader.m_nSize));
 				m_pHeader.m_nSize = (uint)(pTempBlobView.GetSize());
 				if (m_pContinueInfoVector.GetSize() == 0)
 				{
-					nbAssert.Assert(pTempBlobView.GetSize() <= MAX_DATA_SIZE);
+					NumbatLogic.Assert.Plz(pTempBlobView.GetSize() <= MAX_DATA_SIZE);
 					pStream.SizeToFit(SIZEOF_HEADER + pTempBlobView.GetSize());
 					BlobView pStreamBlobView = pStream.GetSectorChain().GetBlobView();
 					pStreamBlobView.PackUint16(m_pHeader.m_nType);
@@ -7611,7 +7628,7 @@ namespace NumberDuck
 					ushort nRecordSize;
 					{
 						BiffRecord_ContinueInfo pContinueInfo = m_pContinueInfoVector.Get(nIndex);
-						nbAssert.Assert(pContinueInfo.m_nOffset <= MAX_DATA_SIZE);
+						NumbatLogic.Assert.Plz(pContinueInfo.m_nOffset <= MAX_DATA_SIZE);
 						nRecordSize = (ushort)(pContinueInfo.m_nOffset);
 					}
 					{
@@ -7632,12 +7649,12 @@ namespace NumberDuck
 						{
 							BiffRecord_ContinueInfo pContinueInfo = m_pContinueInfoVector.Get(nIndex);
 							BiffRecord_ContinueInfo pPreviousContinueInfo = m_pContinueInfoVector.Get(nIndex - 1);
-							nbAssert.Assert(pContinueInfo.m_nOffset - pPreviousContinueInfo.m_nOffset <= MAX_DATA_SIZE);
+							NumbatLogic.Assert.Plz(pContinueInfo.m_nOffset - pPreviousContinueInfo.m_nOffset <= MAX_DATA_SIZE);
 							nRecordSize = (ushort)(pContinueInfo.m_nOffset - pPreviousContinueInfo.m_nOffset);
 						}
 						else
 						{
-							nbAssert.Assert(nSize - nOffset <= MAX_DATA_SIZE);
+							NumbatLogic.Assert.Plz(nSize - nOffset <= MAX_DATA_SIZE);
 							nRecordSize = (ushort)(nSize - nOffset);
 						}
 						{
@@ -7655,7 +7672,7 @@ namespace NumberDuck
 
 			public virtual void BlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public virtual void BlobWrite(BlobView pBlobView)
@@ -7664,7 +7681,7 @@ namespace NumberDuck
 
 			protected void Extend(BiffRecord pBiffRecord)
 			{
-				nbAssert.Assert(pBiffRecord.GetType() == Type.TYPE_CONTINUE || pBiffRecord.GetType() == Type.TYPE_MSO_DRAWING_GROUP);
+				NumbatLogic.Assert.Plz(pBiffRecord.GetType() == Type.TYPE_CONTINUE || pBiffRecord.GetType() == Type.TYPE_MSO_DRAWING_GROUP);
 				m_pContinueInfoVector.PushBack(new BiffRecord_ContinueInfo((int)(m_pHeader.m_nSize), (int)(pBiffRecord.GetType())));
 				uint nNewSize = m_pHeader.m_nSize + pBiffRecord.m_pHeader.m_nSize;
 				m_pHeader.m_nSize = nNewSize;
@@ -7786,7 +7803,7 @@ namespace NumberDuck
 
 			public WorksheetRange GetWorksheetRangeByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex <= (ushort)(m_pWorksheetRangeVector.GetSize()));
+				NumbatLogic.Assert.Plz(nIndex <= (ushort)(m_pWorksheetRangeVector.GetSize()));
 				return m_pWorksheetRangeVector.Get((int)(nIndex));
 			}
 
@@ -7822,7 +7839,7 @@ namespace NumberDuck
 				for (int i = 0; i < m_pStyleVector.GetSize(); i++)
 					if (m_pStyleVector.Get(i) == pStyle)
 						return (ushort)(i + 15);
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 				return 0;
 			}
 
@@ -8388,7 +8405,7 @@ namespace NumberDuck
 
 			public Style GetStyleByXfIndex(ushort nXfIndex)
 			{
-				nbAssert.Assert(nXfIndex >= 15);
+				NumbatLogic.Assert.Plz(nXfIndex >= 15);
 				Style pStyle = GetStyleByIndex((ushort)(nXfIndex - 15));
 				return pStyle;
 			}
@@ -8424,7 +8441,7 @@ namespace NumberDuck
 
 			public static uint GetDefaultPaletteColorByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < NUM_DEFAULT_PALETTE_ENTRY + NUM_CUSTOM_PALETTE_ENTRY);
+				NumbatLogic.Assert.Plz(nIndex < NUM_DEFAULT_PALETTE_ENTRY + NUM_CUSTOM_PALETTE_ENTRY);
 				uint nColor = 0;
 				if (nIndex < NUM_DEFAULT_PALETTE_ENTRY)
 					nColor = DEFAULT_COLOR[nIndex];
@@ -8435,7 +8452,7 @@ namespace NumberDuck
 
 			public uint GetPaletteColorByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < NUM_DEFAULT_PALETTE_ENTRY + NUM_CUSTOM_PALETTE_ENTRY);
+				NumbatLogic.Assert.Plz(nIndex < NUM_DEFAULT_PALETTE_ENTRY + NUM_CUSTOM_PALETTE_ENTRY);
 				if (m_pPaletteRecord != null && nIndex >= NUM_DEFAULT_PALETTE_ENTRY)
 					return m_pPaletteRecord.GetColorByIndex((ushort)(nIndex - NUM_DEFAULT_PALETTE_ENTRY));
 				return GetDefaultPaletteColorByIndex(nIndex);
@@ -8623,7 +8640,7 @@ namespace NumberDuck
 			protected Blob m_pBlob;
 			public SectorChain(int nSectorSize)
 			{
-				nbAssert.Assert((nSectorSize & (nSectorSize - 1)) == 0);
+				NumbatLogic.Assert.Plz((nSectorSize & (nSectorSize - 1)) == 0);
 				m_nSectorSize = nSectorSize;
 				m_pBlob = new Blob(false);
 				m_pSectorVector = new Vector<Sector>();
@@ -8636,7 +8653,7 @@ namespace NumberDuck
 
 			public Sector GetSectorByIndex(int nIndex)
 			{
-				nbAssert.Assert(nIndex < m_pSectorVector.GetSize());
+				NumbatLogic.Assert.Plz(nIndex < m_pSectorVector.GetSize());
 				return m_pSectorVector.Get(nIndex);
 			}
 
@@ -8758,7 +8775,7 @@ namespace NumberDuck
 			public Stream(int nStreamId, int nMinimumStandardStreamSize, Blob pBlob, int nOffset, CompoundFile pCompoundFile)
 			{
 				int i;
-				nbAssert.Assert(pCompoundFile != null);
+				NumbatLogic.Assert.Plz(pCompoundFile != null);
 				m_pDataStruct = new StreamDataStruct();
 				m_pCompoundFile = pCompoundFile;
 				m_nStreamId = nStreamId;
@@ -8785,8 +8802,8 @@ namespace NumberDuck
 				m_pDataStruct.m_nStreamSize = m_pBlobView.UnpackUint32();
 				for (i = 0; i < 4; i++)
 					m_pDataStruct.m_pUnused[i] = m_pBlobView.UnpackUint8();
-				nbAssert.Assert(m_pBlobView.GetOffset() == m_pBlobView.GetSize());
-				nbAssert.Assert(m_pBlobView.GetOffset() == DATA_SIZE);
+				NumbatLogic.Assert.Plz(m_pBlobView.GetOffset() == m_pBlobView.GetSize());
+				NumbatLogic.Assert.Plz(m_pBlobView.GetOffset() == DATA_SIZE);
 				if (m_nStreamId == 0)
 				{
 					m_pDataStruct.m_nType = (byte)(Type.TYPE_ROOT_STORAGE);
@@ -8798,9 +8815,9 @@ namespace NumberDuck
 
 			public void Allocate(Type eType, int nStreamSize)
 			{
-				nbAssert.Assert(m_pSectorChain == null);
-				nbAssert.Assert(m_pDataStruct.m_nType == (byte)(Type.TYPE_EMPTY));
-				nbAssert.Assert(eType != Type.TYPE_ROOT_STORAGE);
+				NumbatLogic.Assert.Plz(m_pSectorChain == null);
+				NumbatLogic.Assert.Plz(m_pDataStruct.m_nType == (byte)(Type.TYPE_EMPTY));
+				NumbatLogic.Assert.Plz(eType != Type.TYPE_ROOT_STORAGE);
 				m_pDataStruct.m_nType = (byte)(eType);
 				m_pSectorChain = new SectorChain(m_pCompoundFile.GetSectorSize(GetShortSector()));
 				Resize(nStreamSize);
@@ -8837,8 +8854,8 @@ namespace NumberDuck
 				m_pBlobView.PackUint32(m_pDataStruct.m_nStreamSize);
 				for (i = 0; i < 4; i++)
 					m_pBlobView.PackUint8(m_pDataStruct.m_pUnused[i]);
-				nbAssert.Assert(m_pBlobView.GetOffset() == m_pBlobView.GetSize());
-				nbAssert.Assert(m_pBlobView.GetOffset() == DATA_SIZE);
+				NumbatLogic.Assert.Plz(m_pBlobView.GetOffset() == m_pBlobView.GetSize());
+				NumbatLogic.Assert.Plz(m_pBlobView.GetOffset() == DATA_SIZE);
 			}
 
 			public int GetStreamId()
@@ -8866,7 +8883,7 @@ namespace NumberDuck
 				int i;
 				m_sNameTemp.Set(sxName);
 				int nLength = m_sNameTemp.GetLength();
-				nbAssert.Assert(nLength < StreamDataStruct.MAX_NAME_LENGTH);
+				NumbatLogic.Assert.Plz(nLength < StreamDataStruct.MAX_NAME_LENGTH);
 				m_pDataStruct.m_nNameDataSize = (ushort)((nLength + 1) << 1);
 				for (i = 0; i < nLength; i++)
 					m_pDataStruct.m_pName[i] = m_sNameTemp.GetChar(i);
@@ -9001,7 +9018,7 @@ namespace NumberDuck
 
 			public ushort GetNameUtf16(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < StreamDataStruct.MAX_NAME_LENGTH);
+				NumbatLogic.Assert.Plz(nIndex < StreamDataStruct.MAX_NAME_LENGTH);
 				return m_pDataStruct.m_pName[nIndex];
 			}
 
@@ -9093,8 +9110,8 @@ namespace NumberDuck
 
 			public void AddProperty(ushort opid, byte fBid, int op)
 			{
-				nbAssert.Assert(opid <= 0x3FFF);
-				nbAssert.Assert(fBid <= 0x1);
+				NumbatLogic.Assert.Plz(opid <= 0x3FFF);
+				NumbatLogic.Assert.Plz(fBid <= 0x1);
 				OfficeArtFOPTEStruct pFOPTE = new OfficeArtFOPTEStruct();
 				pFOPTE.m_opid.m_opid = opid;
 				pFOPTE.m_opid.m_fBid = fBid;
@@ -9444,7 +9461,7 @@ namespace NumberDuck
 			protected void PostBlobRead(BlobView pBlobView)
 			{
 				ushort i;
-				nbAssert.Assert(GetNumFRIT() == GetSize() / OfficeArtFRITStruct.SIZE);
+				NumbatLogic.Assert.Plz(GetNumFRIT() == GetSize() / OfficeArtFRITStruct.SIZE);
 				for (i = 0; i < m_pHeader.m_recInstance; i++)
 				{
 					OfficeArtFRITStruct pFRIT = new OfficeArtFRITStruct();
@@ -9464,7 +9481,7 @@ namespace NumberDuck
 
 			public OfficeArtFRITStruct GetFRITByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex >= GetNumFRIT());
+				NumbatLogic.Assert.Plz(nIndex >= GetNumFRIT());
 				return m_pRgfritVector.Get(nIndex);
 			}
 
@@ -9556,8 +9573,8 @@ namespace NumberDuck
 
 			public void AddProperty(ushort opid, byte fBid, int op)
 			{
-				nbAssert.Assert(opid <= 0x3FFF);
-				nbAssert.Assert(fBid <= 0x1);
+				NumbatLogic.Assert.Plz(opid <= 0x3FFF);
+				NumbatLogic.Assert.Plz(fBid <= 0x1);
 				OfficeArtFOPTEStruct pFOPTE = new OfficeArtFOPTEStruct();
 				pFOPTE.m_opid.m_opid = opid;
 				pFOPTE.m_opid.m_fBid = fBid;
@@ -9574,7 +9591,7 @@ namespace NumberDuck
 
 			public void AddStringProperty(ushort opid, string szString)
 			{
-				nbAssert.Assert((OfficeArtRecord.OPIDType)(opid) == OfficeArtRecord.OPIDType.OPID_WZ_NAME);
+				NumbatLogic.Assert.Plz((OfficeArtRecord.OPIDType)(opid) == OfficeArtRecord.OPIDType.OPID_WZ_NAME);
 				InternalString sTemp = new InternalString(szString);
 				Blob pBlob = new Blob(true);
 				BlobView pBlobView = pBlob.GetBlobView();
@@ -9584,8 +9601,8 @@ namespace NumberDuck
 
 			public void AddBlobProperty(ushort opid, byte fBid, Blob pBlob)
 			{
-				nbAssert.Assert(opid <= 0x3FFF);
-				nbAssert.Assert(fBid <= 0x1);
+				NumbatLogic.Assert.Plz(opid <= 0x3FFF);
+				NumbatLogic.Assert.Plz(fBid <= 0x1);
 				BlobView pBlobView = pBlob.GetBlobView();
 				pBlobView.SetOffset(0);
 				OfficeArtFOPTEStruct pFOPTE = new OfficeArtFOPTEStruct();
@@ -9875,7 +9892,7 @@ namespace NumberDuck
 				}
 				else
 				{
-					nbAssert.Assert(false);
+					NumbatLogic.Assert.Plz(false);
 				}
 			}
 
@@ -10200,7 +10217,7 @@ namespace NumberDuck
 				}
 				else
 				{
-					nbAssert.Assert(false);
+					NumbatLogic.Assert.Plz(false);
 				}
 				{
 					BlobView pPictureBlobView = pPicture.GetBlob().GetBlobView();
@@ -10246,7 +10263,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert((Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_EMF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_WMF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_PICT || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_JPEG || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_PNG || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_DIB || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_TIFF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_JPEG_CMYK);
+				NumbatLogic.Assert.Plz((Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_EMF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_WMF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_PICT || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_JPEG || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_PNG || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_DIB || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_TIFF || (Type)(m_pHeader.m_recType) == Type.TYPE_OFFICE_ART_BLIP_JPEG_CMYK);
 				uint nSize = m_pHeader.m_recLen - SIZE;
 				if (m_pHeader.m_recInstance == 0x46B || m_pHeader.m_recInstance == 0x6E3)
 				{
@@ -10311,7 +10328,7 @@ namespace NumberDuck
 
 			public override void AddOfficeArtRecord(OfficeArtRecord pOfficeArtRecord)
 			{
-				nbAssert.Assert(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_FBSE);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_FBSE);
 				base.AddOfficeArtRecord(pOfficeArtRecord);
 			}
 
@@ -10665,7 +10682,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -10751,7 +10768,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -10877,7 +10894,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -10963,7 +10980,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -11040,7 +11057,7 @@ namespace NumberDuck
 					}
 
 				}
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 				return null;
 			}
 
@@ -12139,7 +12156,7 @@ namespace NumberDuck
 			protected void PostBlobRead(BlobView pBlobView)
 			{
 				ushort i;
-				nbAssert.Assert(m_pExtPropVector == null);
+				NumbatLogic.Assert.Plz(m_pExtPropVector == null);
 				m_pExtPropVector = new OwnedVector<ExtPropStruct>();
 				for (i = 0; i < m_cexts; i++)
 				{
@@ -12155,7 +12172,7 @@ namespace NumberDuck
 
 			protected void PostBlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_cexts == m_pExtPropVector.GetSize());
+				NumbatLogic.Assert.Plz(m_cexts == m_pExtPropVector.GetSize());
 				int i;
 				for (i = 0; i < m_pExtPropVector.GetSize(); i++)
 				{
@@ -12212,7 +12229,7 @@ namespace NumberDuck
 
 						case BiffStruct.XColorType.XCLRTHEMED:
 						{
-							nbAssert.Assert(pTheme != null);
+							NumbatLogic.Assert.Plz(pTheme != null);
 							uint nColor = pTheme.GetColorByIndex((int)(pExtProp.m_pFullColorExt.m_xclrValue));
 							uint nR = (nColor >> 16) & 0xFF;
 							uint nG = (nColor >> 8) & 0xFF;
@@ -12726,8 +12743,8 @@ namespace NumberDuck
 					}
 
 				}
-				nbAssert.Assert(nBackgroundColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nBackgroundColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nBackgroundColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_FOREGROUND);
-				nbAssert.Assert(nFillPatternColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nFillPatternColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nFillPatternColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_BACKGROUND);
+				NumbatLogic.Assert.Plz(nBackgroundColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nBackgroundColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nBackgroundColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_FOREGROUND);
+				NumbatLogic.Assert.Plz(nFillPatternColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nFillPatternColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nFillPatternColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_BACKGROUND);
 				{
 					m_fls = fls;
 					m_icvFore = nBackgroundColourIndex;
@@ -13834,19 +13851,19 @@ namespace NumberDuck
 
 			protected void PostBlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 			}
 
 			public uint GetColorByIndex(int nIndex)
 			{
 				if (m_dwThemeVersion == 0)
 				{
-					nbAssert.Assert(nIndex < m_nColorVector.GetSize());
+					NumbatLogic.Assert.Plz(nIndex < m_nColorVector.GetSize());
 					return m_nColorVector.Get(nIndex);
 				}
 				else
 				{
-					nbAssert.Assert(nIndex < 12);
+					NumbatLogic.Assert.Plz(nIndex < 12);
 					uint[] nDefaultArray = {0xFFFFFF, 0x000000, 0xEEECE1, 0x1F497D, 0x4F81BD, 0xC0504D, 0x9BBB59, 0x8064A2, 0x4BACC6, 0xF79646, 0x0000FF, 0x800080};
 					return nDefaultArray[nIndex];
 				}
@@ -14852,7 +14869,7 @@ namespace NumberDuck
 			public ScatterRecord(Chart.Type eType) : base(TYPE, SIZE)
 			{
 				SetDefaults();
-				nbAssert.Assert(eType == Chart.Type.TYPE_SCATTER);
+				NumbatLogic.Assert.Plz(eType == Chart.Type.TYPE_SCATTER);
 			}
 
 			public Chart.Type GetChartType()
@@ -15710,7 +15727,7 @@ namespace NumberDuck
 
 			public uint GetColorByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex <= m_ccv);
+				NumbatLogic.Assert.Plz(nIndex <= m_ccv);
 				return m_rgColor[nIndex];
 			}
 
@@ -15794,7 +15811,7 @@ namespace NumberDuck
 			public ObjRecord(ushort nIndex, FtCmoStruct.ObjType eType) : base(TYPE, (ushort)(SIZE + (eType == (FtCmoStruct.ObjType.OBJ_TYPE_PICTURE) ? (FtCfStruct.SIZE + FtPioGrbitStruct.SIZE) : 0) + 4))
 			{
 				SetDefaults();
-				nbAssert.Assert(eType == FtCmoStruct.ObjType.OBJ_TYPE_PICTURE || eType == FtCmoStruct.ObjType.OBJ_TYPE_CHART);
+				NumbatLogic.Assert.Plz(eType == FtCmoStruct.ObjType.OBJ_TYPE_PICTURE || eType == FtCmoStruct.ObjType.OBJ_TYPE_CHART);
 				m_cmo.m_ft = 0x15;
 				m_cmo.m_cb = 0x12;
 				m_cmo.m_ot = (ushort)(eType);
@@ -16047,7 +16064,7 @@ namespace NumberDuck
 			public MulBlank(ushort nX, ushort nY, Vector<int> pXfIndexVector) : base(TYPE, SIZE + IXFCellStruct.SIZE * (uint)(pXfIndexVector.GetSize()) + 2)
 			{
 				SetDefaults();
-				nbAssert.Assert(pXfIndexVector.GetSize() > 1);
+				NumbatLogic.Assert.Plz(pXfIndexVector.GetSize() > 1);
 				m_rw.m_rw = nY;
 				m_col.m_col = nX;
 				for (int i = 0; i < pXfIndexVector.GetSize(); i++)
@@ -16189,7 +16206,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_pOfficeArtRecord == null);
+				NumbatLogic.Assert.Plz(m_pOfficeArtRecord == null);
 				m_pOfficeArtRecord = OfficeArtRecord.CreateOfficeArtRecord(pBlobView);
 			}
 
@@ -16305,9 +16322,9 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_pOfficeArtDggContainerRecord == null);
+				NumbatLogic.Assert.Plz(m_pOfficeArtDggContainerRecord == null);
 				OfficeArtRecord pOfficeArtRecord = OfficeArtRecord.CreateOfficeArtRecord(pBlobView);
-				nbAssert.Assert(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_DGG_CONTAINER);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_DGG_CONTAINER);
 				{
 					NumberDuck.Secret.OfficeArtRecord __3533451309 = pOfficeArtRecord;
 					pOfficeArtRecord = null;
@@ -16456,7 +16473,7 @@ namespace NumberDuck
 
 			public Ref8Struct GetMergedCell(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < m_cmcs);
+				NumbatLogic.Assert.Plz(nIndex < m_cmcs);
 				return m_pRef8Vector.Get(nIndex);
 			}
 
@@ -16603,7 +16620,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -16757,7 +16774,7 @@ namespace NumberDuck
 			public LineRecord(Chart.Type eType) : base(TYPE, SIZE)
 			{
 				SetDefaults();
-				nbAssert.Assert(eType == Chart.Type.TYPE_LINE || eType == Chart.Type.TYPE_LINE_STACKED || eType == Chart.Type.TYPE_LINE_STACKED_100);
+				NumbatLogic.Assert.Plz(eType == Chart.Type.TYPE_LINE || eType == Chart.Type.TYPE_LINE_STACKED || eType == Chart.Type.TYPE_LINE_STACKED_100);
 				if (eType == Chart.Type.TYPE_LINE_STACKED || eType == Chart.Type.TYPE_LINE_STACKED_100)
 					m_fStacked = 0x1;
 				if (eType == Chart.Type.TYPE_LINE_STACKED_100)
@@ -17143,7 +17160,7 @@ namespace NumberDuck
 			public LegendRecord(Legend pLegend) : base(TYPE, SIZE)
 			{
 				SetDefaults();
-				nbAssert.Assert(!pLegend.GetHidden());
+				NumbatLogic.Assert.Plz(!pLegend.GetHidden());
 			}
 
 			public void ModifyLegend(Legend pLegend, BiffWorkbookGlobals pBiffWorkbookGlobals)
@@ -17562,8 +17579,8 @@ namespace NumberDuck
 			public GelFrameRecord(Fill pFill, WorkbookGlobals pWorkbookGlobals) : base(TYPE, SIZE)
 			{
 				SetDefaults();
-				nbAssert.Assert(pFill != null);
-				nbAssert.Assert(pWorkbookGlobals != null);
+				NumbatLogic.Assert.Plz(pFill != null);
+				NumbatLogic.Assert.Plz(pWorkbookGlobals != null);
 				m_OPT1 = new OfficeArtFOPTRecord();
 				{
 					Color pColor = pFill.GetForegroundColor();
@@ -17594,19 +17611,19 @@ namespace NumberDuck
 			protected void PostBlobRead(BlobView pBlobView)
 			{
 				OfficeArtRecord pOfficeArtRecord;
-				nbAssert.Assert(m_OPT1 == null);
+				NumbatLogic.Assert.Plz(m_OPT1 == null);
 				pOfficeArtRecord = OfficeArtRecord.CreateOfficeArtRecord(pBlobView);
-				nbAssert.Assert(pOfficeArtRecord != null);
-				nbAssert.Assert(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_FOPT);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord != null);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_FOPT);
 				{
 					NumberDuck.Secret.OfficeArtRecord __3533451309 = pOfficeArtRecord;
 					pOfficeArtRecord = null;
 					m_OPT1 = (OfficeArtFOPTRecord)(__3533451309);
 				}
-				nbAssert.Assert(m_OPT2 == null);
+				NumbatLogic.Assert.Plz(m_OPT2 == null);
 				pOfficeArtRecord = OfficeArtRecord.CreateOfficeArtRecord(pBlobView);
-				nbAssert.Assert(pOfficeArtRecord != null);
-				nbAssert.Assert(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_TERTIARY_FOPT);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord != null);
+				NumbatLogic.Assert.Plz(pOfficeArtRecord.GetType() == OfficeArtRecord.Type.TYPE_OFFICE_ART_TERTIARY_FOPT);
 				{
 					NumberDuck.Secret.OfficeArtRecord __3533451309 = pOfficeArtRecord;
 					pOfficeArtRecord = null;
@@ -17783,7 +17800,7 @@ namespace NumberDuck
 				m_cell.m_rw.m_rw = nY;
 				m_cell.m_ixfe.m_ixfe = nXfIndex;
 				m_fAlwaysCalc = 0x1;
-				nbAssert.Assert(m_formula == null);
+				NumbatLogic.Assert.Plz(m_formula == null);
 				m_formula = new CellParsedFormulaStruct(pFormula, pWorkbookGlobals);
 				m_pHeader.m_nSize += (ushort)(m_formula.GetSize());
 			}
@@ -17795,7 +17812,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_formula == null);
+				NumbatLogic.Assert.Plz(m_formula == null);
 				m_formula = new CellParsedFormulaStruct();
 				m_formula.BlobRead(pBlobView);
 			}
@@ -17864,7 +17881,7 @@ namespace NumberDuck
 			public Format(ushort ifmt, string szFormat) : base(TYPE, SIZE)
 			{
 				SetDefaults();
-				nbAssert.Assert(ifmt >= 5 && ifmt <= 8 || ifmt >= 23 && ifmt <= 26 || ifmt >= 41 && ifmt <= 44 || ifmt >= 63 && ifmt <= 66 || ifmt >= 164 && ifmt <= 382 || ifmt >= 383 && ifmt <= 392);
+				NumbatLogic.Assert.Plz(ifmt >= 5 && ifmt <= 8 || ifmt >= 23 && ifmt <= 26 || ifmt >= 41 && ifmt <= 44 || ifmt >= 63 && ifmt <= 66 || ifmt >= 164 && ifmt <= 382 || ifmt >= 383 && ifmt <= 392);
 				m_ifmt = ifmt;
 				m_stFormat.m_rgb.Set(szFormat);
 				m_pHeader.m_nSize += (uint)(m_stFormat.GetDynamicSize());
@@ -18023,7 +18040,7 @@ namespace NumberDuck
 				m_unused1 = unused1;
 				if (bItalic)
 					m_fItalic = 0x1;
-				nbAssert.Assert(nColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_TOOL_TIP_TEXT || nColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_FONT_AUTOMATIC);
+				NumbatLogic.Assert.Plz(nColourIndex >= BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY && nColourIndex < BiffWorkbookGlobals.NUM_DEFAULT_PALETTE_ENTRY + BiffWorkbookGlobals.NUM_CUSTOM_PALETTE_ENTRY || nColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_TOOL_TIP_TEXT || nColourIndex == BiffWorkbookGlobals.PALETTE_INDEX_DEFAULT_FONT_AUTOMATIC);
 				m_icv.m_icv = nColourIndex;
 				if (bBold)
 					m_bls = 700;
@@ -18162,7 +18179,7 @@ namespace NumberDuck
 			{
 				SetDefaults();
 				m_cXTI = (ushort)(pWorksheetRangeVector.GetSize());
-				nbAssert.Assert(m_pXTIVector == null);
+				NumbatLogic.Assert.Plz(m_pXTIVector == null);
 				m_pXTIVector = new OwnedVector<XTIStruct>();
 				for (ushort i = 0; i < m_cXTI; i++)
 				{
@@ -18186,7 +18203,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_pXTIVector == null);
+				NumbatLogic.Assert.Plz(m_pXTIVector == null);
 				m_pXTIVector = new OwnedVector<XTIStruct>();
 				for (ushort i = 0; i < m_cXTI; i++)
 				{
@@ -18213,7 +18230,7 @@ namespace NumberDuck
 
 			public XTIStruct GetXTIByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < m_cXTI);
+				NumbatLogic.Assert.Plz(nIndex < m_cXTI);
 				return m_pXTIVector.Get(nIndex);
 			}
 
@@ -18446,7 +18463,7 @@ namespace NumberDuck
 			protected short m_miyRwHidden;
 			public DefaultRowHeight(short nRowHeight) : base(TYPE, SIZE + 2)
 			{
-				nbAssert.Assert(nRowHeight > 0);
+				NumbatLogic.Assert.Plz(nRowHeight > 0);
 				SetDefaults();
 				m_fUnsynced = 1;
 				m_miyRw = nRowHeight;
@@ -19516,7 +19533,7 @@ namespace NumberDuck
 				m_fUnlinkedIfmt = 0x0;
 				if (fUnlinkedIfmt)
 					m_fUnlinkedIfmt = 0x1;
-				nbAssert.Assert(m_formula == null);
+				NumbatLogic.Assert.Plz(m_formula == null);
 				m_formula = new CellParsedFormulaStruct(pFormula, pWorkbookGlobals);
 				m_pHeader.m_nSize += (ushort)(m_formula.GetSize());
 			}
@@ -19528,7 +19545,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_formula == null);
+				NumbatLogic.Assert.Plz(m_formula == null);
 				m_formula = new CellParsedFormulaStruct();
 				m_formula.BlobRead(pBlobView);
 			}
@@ -20131,7 +20148,7 @@ namespace NumberDuck
 			protected ushort m_reserved;
 			public BarRecord(Chart.Type eType) : base(TYPE, SIZE)
 			{
-				nbAssert.Assert(eType == Chart.Type.TYPE_COLUMN || eType == Chart.Type.TYPE_COLUMN_STACKED || eType == Chart.Type.TYPE_COLUMN_STACKED_100 || eType == Chart.Type.TYPE_BAR || eType == Chart.Type.TYPE_BAR_STACKED || eType == Chart.Type.TYPE_BAR_STACKED_100);
+				NumbatLogic.Assert.Plz(eType == Chart.Type.TYPE_COLUMN || eType == Chart.Type.TYPE_COLUMN_STACKED || eType == Chart.Type.TYPE_COLUMN_STACKED_100 || eType == Chart.Type.TYPE_BAR || eType == Chart.Type.TYPE_BAR_STACKED || eType == Chart.Type.TYPE_BAR_STACKED_100);
 				SetDefaults();
 				if (eType == Chart.Type.TYPE_BAR || eType == Chart.Type.TYPE_BAR_STACKED || eType == Chart.Type.TYPE_BAR_STACKED_100)
 					m_fTranspose = 0x1;
@@ -20516,7 +20533,7 @@ namespace NumberDuck
 			protected ushort m_reserved;
 			public AreaRecord(Chart.Type eType) : base(TYPE, SIZE)
 			{
-				nbAssert.Assert(eType == Chart.Type.TYPE_AREA || eType == Chart.Type.TYPE_AREA_STACKED || eType == Chart.Type.TYPE_AREA_STACKED_100);
+				NumbatLogic.Assert.Plz(eType == Chart.Type.TYPE_AREA || eType == Chart.Type.TYPE_AREA_STACKED || eType == Chart.Type.TYPE_AREA_STACKED_100);
 				SetDefaults();
 				if (eType == Chart.Type.TYPE_AREA_STACKED || eType == Chart.Type.TYPE_AREA_STACKED_100)
 					m_fStacked = 1;
@@ -20968,13 +20985,13 @@ namespace NumberDuck
 				if (nContinueOffset + SIZE > BiffRecord.MAX_DATA_SIZE)
 				{
 					pContinueInfoVector.PushBack(new BiffRecord_ContinueInfo(nOffset, 0));
-					nbAssert.Assert(nContinueOffset <= BiffRecord.MAX_DATA_SIZE);
+					NumbatLogic.Assert.Plz(nContinueOffset <= BiffRecord.MAX_DATA_SIZE);
 					nContinueOffset = 0;
 				}
 				BlobWrite(pBlobView);
 				nOffset = nOffset + (int)(SIZE);
 				nContinueOffset = nContinueOffset + (int)(SIZE);
-				nbAssert.Assert(m_cch == m_rgb.GetLength());
+				NumbatLogic.Assert.Plz(m_cch == m_rgb.GetLength());
 				if (m_cch > 0)
 				{
 					Blob pDataBlob = new Blob(true);
@@ -21008,7 +21025,7 @@ namespace NumberDuck
 						if (pDataBlobView.GetOffset() < pDataBlobView.GetSize())
 						{
 							pContinueInfoVector.PushBack(new BiffRecord_ContinueInfo(nOffset, 0));
-							nbAssert.Assert(nContinueOffset <= BiffRecord.MAX_DATA_SIZE);
+							NumbatLogic.Assert.Plz(nContinueOffset <= BiffRecord.MAX_DATA_SIZE);
 							nContinueOffset = 0;
 						}
 					}
@@ -22039,8 +22056,8 @@ namespace NumberDuck
 
 			protected void PostBlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_haxUrl != null);
-				nbAssert.Assert(m_hlstmfHasMoniker > 0 && m_hlstmfMonikerSavedAsStr == 0);
+				NumbatLogic.Assert.Plz(m_haxUrl != null);
+				NumbatLogic.Assert.Plz(m_hlstmfHasMoniker > 0 && m_hlstmfMonikerSavedAsStr == 0);
 				pBlobView.PackUint8(0xE0);
 				pBlobView.PackUint8(0xC9);
 				pBlobView.PackUint8(0xEA);
@@ -22458,7 +22475,7 @@ namespace NumberDuck
 
 			protected void PostBlobRead(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_pFullColorExt == null);
+				NumbatLogic.Assert.Plz(m_pFullColorExt == null);
 				switch (m_extType)
 				{
 					case 0x0004:
@@ -22486,7 +22503,7 @@ namespace NumberDuck
 
 			protected void PreBlobWrite(BlobView pBlobView)
 			{
-				nbAssert.Assert(m_pFullColorExt != null);
+				NumbatLogic.Assert.Plz(m_pFullColorExt != null);
 				m_cb = SIZE + FullColorExtStruct.SIZE;
 			}
 
@@ -22633,7 +22650,7 @@ namespace NumberDuck
 				SetDefaults();
 				if (pFormula != null)
 				{
-					nbAssert.Assert(pWorkbookGlobals != null);
+					NumbatLogic.Assert.Plz(pWorkbookGlobals != null);
 					pFormula.ToRgce(m_rgce, pWorkbookGlobals);
 				}
 			}
@@ -22647,7 +22664,7 @@ namespace NumberDuck
 			{
 				int nStart = pBlobView.GetStart() + pBlobView.GetOffset();
 				int nEnd = nStart + m_cce;
-				nbAssert.Assert(nEnd <= pBlobView.GetEnd());
+				NumbatLogic.Assert.Plz(nEnd <= pBlobView.GetEnd());
 				BlobView pTempBlobView = new BlobView(pBlobView.GetBlob(), nStart, nEnd);
 				m_rgce.BlobRead(pTempBlobView);
 				pBlobView.SetOffset(pBlobView.GetOffset() + pTempBlobView.GetOffset());
@@ -22979,7 +22996,7 @@ namespace NumberDuck
 
 																	default:
 																	{
-																		nbAssert.Assert(false);
+																		NumbatLogic.Assert.Plz(false);
 																		break;
 																	}
 
@@ -23961,7 +23978,7 @@ namespace NumberDuck
 
 							default:
 							{
-								nbAssert.Assert(false);
+								NumbatLogic.Assert.Plz(false);
 								break;
 							}
 
@@ -24184,7 +24201,7 @@ namespace NumberDuck
 			public CompoundFile m_pCompoundFile;
 			public void AppendStream(Stream pStream)
 			{
-				nbAssert.Assert(m_pStreamVector.GetSize() == pStream.GetStreamId());
+				NumbatLogic.Assert.Plz(m_pStreamVector.GetSize() == pStream.GetStreamId());
 				m_pStreamVector.PushBack(pStream);
 			}
 
@@ -24268,8 +24285,8 @@ namespace NumberDuck
 
 			public Stream GetStreamByIndex(int nStreamDirectoryId)
 			{
-				nbAssert.Assert(nStreamDirectoryId >= 0);
-				nbAssert.Assert(nStreamDirectoryId < GetNumStream());
+				NumbatLogic.Assert.Plz(nStreamDirectoryId >= 0);
+				NumbatLogic.Assert.Plz(nStreamDirectoryId < GetNumStream());
 				return m_pImpl.m_pStreamVector.Get(nStreamDirectoryId);
 			}
 
@@ -24327,7 +24344,7 @@ namespace NumberDuck
 				{
 					Stream pStream = m_pImpl.m_pStreamVector.Get(i);
 					if (pStream.GetType() != Stream.Type.TYPE_EMPTY)
-						nbAssert.Assert(pRedBlackTree.AddObject(pStream));
+						NumbatLogic.Assert.Plz(pRedBlackTree.AddObject(pStream));
 				}
 				m_pImpl.RedBlackTreeWalk(pRedBlackTree.GetRootNode(), m_pImpl.m_pStreamVector.Get(0));
 				{
@@ -24360,8 +24377,8 @@ namespace NumberDuck
 
 			public virtual int GetSectorId(int nIndex)
 			{
-				nbAssert.Assert(nIndex >= 0);
-				nbAssert.Assert(nIndex < GetNumSectorId());
+				NumbatLogic.Assert.Plz(nIndex >= 0);
+				NumbatLogic.Assert.Plz(nIndex < GetNumSectorId());
 				BlobView pBlobView = GetBlobView();
 				pBlobView.SetOffset(nIndex << 2);
 				return pBlobView.UnpackInt32();
@@ -24370,8 +24387,8 @@ namespace NumberDuck
 			public virtual void SetSectorId(int nIndex, int nSectorId)
 			{
 				BlobView pBlobView = GetBlobView();
-				nbAssert.Assert(nIndex >= 0);
-				nbAssert.Assert(nIndex < GetNumSectorId());
+				NumbatLogic.Assert.Plz(nIndex >= 0);
+				NumbatLogic.Assert.Plz(nIndex < GetNumSectorId());
 				int nLastSectorId = pBlobView.UnpackInt32At(nIndex << 2);
 				if (nSectorId != nLastSectorId)
 				{
@@ -24445,8 +24462,8 @@ namespace NumberDuck
 
 			public Sector(int nSectorId, BlobView pBlobView, int nDataSize)
 			{
-				nbAssert.Assert(pBlobView != null);
-				nbAssert.Assert(((nDataSize & (nDataSize - 1)) == 0));
+				NumbatLogic.Assert.Plz(pBlobView != null);
+				NumbatLogic.Assert.Plz(((nDataSize & (nDataSize - 1)) == 0));
 				m_pImpl = new SectorImplementation();
 				m_pImpl.m_nSectorId = nSectorId;
 				m_pImpl.m_pBlobView = new BlobView(pBlobView.GetBlob(), pBlobView.GetOffset(), pBlobView.GetOffset() + nDataSize);
@@ -24523,7 +24540,7 @@ namespace NumberDuck
 
 			public int GetInternalSectorId(int nIndex)
 			{
-				nbAssert.Assert(nIndex >= 0);
+				NumbatLogic.Assert.Plz(nIndex >= 0);
 				if (nIndex < INITIAL_SECTOR_ID_ARRAY_SIZE)
 					return m_pHeader.m_pMasterSectorAllocationTable[nIndex];
 				else
@@ -24532,7 +24549,7 @@ namespace NumberDuck
 
 			public void SetInternalSectorId(int nIndex, int nSectorId)
 			{
-				nbAssert.Assert(nIndex >= 0);
+				NumbatLogic.Assert.Plz(nIndex >= 0);
 				if (nIndex < INITIAL_SECTOR_ID_ARRAY_SIZE)
 					m_pHeader.m_pMasterSectorAllocationTable[nIndex] = nSectorId;
 				else
@@ -24541,7 +24558,7 @@ namespace NumberDuck
 
 			public int TranslateIndex(int nIndex)
 			{
-				nbAssert.Assert(nIndex >= 0);
+				NumbatLogic.Assert.Plz(nIndex >= 0);
 				if (nIndex >= INITIAL_SECTOR_ID_ARRAY_SIZE)
 				{
 					int nSectorIndex = nIndex - INITIAL_SECTOR_ID_ARRAY_SIZE;
@@ -24561,7 +24578,7 @@ namespace NumberDuck
 
 			public override void AppendSector(Sector pSector)
 			{
-				nbAssert.Assert(GetSectorIdToAppend() == pSector.GetSectorId());
+				NumbatLogic.Assert.Plz(GetSectorIdToAppend() == pSector.GetSectorId());
 				base.AppendSector(pSector);
 			}
 
@@ -24728,8 +24745,8 @@ namespace NumberDuck
 			protected OwnedVector<Sector> m_pShortSectorVector;
 			public CompoundFile(uint nSectorSize = 512, uint nShortSectorSize = 64, uint nMinimumStandardStreamSize = 4096)
 			{
-				nbAssert.Assert(nSectorSize >= Sector.MINIMUM_SECTOR_SIZE && ((nSectorSize & (nSectorSize - 1)) == 0));
-				nbAssert.Assert(nShortSectorSize < nSectorSize && ((nShortSectorSize & (nShortSectorSize - 1)) == 0));
+				NumbatLogic.Assert.Plz(nSectorSize >= Sector.MINIMUM_SECTOR_SIZE && ((nSectorSize & (nSectorSize - 1)) == 0));
+				NumbatLogic.Assert.Plz(nShortSectorSize < nSectorSize && ((nShortSectorSize & (nShortSectorSize - 1)) == 0));
 				m_pSectorVector = new OwnedVector<Sector>();
 				m_pShortSectorVector = new OwnedVector<Sector>();
 				m_pBlob = new Blob(false);
@@ -24784,8 +24801,8 @@ namespace NumberDuck
 						int nSectorSize = (1 << m_pHeader.m_nSectorSize);
 						int nNumSector = (m_pBlob.GetSize() - HEADER_SIZE) / nSectorSize;
 						BlobView pBlobView = m_pBlob.GetBlobView();
-						nbAssert.Assert(pBlobView.GetOffset() == HEADER_SIZE);
-						nbAssert.Assert(pBlobView.GetOffset() + nNumSector * nSectorSize == m_pBlob.GetSize());
+						NumbatLogic.Assert.Plz(pBlobView.GetOffset() == HEADER_SIZE);
+						NumbatLogic.Assert.Plz(pBlobView.GetOffset() + nNumSector * nSectorSize == m_pBlob.GetSize());
 						for (int i = 0; i < nNumSector; i++)
 							m_pSectorVector.PushBack(new Sector(i, pBlobView, nSectorSize));
 						m_pMasterSectorAllocationTable = new MasterSectorAllocationTable(m_pHeader);
@@ -24795,18 +24812,18 @@ namespace NumberDuck
 							m_pMasterSectorAllocationTable.AppendSector(m_pSectorVector.Get(nSectorId));
 							nSectorId = m_pMasterSectorAllocationTable.GetSectorIdToAppend();
 						}
-						nbAssert.Assert(m_pMasterSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nMasterSectorAllocationTableSize));
+						NumbatLogic.Assert.Plz(m_pMasterSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nMasterSectorAllocationTableSize));
 						m_pSectorAllocationTable = new SectorAllocationTable(1 << m_pHeader.m_nSectorSize);
 						for (int i = 0; i < (int)(m_pHeader.m_nSectorAllocationTableSize); i++)
 							m_pSectorAllocationTable.AppendSector(GetSector(m_pMasterSectorAllocationTable.GetSectorId(i), false));
-						nbAssert.Assert(m_pSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nSectorAllocationTableSize));
+						NumbatLogic.Assert.Plz(m_pSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nSectorAllocationTableSize));
 						m_pShortSectorAllocationTable = new SectorAllocationTable(1 << m_pHeader.m_nSectorSize);
 						FillSectorChain(m_pShortSectorAllocationTable, m_pHeader.m_nShortSectorAllocationTableSectorId, false);
-						nbAssert.Assert(m_pShortSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nShortSectorAllocationTableSize));
+						NumbatLogic.Assert.Plz(m_pShortSectorAllocationTable.GetNumSector() == (int)(m_pHeader.m_nShortSectorAllocationTableSize));
 						m_pStreamDirectory = new StreamDirectory((int)(nSectorSize), m_pHeader.m_nMinimumStandardStreamSize, this);
 						FillSectorChain(m_pStreamDirectory, m_pHeader.m_nStreamDirectoryStreamSectorId, false);
 						Stream pRootStream = m_pStreamDirectory.GetStreamByIndex(0);
-						nbAssert.Assert(pRootStream.GetType() == Stream.Type.TYPE_ROOT_STORAGE);
+						NumbatLogic.Assert.Plz(pRootStream.GetType() == Stream.Type.TYPE_ROOT_STORAGE);
 						pRootStream.FillSectorChain();
 						int nShortSectorSize = (1 << m_pHeader.m_nShortSectorSize);
 						int nNumShortSector = pRootStream.GetSize() / nShortSectorSize;
@@ -24889,7 +24906,7 @@ namespace NumberDuck
 
 			public int GetSectorId(int nSectorId, bool bShortSector)
 			{
-				nbAssert.Assert(nSectorId >= 0);
+				NumbatLogic.Assert.Plz(nSectorId >= 0);
 				if (bShortSector)
 				{
 					return m_pShortSectorAllocationTable.GetSectorId(nSectorId);
@@ -24902,22 +24919,22 @@ namespace NumberDuck
 
 			public Sector GetSector(int nSectorId, bool bShortSector)
 			{
-				nbAssert.Assert(nSectorId >= 0);
+				NumbatLogic.Assert.Plz(nSectorId >= 0);
 				if (bShortSector)
 				{
-					nbAssert.Assert(nSectorId < m_pShortSectorVector.GetSize());
+					NumbatLogic.Assert.Plz(nSectorId < m_pShortSectorVector.GetSize());
 					return m_pShortSectorVector.Get(nSectorId);
 				}
 				else
 				{
-					nbAssert.Assert(nSectorId < m_pSectorVector.GetSize());
+					NumbatLogic.Assert.Plz(nSectorId < m_pSectorVector.GetSize());
 					return m_pSectorVector.Get(nSectorId);
 				}
 			}
 
 			public void FillSectorChain(SectorChain pSectorChain, int nInitialSectorId, bool bShortSector)
 			{
-				nbAssert.Assert(pSectorChain != null);
+				NumbatLogic.Assert.Plz(pSectorChain != null);
 				int nSectorId = nInitialSectorId;
 				while (nSectorId != (int)(Sector.SectorId.END_OF_CHAIN_SECTOR_ID))
 				{
@@ -27662,8 +27679,8 @@ namespace NumberDuck
 			protected byte m_nCount;
 			public SpaceToken(SpaceType eSpaceType, byte nCount) : base(Type.TYPE_SPACE, SubType.SUB_TYPE_VARIABLE, 0)
 			{
-				nbAssert.Assert(eSpaceType >= SpaceType.TYPE_SPACE_BEFORE_BASE_EXPRESSION && eSpaceType <= SpaceType.TYPE_SPACE_BEFORE_EXPRESSION);
-				nbAssert.Assert(nCount > 0);
+				NumbatLogic.Assert.Plz(eSpaceType >= SpaceType.TYPE_SPACE_BEFORE_BASE_EXPRESSION && eSpaceType <= SpaceType.TYPE_SPACE_BEFORE_EXPRESSION);
+				NumbatLogic.Assert.Plz(nCount > 0);
 				m_eSpaceType = eSpaceType;
 				m_nCount = nCount;
 			}
@@ -27732,7 +27749,7 @@ namespace NumberDuck
 					return new PtgOperatorRecord(0x0D);
 				if (m_sOperator.IsEqual("<>"))
 					return new PtgOperatorRecord(0x0E);
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 				return null;
 			}
 
@@ -27968,7 +27985,7 @@ namespace NumberDuck
 
 			public Token GetTokenByIndex(ushort nIndex)
 			{
-				nbAssert.Assert(nIndex < m_pTokenVector.GetSize());
+				NumbatLogic.Assert.Plz(nIndex < m_pTokenVector.GetSize());
 				return m_pTokenVector.Get(nIndex);
 			}
 
@@ -28114,7 +28131,7 @@ namespace NumberDuck
 				{
 					Token pToken = m_pTokenVector.Get(i);
 					ParsedExpressionRecord pTemp = pToken.ToParsedExpression(pWorkbookGlobals);
-					nbAssert.Assert(pTemp != null);
+					NumbatLogic.Assert.Plz(pTemp != null);
 					{
 						NumberDuck.Secret.ParsedExpressionRecord __432555651 = pTemp;
 						pTemp = null;
@@ -29098,7 +29115,7 @@ namespace NumberDuck
 			protected RedBlackTreeImplementation m_pImpl;
 			public RedBlackTree(ComparisonCallback pComparisonCallback)
 			{
-				nbAssert.Assert(pComparisonCallback != null);
+				NumbatLogic.Assert.Plz(pComparisonCallback != null);
 				m_pImpl = new RedBlackTreeImplementation();
 				m_pImpl.m_pComparisonCallback = pComparisonCallback;
 				m_pImpl.m_pRootNode = null;
@@ -29137,8 +29154,8 @@ namespace NumberDuck
 				while (true)
 				{
 					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetStoredObject(), pObject);
-					nbAssert.Assert(nComparison >= -1);
-					nbAssert.Assert(nComparison <= 1);
+					NumbatLogic.Assert.Plz(nComparison >= -1);
+					NumbatLogic.Assert.Plz(nComparison <= 1);
 					if (nComparison == 0)
 					{
 						return false;
@@ -29209,7 +29226,7 @@ namespace NumberDuck
 
 			public bool DeleteObject(object pObject)
 			{
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 				return false;
 			}
 
@@ -29226,8 +29243,8 @@ namespace NumberDuck
 				while (pNode != null)
 				{
 					int nComparison = m_pImpl.m_pComparisonCallback(pNode.GetStoredObject(), pObject);
-					nbAssert.Assert(nComparison >= -1);
-					nbAssert.Assert(nComparison <= 1);
+					NumbatLogic.Assert.Plz(nComparison >= -1);
+					NumbatLogic.Assert.Plz(nComparison <= 1);
 					if (nComparison == 0)
 						return pNode;
 					int nDirection = 0;
@@ -29271,7 +29288,7 @@ namespace NumberDuck
 				int nOpposite = 1;
 				if (nDirection > 0)
 					nOpposite = 0;
-				nbAssert.Assert(pNode.m_pChild[nOpposite] != null);
+				NumbatLogic.Assert.Plz(pNode.m_pChild[nOpposite] != null);
 				RedBlackNodeImplementation pChild;
 				{
 					NumberDuck.Secret.RedBlackNodeImplementation __474790283 = pNode.m_pChild[nOpposite];
@@ -29290,7 +29307,7 @@ namespace NumberDuck
 				pNode.m_pParent = pChild;
 				if (pParent == null)
 				{
-					nbAssert.Assert(pNode == m_pRootNode);
+					NumbatLogic.Assert.Plz(pNode == m_pRootNode);
 					{
 						NumberDuck.Secret.RedBlackNodeImplementation __1798688362 = m_pRootNode;
 						m_pRootNode = null;
@@ -29778,7 +29795,7 @@ namespace NumberDuck
 						return nRgb;
 					}
 				}
-				nbAssert.Assert(false);
+				NumbatLogic.Assert.Plz(false);
 				return 0x000000;
 			}
 
@@ -30318,8 +30335,8 @@ namespace NumberDuck
 
 			public Coordinate(ushort nX, ushort nY, bool bXRelative = true, bool bYRelative = true)
 			{
-				nbAssert.Assert(nY <= Worksheet.MAX_ROW);
-				nbAssert.Assert(nX <= Worksheet.MAX_COLUMN);
+				NumbatLogic.Assert.Plz(nY <= Worksheet.MAX_ROW);
+				NumbatLogic.Assert.Plz(nX <= Worksheet.MAX_COLUMN);
 				m_nX = nX;
 				m_nY = nY;
 				m_bXRelative = bXRelative;
@@ -30623,8 +30640,8 @@ namespace NumberDuck
 
 			public void WorksheetRangeToAddress(ushort nFirst, ushort nLast, InternalString sOut)
 			{
-				nbAssert.Assert(nFirst >= 0 && nFirst <= m_pWorkbook.GetNumWorksheet());
-				nbAssert.Assert(nLast >= nFirst && nLast <= m_pWorkbook.GetNumWorksheet());
+				NumbatLogic.Assert.Plz(nFirst >= 0 && nFirst <= m_pWorkbook.GetNumWorksheet());
+				NumbatLogic.Assert.Plz(nLast >= nFirst && nLast <= m_pWorkbook.GetNumWorksheet());
 				InternalString sWorksheetFirst = m_pWorkbook.GetWorksheetByIndex(nFirst).m_pImpl.m_sName;
 				InternalString sWorksheetLast = m_pWorkbook.GetWorksheetByIndex(nLast).m_pImpl.m_sName;
 				bool bHasSpace = sWorksheetFirst.FindChar(' ') != -1 || (nFirst != nLast && sWorksheetLast.FindChar(' ') != -1);
@@ -30926,7 +30943,7 @@ namespace NumberDuck
 			public static Value CopyValue(Value pValue)
 			{
 				Value pNewValue = new Value();
-				nbAssert.Assert(pValue.m_pImpl.m_eType != Value.Type.TYPE_FORMULA);
+				NumbatLogic.Assert.Plz(pValue.m_pImpl.m_eType != Value.Type.TYPE_FORMULA);
 				pNewValue.m_pImpl.m_eType = pValue.m_pImpl.m_eType;
 				pNewValue.m_pImpl.m_sString.Set(pValue.m_pImpl.m_sString.GetExternalString());
 				pNewValue.m_pImpl.m_fFloat = pValue.m_pImpl.m_fFloat;
@@ -30972,8 +30989,8 @@ namespace NumberDuck
 
 			public void SetFormula(Formula pFormula, Worksheet pWorksheet)
 			{
-				nbAssert.Assert(pFormula != null);
-				nbAssert.Assert(pWorksheet != null);
+				NumbatLogic.Assert.Plz(pFormula != null);
+				NumbatLogic.Assert.Plz(pWorksheet != null);
 				m_eType = Value.Type.TYPE_FORMULA;
 				if (m_pFormula != null)
 					{
@@ -31133,7 +31150,7 @@ namespace NumberDuck
 
 			public void SetNameFormula(Formula pFormula)
 			{
-				nbAssert.Assert(pFormula != null);
+				NumbatLogic.Assert.Plz(pFormula != null);
 				{
 					m_pNameFormula = null;
 				}
@@ -31142,7 +31159,7 @@ namespace NumberDuck
 
 			public void SetValuesFormula(Formula pFormula)
 			{
-				nbAssert.Assert(pFormula != null);
+				NumbatLogic.Assert.Plz(pFormula != null);
 				{
 					m_pValuesFormula = null;
 				}
@@ -31188,7 +31205,7 @@ namespace NumberDuck
 
 					default:
 					{
-						nbAssert.Assert(false);
+						NumbatLogic.Assert.Plz(false);
 						break;
 					}
 
@@ -31555,7 +31572,7 @@ namespace NumberDuck
 
 			public Series CreateSeries(Formula pValuesFormula)
 			{
-				nbAssert.Assert(pValuesFormula != null);
+				NumbatLogic.Assert.Plz(pValuesFormula != null);
 				Series pSeries = new Series(m_pWorksheet, pValuesFormula);
 				pSeries.m_pImpl.SetClassicStyle(m_eType, (ushort)(m_pSeriesVector.GetSize()));
 				Series pTemp = pSeries;
@@ -31579,7 +31596,7 @@ namespace NumberDuck
 
 			public void SetCategoriesFormula(Formula pCategoriesFormula)
 			{
-				nbAssert.Assert(pCategoriesFormula != null);
+				NumbatLogic.Assert.Plz(pCategoriesFormula != null);
 				{
 					m_pCategoriesFormula = null;
 				}
