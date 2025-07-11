@@ -2036,35 +2036,34 @@ namespace NumberDuck
 						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
 						Secret.XmlNode pSstNode = null;
 						Secret.XmlNode pSiNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView);
-						if (bContinue)
+						if (pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView))
 						{
 							pXmlBlobView.SetOffset(0);
 							if (!pXmlFile.Load(pXmlBlobView))
 								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSstNode = pXmlFile.GetFirstChildElement("sst");
-							if (pSstNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSiNode = pSstNode.GetFirstChildElement("si");
-						}
-						while (bContinue && pSiNode != null)
-						{
-							Secret.XmlNode pTNode;
-							pTNode = pSiNode.GetFirstChildElement("t");
-							if (pTNode == null)
+							if (bContinue)
 							{
-								bContinue = false;
-								break;
+								pSstNode = pXmlFile.GetFirstChildElement("sst");
+								if (pSstNode == null)
+									bContinue = false;
 							}
-							string szTemp = pTNode.GetText();
-							m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
-							pSiNode = pSiNode.GetNextSiblingElement("si");
+							if (bContinue)
+							{
+								pSiNode = pSstNode.GetFirstChildElement("si");
+							}
+							while (bContinue && pSiNode != null)
+							{
+								Secret.XmlNode pTNode;
+								pTNode = pSiNode.GetFirstChildElement("t");
+								if (pTNode == null)
+								{
+									bContinue = false;
+									break;
+								}
+								string szTemp = pTNode.GetText();
+								m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
+								pSiNode = pSiNode.GetNextSiblingElement("si");
+							}
 						}
 					}
 					if (bContinue)
@@ -2125,9 +2124,9 @@ namespace NumberDuck
 									bContinue = false;
 									break;
 								}
-								NumberDuck.Secret.XlsxWorksheet __3536044127 = pWorksheet;
+								NumberDuck.Secret.XlsxWorksheet __4207131080 = pWorksheet;
 								pWorksheet = null;
-								m_pImpl.m_pWorksheetVector.PushBack(__3536044127);
+								m_pImpl.m_pWorksheetVector.PushBack(__4207131080);
 							}
 							nWorksheetIndex++;
 						}
@@ -2157,9 +2156,9 @@ namespace NumberDuck
 					Secret.BiffRecordContainer pBiffRecordContainer = new Secret.BiffRecordContainer();
 					Secret.BiffWorksheet.Write(pWorksheet, m_pImpl.m_pWorkbookGlobals, (ushort)(i), pBiffRecordContainer);
 					m_pImpl.m_pWorkbookGlobals.PushBiffWorksheetStreamSize(pBiffRecordContainer.GetSize());
-					NumberDuck.Secret.BiffRecordContainer __729810869 = pBiffRecordContainer;
+					NumberDuck.Secret.BiffRecordContainer __2222983093 = pBiffRecordContainer;
 					pBiffRecordContainer = null;
-					pWorksheetBiffRecordContainerVector.PushBack(__729810869);
+					pWorksheetBiffRecordContainerVector.PushBack(__2222983093);
 				}
 				Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
 				Secret.Stream pStream = pCompoundFile.CreateStream("Workbook", Secret.Stream.Type.TYPE_USER_STREAM);
@@ -2213,9 +2212,9 @@ namespace NumberDuck
 					}
 					pContentTypesXml.AppendChild(pTypesNode);
 					pContentTypesXml.Save(pContentTypesBlob.GetBlobView());
-					NumberDuck.Blob __2254750831 = pContentTypesBlob;
+					NumberDuck.Blob __2003092672 = pContentTypesBlob;
 					pContentTypesBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("[Content_Types].xml", __2254750831);
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("[Content_Types].xml", __2003092672);
 					Blob pRelsBlob = new Blob(true);
 					Secret.XmlFile pRelsXml = new Secret.XmlFile();
 					Secret.XmlNode pRelationshipsNode = pRelsXml.CreateElement("Relationships");
@@ -2227,9 +2226,9 @@ namespace NumberDuck
 					pRelationshipsNode.AppendChild(pRelationshipNode);
 					pRelsXml.AppendChild(pRelationshipsNode);
 					pRelsXml.Save(pRelsBlob.GetBlobView());
-					NumberDuck.Blob __3907551603 = pRelsBlob;
+					NumberDuck.Blob __2783477890 = pRelsBlob;
 					pRelsBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("_rels/.rels", __3907551603);
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("_rels/.rels", __2783477890);
 					Blob pWorkbookRelsBlob = new Blob(true);
 					Secret.XmlFile pWorkbookRelsXml = new Secret.XmlFile();
 					Secret.XmlNode pWorkbookRelationshipsNode = pWorkbookRelsXml.CreateElement("Relationships");
@@ -2244,16 +2243,24 @@ namespace NumberDuck
 					pSharedStringsRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings");
 					pSharedStringsRelationship.SetAttribute("Target", "sharedStrings.xml");
 					pWorkbookRelationshipsNode.AppendChild(pSharedStringsRelationship);
-					Secret.XmlNode pWorksheetRelationship = pWorkbookRelsXml.CreateElement("Relationship");
-					pWorksheetRelationship.SetAttribute("Id", "rId3");
-					pWorksheetRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
-					pWorksheetRelationship.SetAttribute("Target", "worksheets/sheet1.xml");
-					pWorkbookRelationshipsNode.AppendChild(pWorksheetRelationship);
+					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
+					{
+						Secret.XmlNode pWorksheetRelationship = pWorkbookRelsXml.CreateElement("Relationship");
+						sTemp.Set("rId");
+						sTemp.AppendInt(i + 3);
+						pWorksheetRelationship.SetAttribute("Id", sTemp.GetExternalString());
+						pWorksheetRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
+						sTemp.Set("worksheets/sheet");
+						sTemp.AppendInt(i + 1);
+						sTemp.Append(".xml");
+						pWorksheetRelationship.SetAttribute("Target", sTemp.GetExternalString());
+						pWorkbookRelationshipsNode.AppendChild(pWorksheetRelationship);
+					}
 					pWorkbookRelsXml.AppendChild(pWorkbookRelationshipsNode);
 					pWorkbookRelsXml.Save(pWorkbookRelsBlob.GetBlobView());
-					NumberDuck.Blob __1397593453 = pWorkbookRelsBlob;
+					NumberDuck.Blob __860733427 = pWorkbookRelsBlob;
 					pWorkbookRelsBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/_rels/workbook.xml.rels", __1397593453);
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/_rels/workbook.xml.rels", __860733427);
 					Blob pWorkbookBlob = new Blob(true);
 					Secret.XmlFile pWorkbookXml = new Secret.XmlFile();
 					Secret.XmlNode pWorkbookNode = pWorkbookXml.CreateElement("workbook");
@@ -2276,9 +2283,9 @@ namespace NumberDuck
 					pWorkbookNode.AppendChild(pSheetsNode);
 					pWorkbookXml.AppendChild(pWorkbookNode);
 					pWorkbookXml.Save(pWorkbookBlob.GetBlobView());
-					NumberDuck.Blob __2937886614 = pWorkbookBlob;
+					NumberDuck.Blob __1427947242 = pWorkbookBlob;
 					pWorkbookBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/workbook.xml", __2937886614);
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/workbook.xml", __1427947242);
 					Blob pStylesBlob = new Blob(true);
 					Secret.XmlFile pStylesXml = new Secret.XmlFile();
 					Secret.XmlNode pStyleSheetNode = pStylesXml.CreateElement("styleSheet");
@@ -2324,10 +2331,10 @@ namespace NumberDuck
 					{
 						Font pDefaultFont = new Font();
 						pDefaultFont.SetName("Calibri");
-						pDefaultFont.SetSize(14);
-						NumberDuck.Font __4054834440 = pDefaultFont;
+						pDefaultFont.SetSize(15);
+						NumberDuck.Font __397345314 = pDefaultFont;
 						pDefaultFont = null;
-						pFontVector.PushBack(__4054834440);
+						pFontVector.PushBack(__397345314);
 					}
 					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
 					{
@@ -2356,9 +2363,9 @@ namespace NumberDuck
 							{
 								pNewFont.GetColor(true).SetFromColor(pFontColor);
 							}
-							NumberDuck.Font __103412828 = pNewFont;
+							NumberDuck.Font __2854772793 = pNewFont;
 							pNewFont = null;
-							pFontVector.PushBack(__103412828);
+							pFontVector.PushBack(__2854772793);
 						}
 					}
 					Secret.XmlNode pFontsNode = pStylesXml.CreateElement("fonts");
@@ -2371,8 +2378,7 @@ namespace NumberDuck
 						Secret.XmlNode pFontNode = pStylesXml.CreateElement("font");
 						Secret.XmlNode pSzNode = pStylesXml.CreateElement("sz");
 						sTemp.Set("");
-						float fPoints = (float)(pFont.m_pImpl.m_nSizeTwips) / 20.0f;
-						sTemp.AppendDouble(fPoints);
+						sTemp.AppendInt(pFont.m_pImpl.m_nSizeTwips / 20);
 						pSzNode.SetAttribute("val", sTemp.GetExternalString());
 						pFontNode.AppendChild(pSzNode);
 						Secret.XmlNode pNameNode = pStylesXml.CreateElement("name");
@@ -2408,14 +2414,14 @@ namespace NumberDuck
 					Secret.OwnedVector<Style> pFillVector = new Secret.OwnedVector<Style>();
 					{
 						Style pDefaultFill = new Style();
-						NumberDuck.Style __1055641746 = pDefaultFill;
+						NumberDuck.Style __3421179622 = pDefaultFill;
 						pDefaultFill = null;
-						pFillVector.PushBack(__1055641746);
+						pFillVector.PushBack(__3421179622);
 						Style pGrayFill = new Style();
 						pGrayFill.SetFillPattern(Style.FillPattern.FILL_PATTERN_125);
-						NumberDuck.Style __4149295839 = pGrayFill;
+						NumberDuck.Style __2404464844 = pGrayFill;
 						pGrayFill = null;
-						pFillVector.PushBack(__4149295839);
+						pFillVector.PushBack(__2404464844);
 					}
 					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
 					{
@@ -2443,9 +2449,9 @@ namespace NumberDuck
 								pNewFill.GetBackgroundColor(true).SetFromColor(pBackgroundColor);
 							if (pFillPatternColor != null)
 								pNewFill.GetFillPatternColor(true).SetFromColor(pFillPatternColor);
-							NumberDuck.Style __510524373 = pNewFill;
+							NumberDuck.Style __2272029778 = pNewFill;
 							pNewFill = null;
-							pFillVector.PushBack(__510524373);
+							pFillVector.PushBack(__2272029778);
 						}
 					}
 					Secret.XmlNode pFillsNode = pStylesXml.CreateElement("fills");
@@ -2599,9 +2605,9 @@ namespace NumberDuck
 					Secret.OwnedVector<Style> pBorderVector = new Secret.OwnedVector<Style>();
 					{
 						Style pDefaultBorder = new Style();
-						NumberDuck.Style __3091345307 = pDefaultBorder;
+						NumberDuck.Style __2000815365 = pDefaultBorder;
 						pDefaultBorder = null;
-						pBorderVector.PushBack(__3091345307);
+						pBorderVector.PushBack(__2000815365);
 					}
 					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
 					{
@@ -2635,9 +2641,9 @@ namespace NumberDuck
 							Color pLeftColor = pStyle.GetLeftBorderLine().GetColor();
 							if (pLeftColor != null)
 								pNewBorder.GetLeftBorderLine().GetColor().SetFromColor(pLeftColor);
-							NumberDuck.Style __675719651 = pNewBorder;
+							NumberDuck.Style __1967602985 = pNewBorder;
 							pNewBorder = null;
-							pBorderVector.PushBack(__675719651);
+							pBorderVector.PushBack(__1967602985);
 						}
 					}
 					Secret.XmlNode pBordersNode = pStylesXml.CreateElement("borders");
@@ -3010,9 +3016,9 @@ namespace NumberDuck
 					pStyleSheetNode.AppendChild(pCellXfsNode);
 					pStylesXml.AppendChild(pStyleSheetNode);
 					pStylesXml.Save(pStylesBlob.GetBlobView());
-					NumberDuck.Blob __2447729404 = pStylesBlob;
+					NumberDuck.Blob __2643745192 = pStylesBlob;
 					pStylesBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/styles.xml", __2447729404);
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/styles.xml", __2643745192);
 					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
 					{
 						Worksheet pWorksheet = m_pImpl.m_pWorksheetVector.Get(i);
@@ -3040,9 +3046,9 @@ namespace NumberDuck
 						}
 						pSharedStringsXml.AppendChild(pSstNode);
 						pSharedStringsXml.Save(pSharedStringsBlob.GetBlobView());
-						NumberDuck.Blob __1262110751 = pSharedStringsBlob;
+						NumberDuck.Blob __440057784 = pSharedStringsBlob;
 						pSharedStringsBlob = null;
-						bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/sharedStrings.xml", __1262110751);
+						bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/sharedStrings.xml", __440057784);
 					}
 					Blob pZipBlob = new Blob(true);
 					bSuccess = bSuccess && pZipWriter.SaveBlobView(pZipBlob.GetBlobView());
@@ -3083,9 +3089,9 @@ namespace NumberDuck
 					break;
 			}
 			Worksheet pTempWorksheet = pWorksheet;
-			NumberDuck.Worksheet __119035549 = pWorksheet;
+			NumberDuck.Worksheet __4263111556 = pWorksheet;
 			pWorksheet = null;
-			m_pImpl.m_pWorksheetVector.PushBack(__119035549);
+			m_pImpl.m_pWorksheetVector.PushBack(__4263111556);
 			return pTempWorksheet;
 		}
 
@@ -8037,7 +8043,7 @@ namespace NumberDuck
 				m_pStyleVector = new OwnedVector<Style>();
 				m_pHeaderFont = new Font();
 				m_pHeaderFont.SetName("Calibri");
-				m_pHeaderFont.SetSize(14);
+				m_pHeaderFont.SetSize(15);
 				m_pHeaderFont.SetBold(false);
 				m_pHeaderFont.SetItalic(false);
 				m_pHeaderFont.SetUnderline(Font.Underline.UNDERLINE_NONE);
@@ -29749,6 +29755,16 @@ namespace NumberDuck
 				XmlFile pWorksheetXml = new XmlFile();
 				XmlNode pWorksheetNode = pWorksheetXml.CreateElement("worksheet");
 				pWorksheetNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+				pWorksheetNode.SetAttribute("xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+				pWorksheetNode.SetAttribute("xmlns:mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+				pWorksheetNode.SetAttribute("mc:Ignorable", "x14ac");
+				pWorksheetNode.SetAttribute("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
+				XmlNode pSheetFormatPrNode = pWorksheetXml.CreateElement("sheetFormatPr");
+				sTemp.Set("");
+				sTemp.AppendInt((int)(pWorksheet.m_pImpl.m_nDefaultRowHeight) / 20);
+				pSheetFormatPrNode.SetAttribute("defaultRowHeight", sTemp.GetExternalString());
+				pSheetFormatPrNode.SetAttribute("x14ac:dyDescent", "0.25");
+				pWorksheetNode.AppendChild(pSheetFormatPrNode);
 				XmlNode pSheetDataNode = pWorksheetXml.CreateElement("sheetData");
 				XmlNode pCurrentRowNode = null;
 				int nCurrentRow = 0xFFFF;
@@ -29840,28 +29856,35 @@ namespace NumberDuck
 					}
 				}
 				pWorksheetNode.AppendChild(pSheetDataNode);
+				XmlNode pPageMarginsNode = pWorksheetXml.CreateElement("pageMargins");
+				pPageMarginsNode.SetAttribute("left", "0.7");
+				pPageMarginsNode.SetAttribute("right", "0.7");
+				pPageMarginsNode.SetAttribute("top", "0.75");
+				pPageMarginsNode.SetAttribute("bottom", "0.75");
+				pPageMarginsNode.SetAttribute("header", "0.3");
+				pPageMarginsNode.SetAttribute("footer", "0.3");
+				pWorksheetNode.AppendChild(pPageMarginsNode);
 				pWorksheetXml.AppendChild(pWorksheetNode);
 				pWorksheetXml.Save(pWorksheetBlob.GetBlobView());
 				sTemp.Set("xl/worksheets/sheet");
 				sTemp.AppendInt(nWorksheetIndex + 1);
 				sTemp.AppendString(".xml");
 				bool bSuccess;
-				NumberDuck.Blob __4289951052 = pWorksheetBlob;
+				NumberDuck.Blob __3081971269 = pWorksheetBlob;
 				pWorksheetBlob = null;
-				bSuccess = pZipWriter.AddFileFromBlob(sTemp.GetExternalString(), __4289951052);
+				bSuccess = pZipWriter.AddFileFromBlob(sTemp.GetExternalString(), __3081971269);
 				return bSuccess;
 			}
 
 			public bool Parse(XlsxWorkbookGlobals pWorkbookGlobals, XmlNode pWorksheetNode)
 			{
-				double dDefaultRowHeight = -1.0;
 				{
 					XmlNode pSheetFormatPrElement = pWorksheetNode.GetFirstChildElement("sheetFormatPr");
 					if (pSheetFormatPrElement != null)
 					{
 						string szDefaultRowHeight = pSheetFormatPrElement.GetAttribute("defaultRowHeight");
 						if (szDefaultRowHeight != null)
-							dDefaultRowHeight = ExternalString.atof(szDefaultRowHeight);
+							m_pImpl.m_nDefaultRowHeight = (ushort)(ExternalString.atof(szDefaultRowHeight) * 20);
 					}
 				}
 				{
@@ -29924,12 +29947,13 @@ namespace NumberDuck
 							if (szRow == null)
 								return false;
 							ushort nRow = (ushort)(ExternalString.atol(szRow));
-							double dHeight = dDefaultRowHeight;
 							string szHeight = pRowNode.GetAttribute("ht");
 							if (szHeight != null)
-								dHeight = ExternalString.atof(szHeight);
-							if (dHeight > 0)
-								SetRowHeight((ushort)(nRow - 1), (ushort)(dHeight * 1.334));
+							{
+								double dHeight = ExternalString.atof(szHeight);
+								if (dHeight > 0)
+									SetRowHeight((ushort)(nRow - 1), (ushort)(dHeight * 1.334));
+							}
 							XmlNode pCellNode;
 							pCellNode = pRowNode.GetFirstChildElement("c");
 							while (pCellNode != null)
@@ -30728,7 +30752,7 @@ namespace NumberDuck
 				m_pCellTable = new Table<Cell>();
 				m_pColumnInfoTable = new Table<ColumnInfo>();
 				m_pRowInfoTable = new Table<RowInfo>();
-				m_nDefaultRowHeight = 255;
+				m_nDefaultRowHeight = 300;
 				m_pPictureVector = new OwnedVector<Picture>();
 				m_pChartVector = new OwnedVector<Chart>();
 				m_pMergedCellVector = new OwnedVector<MergedCell>();
@@ -31683,7 +31707,7 @@ namespace NumberDuck
 			public FontImplementation()
 			{
 				m_sName = new InternalString("Calibri");
-				m_nSizeTwips = 14 * 15;
+				m_nSizeTwips = 15 * 15;
 				m_pColor = null;
 				m_bBold = false;
 				m_bItalic = false;
