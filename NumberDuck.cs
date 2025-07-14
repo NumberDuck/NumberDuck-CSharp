@@ -622,12 +622,12 @@ namespace NumberDuck
 			else
 				if (nSize > 96)
 					nSize = 96;
-			m_pImpl.m_nSizeTwips = nSize * 15;
+			m_pImpl.m_fSizePts = nSize * 15.0f / 20.0f;
 		}
 
 		public byte GetSize()
 		{
-			return (byte)(m_pImpl.m_nSizeTwips / 15);
+			return (byte)(m_pImpl.m_fSizePts * 20.0f / 15.0f);
 		}
 
 		public Color GetColor(bool bCreateIfMissing)
@@ -1096,7 +1096,7 @@ namespace NumberDuck
 		{
 			Secret.ColumnInfo pColumnInfo = m_pImpl.GetColumnInfo(nColumn);
 			if (pColumnInfo != null)
-				return pColumnInfo.m_nWidth;
+				return (ushort)(pColumnInfo.m_fWidth * 20.0 / 15.0);
 			return DEFAULT_COLUMN_WIDTH;
 		}
 
@@ -1105,7 +1105,7 @@ namespace NumberDuck
 			if (nColumn > MAX_COLUMN)
 				return;
 			Secret.ColumnInfo pColumnInfo = m_pImpl.GetOrCreateColumnInfo(nColumn);
-			pColumnInfo.m_nWidth = nWidth;
+			pColumnInfo.m_fWidth = (double)(nWidth) * 15.0 / 20.0;
 		}
 
 		public bool GetColumnHidden(ushort nColumn)
@@ -1141,9 +1141,9 @@ namespace NumberDuck
 					else
 						if (pElement.m_nColumn >= nColumn)
 						{
-							NumberDuck.Secret.ColumnInfo __2065688932 = pElement.m_xObject;
+							NumberDuck.Secret.ColumnInfo __4179608075 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							m_pImpl.m_pColumnInfoTable.Set(pElement.m_nColumn + 1, pElement.m_nRow, __2065688932);
+							m_pImpl.m_pColumnInfoTable.Set(pElement.m_nColumn + 1, pElement.m_nRow, __4179608075);
 							m_pImpl.m_pColumnInfoTable.Erase(i);
 						}
 					if (i == 0)
@@ -1164,9 +1164,9 @@ namespace NumberDuck
 					else
 						if (pElement.m_nColumn >= nColumn)
 						{
-							NumberDuck.Cell __4129240323 = pElement.m_xObject;
+							NumberDuck.Cell __3139384562 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							m_pImpl.m_pCellTable.Set(pElement.m_nColumn + 1, pElement.m_nRow, __4129240323);
+							m_pImpl.m_pCellTable.Set(pElement.m_nColumn + 1, pElement.m_nRow, __3139384562);
 							m_pImpl.m_pCellTable.Erase(i);
 						}
 					if (i == 0)
@@ -1247,13 +1247,13 @@ namespace NumberDuck
 							int nTempColumn = pElement.m_nColumn - 1;
 							int nTempRow = pElement.m_nRow;
 							Secret.ColumnInfo pColumnInfo;
-							NumberDuck.Secret.ColumnInfo __2049912110 = pElement.m_xObject;
+							NumberDuck.Secret.ColumnInfo __1328492236 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							pColumnInfo = __2049912110;
+							pColumnInfo = __1328492236;
 							m_pImpl.m_pColumnInfoTable.Erase(i++);
-							NumberDuck.Secret.ColumnInfo __2744690011 = pColumnInfo;
+							NumberDuck.Secret.ColumnInfo __211330395 = pColumnInfo;
 							pColumnInfo = null;
-							m_pImpl.m_pColumnInfoTable.Set(nTempColumn, nTempRow, __2744690011);
+							m_pImpl.m_pColumnInfoTable.Set(nTempColumn, nTempRow, __211330395);
 						}
 						else
 						{
@@ -1276,13 +1276,13 @@ namespace NumberDuck
 							int nTempColumn = pElement.m_nColumn - 1;
 							int nTempRow = pElement.m_nRow;
 							Cell pCell;
-							NumberDuck.Cell __3677312517 = pElement.m_xObject;
+							NumberDuck.Cell __707745450 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							pCell = __3677312517;
+							pCell = __707745450;
 							m_pImpl.m_pCellTable.Erase(i++);
-							NumberDuck.Cell __1763178785 = pCell;
+							NumberDuck.Cell __3323459873 = pCell;
 							pCell = null;
-							m_pImpl.m_pCellTable.Set(nTempColumn, nTempRow, __1763178785);
+							m_pImpl.m_pCellTable.Set(nTempColumn, nTempRow, __3323459873);
 						}
 						else
 						{
@@ -1375,9 +1375,9 @@ namespace NumberDuck
 					else
 						if (pElement.m_nRow >= nRow)
 						{
-							NumberDuck.Secret.RowInfo __3057570708 = pElement.m_xObject;
+							NumberDuck.Secret.RowInfo __423547796 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							m_pImpl.m_pRowInfoTable.Set(pElement.m_nColumn, pElement.m_nRow + 1, __3057570708);
+							m_pImpl.m_pRowInfoTable.Set(pElement.m_nColumn, pElement.m_nRow + 1, __423547796);
 							m_pImpl.m_pRowInfoTable.Erase(i);
 						}
 					if (i == 0)
@@ -1398,9 +1398,9 @@ namespace NumberDuck
 					else
 						if (pElement.m_nRow >= nRow)
 						{
-							NumberDuck.Cell __1263528047 = pElement.m_xObject;
+							NumberDuck.Cell __3830442095 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							m_pImpl.m_pCellTable.Set(pElement.m_nColumn, pElement.m_nRow + 1, __1263528047);
+							m_pImpl.m_pCellTable.Set(pElement.m_nColumn, pElement.m_nRow + 1, __3830442095);
 							m_pImpl.m_pCellTable.Erase(i);
 						}
 					if (i == 0)
@@ -1481,13 +1481,13 @@ namespace NumberDuck
 							int nTempColumn = pElement.m_nColumn;
 							int nTempRow = pElement.m_nRow - 1;
 							Secret.RowInfo pRowInfo;
-							NumberDuck.Secret.RowInfo __2321545627 = pElement.m_xObject;
+							NumberDuck.Secret.RowInfo __627046811 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							pRowInfo = __2321545627;
+							pRowInfo = __627046811;
 							m_pImpl.m_pRowInfoTable.Erase(i++);
-							NumberDuck.Secret.RowInfo __2234162399 = pRowInfo;
+							NumberDuck.Secret.RowInfo __3358235950 = pRowInfo;
 							pRowInfo = null;
-							m_pImpl.m_pRowInfoTable.Set(nTempColumn, nTempRow, __2234162399);
+							m_pImpl.m_pRowInfoTable.Set(nTempColumn, nTempRow, __3358235950);
 						}
 						else
 						{
@@ -1510,13 +1510,13 @@ namespace NumberDuck
 							int nTempColumn = pElement.m_nColumn;
 							int nTempRow = pElement.m_nRow - 1;
 							Cell pCell;
-							NumberDuck.Cell __1834986130 = pElement.m_xObject;
+							NumberDuck.Cell __1482664304 = pElement.m_xObject;
 							pElement.m_xObject = null;
-							pCell = __1834986130;
+							pCell = __1482664304;
 							m_pImpl.m_pCellTable.Erase(i++);
-							NumberDuck.Cell __2892443254 = pCell;
+							NumberDuck.Cell __57093750 = pCell;
 							pCell = null;
-							m_pImpl.m_pCellTable.Set(nTempColumn, nTempRow, __2892443254);
+							m_pImpl.m_pCellTable.Set(nTempColumn, nTempRow, __57093750);
 						}
 						else
 						{
@@ -1636,9 +1636,9 @@ namespace NumberDuck
 						pOwnedPicture.SetWidth((uint)(pImageInfo.m_nWidth));
 						pOwnedPicture.SetHeight((uint)(pImageInfo.m_nHeight));
 						pPicture = pOwnedPicture;
-						NumberDuck.Picture __1093683604 = pOwnedPicture;
+						NumberDuck.Picture __2955954491 = pOwnedPicture;
 						pOwnedPicture = null;
-						m_pImpl.m_pPictureVector.PushBack(__1093683604);
+						m_pImpl.m_pPictureVector.PushBack(__2955954491);
 					}
 					{
 						pJpegLoader = null;
@@ -1654,9 +1654,9 @@ namespace NumberDuck
 						pOwnedPicture.SetWidth((uint)(pImageInfo.m_nWidth));
 						pOwnedPicture.SetHeight((uint)(pImageInfo.m_nHeight));
 						pPicture = pOwnedPicture;
-						NumberDuck.Picture __1496342809 = pOwnedPicture;
+						NumberDuck.Picture __4130365721 = pOwnedPicture;
 						pOwnedPicture = null;
-						m_pImpl.m_pPictureVector.PushBack(__1496342809);
+						m_pImpl.m_pPictureVector.PushBack(__4130365721);
 					}
 					{
 						pPngLoader = null;
@@ -1692,9 +1692,9 @@ namespace NumberDuck
 		{
 			Chart pOwnedChart = new Chart(this, eType);
 			Chart pChart = pOwnedChart;
-			NumberDuck.Chart __621874701 = pOwnedChart;
+			NumberDuck.Chart __2802918754 = pOwnedChart;
 			pOwnedChart = null;
-			m_pImpl.m_pChartVector.PushBack(__621874701);
+			m_pImpl.m_pChartVector.PushBack(__2802918754);
 			return pChart;
 		}
 
@@ -1721,9 +1721,9 @@ namespace NumberDuck
 		{
 			MergedCell pOwnedMergedCell = new MergedCell(nX, nY, nWidth, nHeight);
 			MergedCell pMergedCell = pOwnedMergedCell;
-			NumberDuck.MergedCell __741724221 = pOwnedMergedCell;
+			NumberDuck.MergedCell __2201342013 = pOwnedMergedCell;
 			pOwnedMergedCell = null;
-			m_pImpl.m_pMergedCellVector.PushBack(__741724221);
+			m_pImpl.m_pMergedCellVector.PushBack(__2201342013);
 			return pMergedCell;
 		}
 
@@ -1969,171 +1969,7 @@ namespace NumberDuck
 			}
 			if (!bLoaded)
 			{
-				Secret.InternalString sFileName = new Secret.InternalString("");
-				Secret.Zip pZip = new Secret.Zip();
-				bool bContinue = pZip.LoadFile(szFileName);
-				if (bContinue)
-				{
-					Secret.OwnedVector<Secret.InternalString> sNameVector = new Secret.OwnedVector<Secret.InternalString>();
-					{
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						if (pZip.ExtractFileByName("[Content_Types].xml", pXmlBlobView))
-						{
-							Secret.XmlFile pXmlFile = new Secret.XmlFile();
-							pXmlBlobView.SetOffset(0);
-							pXmlFile.Load(pXmlBlobView);
-						}
-					}
-					m_pImpl.m_pWorkbookGlobals = new Secret.XlsxWorkbookGlobals();
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pWorkbookNode = null;
-						Secret.XmlNode pSheetsNode = null;
-						Secret.XmlNode pSheetNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/workbook.xml", pXmlBlobView);
-						if (bContinue)
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pWorkbookNode = pXmlFile.GetFirstChildElement("workbook");
-							if (pWorkbookNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSheetsNode = pWorkbookNode.GetFirstChildElement("sheets");
-							if (pSheetsNode == null)
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pSheetNode = pSheetsNode.GetFirstChildElement("sheet");
-							while (pSheetNode != null)
-							{
-								string szName = pSheetNode.GetAttribute("name");
-								if (szName == null)
-								{
-									bContinue = false;
-									break;
-								}
-								sNameVector.PushBack(new Secret.InternalString(szName));
-								pSheetNode = pSheetNode.GetNextSiblingElement("sheet");
-							}
-						}
-					}
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pSstNode = null;
-						Secret.XmlNode pSiNode = null;
-						if (pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView))
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-							if (bContinue)
-							{
-								pSstNode = pXmlFile.GetFirstChildElement("sst");
-								if (pSstNode == null)
-									bContinue = false;
-							}
-							if (bContinue)
-							{
-								pSiNode = pSstNode.GetFirstChildElement("si");
-							}
-							while (bContinue && pSiNode != null)
-							{
-								Secret.XmlNode pTNode;
-								pTNode = pSiNode.GetFirstChildElement("t");
-								if (pTNode == null)
-								{
-									bContinue = false;
-									break;
-								}
-								string szTemp = pTNode.GetText();
-								m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
-								pSiNode = pSiNode.GetNextSiblingElement("si");
-							}
-						}
-					}
-					if (bContinue)
-					{
-						Secret.XmlFile pXmlFile = new Secret.XmlFile();
-						Blob pXmlBlob = new Blob(true);
-						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-						Secret.XmlNode pStyleSheetNode = null;
-						bContinue = bContinue && pZip.ExtractFileByName("xl/styles.xml", pXmlBlobView);
-						if (bContinue)
-						{
-							pXmlBlobView.SetOffset(0);
-							if (!pXmlFile.Load(pXmlBlobView))
-								bContinue = false;
-						}
-						if (bContinue)
-						{
-							pStyleSheetNode = pXmlFile.GetFirstChildElement("styleSheet");
-							if (pStyleSheetNode == null)
-								bContinue = false;
-						}
-						bContinue = bContinue && Secret.XlsxWorkbookGlobals.ParseStyles(m_pImpl.m_pWorkbookGlobals, pStyleSheetNode);
-					}
-					if (bContinue)
-					{
-						int nWorksheetIndex = 0;
-						int nNumFail = 0;
-						while (bContinue)
-						{
-							sFileName.Set("xl/worksheets/sheet");
-							sFileName.AppendInt(nWorksheetIndex);
-							sFileName.AppendString(".xml");
-							Secret.XmlFile pXmlFile = new Secret.XmlFile();
-							Blob pXmlBlob = new Blob(true);
-							BlobView pXmlBlobView = pXmlBlob.GetBlobView();
-							if (!pZip.ExtractFileByName(sFileName.GetExternalString(), pXmlBlobView))
-							{
-								nNumFail++;
-								if (nNumFail > 5)
-								{
-									break;
-								}
-							}
-							else
-							{
-								Secret.XmlNode pWorksheetNode;
-								pXmlBlobView.SetOffset(0);
-								if (!pXmlFile.Load(pXmlBlobView))
-								{
-									bContinue = false;
-									break;
-								}
-								pWorksheetNode = pXmlFile.GetFirstChildElement("worksheet");
-								Secret.XlsxWorksheet pWorksheet = new Secret.XlsxWorksheet(this);
-								pWorksheet.SetName(sNameVector.Get(m_pImpl.m_pWorksheetVector.GetSize()).GetExternalString());
-								if (!pWorksheet.Parse((Secret.XlsxWorkbookGlobals)(m_pImpl.m_pWorkbookGlobals), pWorksheetNode))
-								{
-									bContinue = false;
-									break;
-								}
-								NumberDuck.Secret.XlsxWorksheet __4207131080 = pWorksheet;
-								pWorksheet = null;
-								m_pImpl.m_pWorksheetVector.PushBack(__4207131080);
-							}
-							nWorksheetIndex++;
-						}
-					}
-					bLoaded = bContinue;
-					sNameVector.Clear();
-				}
+				bLoaded = Secret.XlsxWorkbook.Load(this, szFileName);
 			}
 			if (bLoaded)
 			{
@@ -2146,7 +1982,6 @@ namespace NumberDuck
 		public bool Save(string szFileName, FileType eFileType)
 		{
 			m_pImpl.m_pWorkbookGlobals.Clear();
-			Secret.InternalString sTemp = new Secret.InternalString("");
 			if (eFileType == FileType.XLS)
 			{
 				Secret.OwnedVector<Secret.BiffRecordContainer> pWorksheetBiffRecordContainerVector = new Secret.OwnedVector<Secret.BiffRecordContainer>();
@@ -2156,9 +1991,9 @@ namespace NumberDuck
 					Secret.BiffRecordContainer pBiffRecordContainer = new Secret.BiffRecordContainer();
 					Secret.BiffWorksheet.Write(pWorksheet, m_pImpl.m_pWorkbookGlobals, (ushort)(i), pBiffRecordContainer);
 					m_pImpl.m_pWorkbookGlobals.PushBiffWorksheetStreamSize(pBiffRecordContainer.GetSize());
-					NumberDuck.Secret.BiffRecordContainer __2222983093 = pBiffRecordContainer;
+					NumberDuck.Secret.BiffRecordContainer __1185008205 = pBiffRecordContainer;
 					pBiffRecordContainer = null;
-					pWorksheetBiffRecordContainerVector.PushBack(__2222983093);
+					pWorksheetBiffRecordContainerVector.PushBack(__1185008205);
 				}
 				Secret.CompoundFile pCompoundFile = new Secret.CompoundFile();
 				Secret.Stream pStream = pCompoundFile.CreateStream("Workbook", Secret.Stream.Type.TYPE_USER_STREAM);
@@ -2174,889 +2009,7 @@ namespace NumberDuck
 			else
 				if (eFileType == FileType.XLSX)
 				{
-					Secret.ZipWriter pZipWriter = new Secret.ZipWriter();
-					bool bSuccess = true;
-					Blob pContentTypesBlob = new Blob(true);
-					Secret.XmlFile pContentTypesXml = new Secret.XmlFile();
-					Secret.XmlNode pTypesNode = pContentTypesXml.CreateElement("Types");
-					pTypesNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/content-types");
-					Secret.XmlNode pDefaultXml = pContentTypesXml.CreateElement("Default");
-					pDefaultXml.SetAttribute("Extension", "xml");
-					pDefaultXml.SetAttribute("ContentType", "application/xml");
-					pTypesNode.AppendChild(pDefaultXml);
-					Secret.XmlNode pDefaultRels = pContentTypesXml.CreateElement("Default");
-					pDefaultRels.SetAttribute("Extension", "rels");
-					pDefaultRels.SetAttribute("ContentType", "application/vnd.openxmlformats-package.relationships+xml");
-					pTypesNode.AppendChild(pDefaultRels);
-					Secret.XmlNode pOverrideWorkbook = pContentTypesXml.CreateElement("Override");
-					pOverrideWorkbook.SetAttribute("PartName", "/xl/workbook.xml");
-					pOverrideWorkbook.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
-					pTypesNode.AppendChild(pOverrideWorkbook);
-					Secret.XmlNode pOverrideStyles = pContentTypesXml.CreateElement("Override");
-					pOverrideStyles.SetAttribute("PartName", "/xl/styles.xml");
-					pOverrideStyles.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
-					pTypesNode.AppendChild(pOverrideStyles);
-					Secret.XmlNode pOverrideSharedStrings = pContentTypesXml.CreateElement("Override");
-					pOverrideSharedStrings.SetAttribute("PartName", "/xl/sharedStrings.xml");
-					pOverrideSharedStrings.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml");
-					pTypesNode.AppendChild(pOverrideSharedStrings);
-					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
-					{
-						Secret.XmlNode pOverrideWorksheet = pContentTypesXml.CreateElement("Override");
-						sTemp.Set("/xl/worksheets/sheet");
-						sTemp.AppendInt(i + 1);
-						sTemp.AppendString(".xml");
-						pOverrideWorksheet.SetAttribute("PartName", sTemp.GetExternalString());
-						pOverrideWorksheet.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
-						pTypesNode.AppendChild(pOverrideWorksheet);
-					}
-					pContentTypesXml.AppendChild(pTypesNode);
-					pContentTypesXml.Save(pContentTypesBlob.GetBlobView());
-					NumberDuck.Blob __2003092672 = pContentTypesBlob;
-					pContentTypesBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("[Content_Types].xml", __2003092672);
-					Blob pRelsBlob = new Blob(true);
-					Secret.XmlFile pRelsXml = new Secret.XmlFile();
-					Secret.XmlNode pRelationshipsNode = pRelsXml.CreateElement("Relationships");
-					pRelationshipsNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
-					Secret.XmlNode pRelationshipNode = pRelsXml.CreateElement("Relationship");
-					pRelationshipNode.SetAttribute("Id", "rId1");
-					pRelationshipNode.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument");
-					pRelationshipNode.SetAttribute("Target", "xl/workbook.xml");
-					pRelationshipsNode.AppendChild(pRelationshipNode);
-					pRelsXml.AppendChild(pRelationshipsNode);
-					pRelsXml.Save(pRelsBlob.GetBlobView());
-					NumberDuck.Blob __2783477890 = pRelsBlob;
-					pRelsBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("_rels/.rels", __2783477890);
-					Blob pWorkbookRelsBlob = new Blob(true);
-					Secret.XmlFile pWorkbookRelsXml = new Secret.XmlFile();
-					Secret.XmlNode pWorkbookRelationshipsNode = pWorkbookRelsXml.CreateElement("Relationships");
-					pWorkbookRelationshipsNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
-					Secret.XmlNode pStylesRelationship = pWorkbookRelsXml.CreateElement("Relationship");
-					pStylesRelationship.SetAttribute("Id", "rId1");
-					pStylesRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles");
-					pStylesRelationship.SetAttribute("Target", "styles.xml");
-					pWorkbookRelationshipsNode.AppendChild(pStylesRelationship);
-					Secret.XmlNode pSharedStringsRelationship = pWorkbookRelsXml.CreateElement("Relationship");
-					pSharedStringsRelationship.SetAttribute("Id", "rId2");
-					pSharedStringsRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings");
-					pSharedStringsRelationship.SetAttribute("Target", "sharedStrings.xml");
-					pWorkbookRelationshipsNode.AppendChild(pSharedStringsRelationship);
-					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
-					{
-						Secret.XmlNode pWorksheetRelationship = pWorkbookRelsXml.CreateElement("Relationship");
-						sTemp.Set("rId");
-						sTemp.AppendInt(i + 3);
-						pWorksheetRelationship.SetAttribute("Id", sTemp.GetExternalString());
-						pWorksheetRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
-						sTemp.Set("worksheets/sheet");
-						sTemp.AppendInt(i + 1);
-						sTemp.Append(".xml");
-						pWorksheetRelationship.SetAttribute("Target", sTemp.GetExternalString());
-						pWorkbookRelationshipsNode.AppendChild(pWorksheetRelationship);
-					}
-					pWorkbookRelsXml.AppendChild(pWorkbookRelationshipsNode);
-					pWorkbookRelsXml.Save(pWorkbookRelsBlob.GetBlobView());
-					NumberDuck.Blob __860733427 = pWorkbookRelsBlob;
-					pWorkbookRelsBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/_rels/workbook.xml.rels", __860733427);
-					Blob pWorkbookBlob = new Blob(true);
-					Secret.XmlFile pWorkbookXml = new Secret.XmlFile();
-					Secret.XmlNode pWorkbookNode = pWorkbookXml.CreateElement("workbook");
-					pWorkbookNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-					pWorkbookNode.SetAttribute("xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-					Secret.XmlNode pSheetsNode = pWorkbookXml.CreateElement("sheets");
-					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
-					{
-						Worksheet pWorksheet = m_pImpl.m_pWorksheetVector.Get(i);
-						Secret.XmlNode pSheetNode = pWorkbookXml.CreateElement("sheet");
-						pSheetNode.SetAttribute("name", pWorksheet.GetName());
-						sTemp.Set("");
-						sTemp.AppendInt(i + 1);
-						pSheetNode.SetAttribute("sheetId", sTemp.GetExternalString());
-						sTemp.Set("rId");
-						sTemp.AppendInt(i + 3);
-						pSheetNode.SetAttribute("r:id", sTemp.GetExternalString());
-						pSheetsNode.AppendChild(pSheetNode);
-					}
-					pWorkbookNode.AppendChild(pSheetsNode);
-					pWorkbookXml.AppendChild(pWorkbookNode);
-					pWorkbookXml.Save(pWorkbookBlob.GetBlobView());
-					NumberDuck.Blob __1427947242 = pWorkbookBlob;
-					pWorkbookBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/workbook.xml", __1427947242);
-					Blob pStylesBlob = new Blob(true);
-					Secret.XmlFile pStylesXml = new Secret.XmlFile();
-					Secret.XmlNode pStyleSheetNode = pStylesXml.CreateElement("styleSheet");
-					pStyleSheetNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-					Secret.Vector<string> pFormatVector = new Secret.Vector<string>();
-					Secret.Vector<ushort> pFormatIndexVector = new Secret.Vector<ushort>();
-					pFormatVector.PushBack("General");
-					pFormatIndexVector.PushBack(0);
-					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
-					{
-						Style pStyle = m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
-						string szFormat = pStyle.GetFormat();
-						bool bFound = false;
-						for (int j = 0; j < pFormatVector.GetSize(); j++)
-						{
-							if (Secret.ExternalString.Equal(pFormatVector.Get(j), szFormat))
-							{
-								bFound = true;
-								break;
-							}
-						}
-						if (!bFound)
-						{
-							pFormatVector.PushBack(szFormat);
-							pFormatIndexVector.PushBack((ushort)(pFormatVector.GetSize() - 1));
-						}
-					}
-					Secret.XmlNode pNumFmtsNode = pStylesXml.CreateElement("numFmts");
-					sTemp.Set("");
-					sTemp.AppendInt(pFormatVector.GetSize());
-					pNumFmtsNode.SetAttribute("count", sTemp.GetExternalString());
-					for (int i = 0; i < pFormatVector.GetSize(); i++)
-					{
-						Secret.XmlNode pNumFmtNode = pStylesXml.CreateElement("numFmt");
-						sTemp.Set("");
-						sTemp.AppendInt(i);
-						pNumFmtNode.SetAttribute("numFmtId", sTemp.GetExternalString());
-						pNumFmtNode.SetAttribute("formatCode", pFormatVector.Get(i));
-						pNumFmtsNode.AppendChild(pNumFmtNode);
-					}
-					pStyleSheetNode.AppendChild(pNumFmtsNode);
-					Secret.OwnedVector<Font> pFontVector = new Secret.OwnedVector<Font>();
-					{
-						Font pDefaultFont = new Font();
-						pDefaultFont.SetName("Calibri");
-						pDefaultFont.SetSize(15);
-						NumberDuck.Font __397345314 = pDefaultFont;
-						pDefaultFont = null;
-						pFontVector.PushBack(__397345314);
-					}
-					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
-					{
-						Style pStyle = m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
-						Font pStyleFont = pStyle.GetFont();
-						bool bFound = false;
-						for (int j = 0; j < pFontVector.GetSize(); j++)
-						{
-							Font pTestFont = pFontVector.Get(j);
-							if (Secret.ExternalString.Equal(pTestFont.GetName(), pStyleFont.GetName()) && pTestFont.GetSize() == pStyleFont.GetSize() && pTestFont.GetBold() == pStyleFont.GetBold() && pTestFont.GetItalic() == pStyleFont.GetItalic() && pTestFont.GetUnderline() == pStyleFont.GetUnderline())
-							{
-								bFound = true;
-								break;
-							}
-						}
-						if (!bFound)
-						{
-							Font pNewFont = new Font();
-							pNewFont.SetName(pStyleFont.GetName());
-							pNewFont.SetSize(pStyleFont.GetSize());
-							pNewFont.SetBold(pStyleFont.GetBold());
-							pNewFont.SetItalic(pStyleFont.GetItalic());
-							pNewFont.SetUnderline(pStyleFont.GetUnderline());
-							Color pFontColor = pStyleFont.GetColor(false);
-							if (pFontColor != null)
-							{
-								pNewFont.GetColor(true).SetFromColor(pFontColor);
-							}
-							NumberDuck.Font __2854772793 = pNewFont;
-							pNewFont = null;
-							pFontVector.PushBack(__2854772793);
-						}
-					}
-					Secret.XmlNode pFontsNode = pStylesXml.CreateElement("fonts");
-					sTemp.Set("");
-					sTemp.AppendInt(pFontVector.GetSize());
-					pFontsNode.SetAttribute("count", sTemp.GetExternalString());
-					for (int i = 0; i < pFontVector.GetSize(); i++)
-					{
-						Font pFont = pFontVector.Get(i);
-						Secret.XmlNode pFontNode = pStylesXml.CreateElement("font");
-						Secret.XmlNode pSzNode = pStylesXml.CreateElement("sz");
-						sTemp.Set("");
-						sTemp.AppendInt(pFont.m_pImpl.m_nSizeTwips / 20);
-						pSzNode.SetAttribute("val", sTemp.GetExternalString());
-						pFontNode.AppendChild(pSzNode);
-						Secret.XmlNode pNameNode = pStylesXml.CreateElement("name");
-						pNameNode.SetAttribute("val", pFont.GetName());
-						pFontNode.AppendChild(pNameNode);
-						if (pFont.GetBold())
-						{
-							Secret.XmlNode pBoldNode = pStylesXml.CreateElement("b");
-							pFontNode.AppendChild(pBoldNode);
-						}
-						if (pFont.GetItalic())
-						{
-							Secret.XmlNode pItalicNode = pStylesXml.CreateElement("i");
-							pFontNode.AppendChild(pItalicNode);
-						}
-						if (pFont.GetUnderline() != Font.Underline.UNDERLINE_NONE)
-						{
-							Secret.XmlNode pUnderlineNode = pStylesXml.CreateElement("u");
-							pFontNode.AppendChild(pUnderlineNode);
-						}
-						Color pFontColor = pFont.GetColor(false);
-						if (pFontColor != null)
-						{
-							Secret.XmlNode pColorNode = pStylesXml.CreateElement("color");
-							sTemp.Set("");
-							sTemp.AppendHex(pFontColor.GetRgba());
-							pColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-							pFontNode.AppendChild(pColorNode);
-						}
-						pFontsNode.AppendChild(pFontNode);
-					}
-					pStyleSheetNode.AppendChild(pFontsNode);
-					Secret.OwnedVector<Style> pFillVector = new Secret.OwnedVector<Style>();
-					{
-						Style pDefaultFill = new Style();
-						NumberDuck.Style __3421179622 = pDefaultFill;
-						pDefaultFill = null;
-						pFillVector.PushBack(__3421179622);
-						Style pGrayFill = new Style();
-						pGrayFill.SetFillPattern(Style.FillPattern.FILL_PATTERN_125);
-						NumberDuck.Style __2404464844 = pGrayFill;
-						pGrayFill = null;
-						pFillVector.PushBack(__2404464844);
-					}
-					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
-					{
-						Style pStyle = m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
-						Color pBackgroundColor = pStyle.GetBackgroundColor(false);
-						Style.FillPattern eFillPattern = pStyle.GetFillPattern();
-						Color pFillPatternColor = pStyle.GetFillPatternColor(false);
-						bool bFound = false;
-						for (int j = 0; j < pFillVector.GetSize(); j++)
-						{
-							Style pTestStyle = pFillVector.Get(j);
-							Color pTestBackgroundColor = pTestStyle.GetBackgroundColor(false);
-							Color pTestFillPatternColor = pTestStyle.GetFillPatternColor(false);
-							if (eFillPattern == pTestStyle.GetFillPattern() && ((pBackgroundColor == null && pTestBackgroundColor == null) || (pBackgroundColor != null && pTestBackgroundColor != null && pBackgroundColor.Equals(pTestBackgroundColor))) && ((pFillPatternColor == null && pTestFillPatternColor == null) || (pFillPatternColor != null && pTestFillPatternColor != null && pFillPatternColor.Equals(pTestFillPatternColor))))
-							{
-								bFound = true;
-								break;
-							}
-						}
-						if (!bFound)
-						{
-							Style pNewFill = new Style();
-							pNewFill.SetFillPattern(eFillPattern);
-							if (pBackgroundColor != null)
-								pNewFill.GetBackgroundColor(true).SetFromColor(pBackgroundColor);
-							if (pFillPatternColor != null)
-								pNewFill.GetFillPatternColor(true).SetFromColor(pFillPatternColor);
-							NumberDuck.Style __2272029778 = pNewFill;
-							pNewFill = null;
-							pFillVector.PushBack(__2272029778);
-						}
-					}
-					Secret.XmlNode pFillsNode = pStylesXml.CreateElement("fills");
-					sTemp.Set("");
-					sTemp.AppendInt(pFillVector.GetSize());
-					pFillsNode.SetAttribute("count", sTemp.GetExternalString());
-					for (int i = 0; i < pFillVector.GetSize(); i++)
-					{
-						Style pFill = pFillVector.Get(i);
-						Secret.XmlNode pFillNode = pStylesXml.CreateElement("fill");
-						Secret.XmlNode pPatternFillNode = pStylesXml.CreateElement("patternFill");
-						switch (pFill.GetFillPattern())
-						{
-							case Style.FillPattern.FILL_PATTERN_NONE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "solid");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_50:
-							{
-								pPatternFillNode.SetAttribute("patternType", "mediumGray");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_75:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkGray");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_25:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightGray");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_HORIZONTAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkHorizontal");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_VARTICAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkVertical");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_REVERSE_DIAGONAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkDown");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_DIAGONAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkUp");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_DIAGONAL_CROSSHATCH:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkGrid");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THICK_DIAGONAL_CROSSHATCH:
-							{
-								pPatternFillNode.SetAttribute("patternType", "darkTrellis");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_HORIZONTAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightHorizontal");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_VERTICAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightVertical");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_REVERSE_VERTICAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightDown");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_DIAGONAL_STRIPE:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightUp");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_HORIZONTAL_CROSSHATCH:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightGrid");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_THIN_DIAGONAL_CROSSHATCH:
-							{
-								pPatternFillNode.SetAttribute("patternType", "lightTrellis");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_125:
-							{
-								pPatternFillNode.SetAttribute("patternType", "gray125");
-								break;
-							}
-
-							case Style.FillPattern.FILL_PATTERN_625:
-							{
-								pPatternFillNode.SetAttribute("patternType", "gray0625");
-								break;
-							}
-
-							default:
-							{
-								pPatternFillNode.SetAttribute("patternType", "none");
-								break;
-							}
-
-						}
-						Color pBackgroundColor = pFill.GetBackgroundColor(false);
-						if (pBackgroundColor != null)
-						{
-							Secret.XmlNode pFgColorNode = pStylesXml.CreateElement("fgColor");
-							sTemp.Set("");
-							Secret.XlsxUtils.WriteBgra(pBackgroundColor.GetRgba(), sTemp);
-							pFgColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-							pPatternFillNode.AppendChild(pFgColorNode);
-						}
-						Color pFillPatternColor = pFill.GetFillPatternColor(false);
-						if (pFillPatternColor != null)
-						{
-							Secret.XmlNode pBgColorNode = pStylesXml.CreateElement("bgColor");
-							sTemp.Set("");
-							Secret.XlsxUtils.WriteBgra(pFillPatternColor.GetRgba(), sTemp);
-							pBgColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-							pPatternFillNode.AppendChild(pBgColorNode);
-						}
-						pFillNode.AppendChild(pPatternFillNode);
-						pFillsNode.AppendChild(pFillNode);
-					}
-					pStyleSheetNode.AppendChild(pFillsNode);
-					Secret.OwnedVector<Style> pBorderVector = new Secret.OwnedVector<Style>();
-					{
-						Style pDefaultBorder = new Style();
-						NumberDuck.Style __2000815365 = pDefaultBorder;
-						pDefaultBorder = null;
-						pBorderVector.PushBack(__2000815365);
-					}
-					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
-					{
-						Style pStyle = m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
-						bool bFound = false;
-						for (int j = 0; j < pBorderVector.GetSize(); j++)
-						{
-							Style pTestStyle = pBorderVector.Get(j);
-							if (pStyle.GetTopBorderLine().GetType() == pTestStyle.GetTopBorderLine().GetType() && pStyle.GetRightBorderLine().GetType() == pTestStyle.GetRightBorderLine().GetType() && pStyle.GetBottomBorderLine().GetType() == pTestStyle.GetBottomBorderLine().GetType() && pStyle.GetLeftBorderLine().GetType() == pTestStyle.GetLeftBorderLine().GetType())
-							{
-								bFound = true;
-								break;
-							}
-						}
-						if (!bFound)
-						{
-							Style pNewBorder = new Style();
-							pNewBorder.GetTopBorderLine().SetType(pStyle.GetTopBorderLine().GetType());
-							pNewBorder.GetRightBorderLine().SetType(pStyle.GetRightBorderLine().GetType());
-							pNewBorder.GetBottomBorderLine().SetType(pStyle.GetBottomBorderLine().GetType());
-							pNewBorder.GetLeftBorderLine().SetType(pStyle.GetLeftBorderLine().GetType());
-							Color pTopColor = pStyle.GetTopBorderLine().GetColor();
-							if (pTopColor != null)
-								pNewBorder.GetTopBorderLine().GetColor().SetFromColor(pTopColor);
-							Color pRightColor = pStyle.GetRightBorderLine().GetColor();
-							if (pRightColor != null)
-								pNewBorder.GetRightBorderLine().GetColor().SetFromColor(pRightColor);
-							Color pBottomColor = pStyle.GetBottomBorderLine().GetColor();
-							if (pBottomColor != null)
-								pNewBorder.GetBottomBorderLine().GetColor().SetFromColor(pBottomColor);
-							Color pLeftColor = pStyle.GetLeftBorderLine().GetColor();
-							if (pLeftColor != null)
-								pNewBorder.GetLeftBorderLine().GetColor().SetFromColor(pLeftColor);
-							NumberDuck.Style __1967602985 = pNewBorder;
-							pNewBorder = null;
-							pBorderVector.PushBack(__1967602985);
-						}
-					}
-					Secret.XmlNode pBordersNode = pStylesXml.CreateElement("borders");
-					sTemp.Set("");
-					sTemp.AppendInt(pBorderVector.GetSize());
-					pBordersNode.SetAttribute("count", sTemp.GetExternalString());
-					for (int i = 0; i < pBorderVector.GetSize(); i++)
-					{
-						Style pBorder = pBorderVector.Get(i);
-						Secret.XmlNode pBorderNode = pStylesXml.CreateElement("border");
-						Secret.XmlNode pLeftNode = pStylesXml.CreateElement("left");
-						if (pBorder.GetLeftBorderLine().GetType() != Line.Type.TYPE_NONE)
-						{
-							Secret.XmlNode pLeftStyleNode = pStylesXml.CreateElement("style");
-							switch (pBorder.GetLeftBorderLine().GetType())
-							{
-								case Line.Type.TYPE_THIN:
-								{
-									pLeftStyleNode.SetText("thin");
-									break;
-								}
-
-								case Line.Type.TYPE_MEDIUM:
-								{
-									pLeftStyleNode.SetText("medium");
-									break;
-								}
-
-								case Line.Type.TYPE_THICK:
-								{
-									pLeftStyleNode.SetText("thick");
-									break;
-								}
-
-								case Line.Type.TYPE_DASHED:
-								{
-									pLeftStyleNode.SetText("dashed");
-									break;
-								}
-
-								case Line.Type.TYPE_DOTTED:
-								{
-									pLeftStyleNode.SetText("dotted");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT:
-								{
-									pLeftStyleNode.SetText("dashDot");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT_DOT:
-								{
-									pLeftStyleNode.SetText("dashDotDot");
-									break;
-								}
-
-								default:
-								{
-									pLeftStyleNode.SetText("thin");
-									break;
-								}
-
-							}
-							pLeftNode.AppendChild(pLeftStyleNode);
-							Color pLeftColor = pBorder.GetLeftBorderLine().GetColor();
-							if (pLeftColor != null)
-							{
-								Secret.XmlNode pLeftColorNode = pStylesXml.CreateElement("color");
-								sTemp.Set("");
-								sTemp.AppendHex(pLeftColor.GetRgba());
-								pLeftNode.AppendChild(pLeftColorNode);
-							}
-						}
-						pBorderNode.AppendChild(pLeftNode);
-						Secret.XmlNode pRightNode = pStylesXml.CreateElement("right");
-						if (pBorder.GetRightBorderLine().GetType() != Line.Type.TYPE_NONE)
-						{
-							Secret.XmlNode pRightStyleNode = pStylesXml.CreateElement("style");
-							switch (pBorder.GetRightBorderLine().GetType())
-							{
-								case Line.Type.TYPE_THIN:
-								{
-									pRightStyleNode.SetText("thin");
-									break;
-								}
-
-								case Line.Type.TYPE_MEDIUM:
-								{
-									pRightStyleNode.SetText("medium");
-									break;
-								}
-
-								case Line.Type.TYPE_THICK:
-								{
-									pRightStyleNode.SetText("thick");
-									break;
-								}
-
-								case Line.Type.TYPE_DASHED:
-								{
-									pRightStyleNode.SetText("dashed");
-									break;
-								}
-
-								case Line.Type.TYPE_DOTTED:
-								{
-									pRightStyleNode.SetText("dotted");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT:
-								{
-									pRightStyleNode.SetText("dashDot");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT_DOT:
-								{
-									pRightStyleNode.SetText("dashDotDot");
-									break;
-								}
-
-								default:
-								{
-									pRightStyleNode.SetText("thin");
-									break;
-								}
-
-							}
-							pRightNode.AppendChild(pRightStyleNode);
-							Color pRightColor = pBorder.GetRightBorderLine().GetColor();
-							if (pRightColor != null)
-							{
-								Secret.XmlNode pRightColorNode = pStylesXml.CreateElement("color");
-								sTemp.Set("");
-								sTemp.AppendHex(pRightColor.GetRgba());
-								pRightColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-								pRightNode.AppendChild(pRightColorNode);
-							}
-						}
-						pBorderNode.AppendChild(pRightNode);
-						Secret.XmlNode pTopNode = pStylesXml.CreateElement("top");
-						if (pBorder.GetTopBorderLine().GetType() != Line.Type.TYPE_NONE)
-						{
-							Secret.XmlNode pTopStyleNode = pStylesXml.CreateElement("style");
-							switch (pBorder.GetTopBorderLine().GetType())
-							{
-								case Line.Type.TYPE_THIN:
-								{
-									pTopStyleNode.SetText("thin");
-									break;
-								}
-
-								case Line.Type.TYPE_MEDIUM:
-								{
-									pTopStyleNode.SetText("medium");
-									break;
-								}
-
-								case Line.Type.TYPE_THICK:
-								{
-									pTopStyleNode.SetText("thick");
-									break;
-								}
-
-								case Line.Type.TYPE_DASHED:
-								{
-									pTopStyleNode.SetText("dashed");
-									break;
-								}
-
-								case Line.Type.TYPE_DOTTED:
-								{
-									pTopStyleNode.SetText("dotted");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT:
-								{
-									pTopStyleNode.SetText("dashDot");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT_DOT:
-								{
-									pTopStyleNode.SetText("dashDotDot");
-									break;
-								}
-
-								default:
-								{
-									pTopStyleNode.SetText("thin");
-									break;
-								}
-
-							}
-							pTopNode.AppendChild(pTopStyleNode);
-							Color pTopColor = pBorder.GetTopBorderLine().GetColor();
-							if (pTopColor != null)
-							{
-								Secret.XmlNode pTopColorNode = pStylesXml.CreateElement("color");
-								sTemp.Set("");
-								sTemp.AppendHex(pTopColor.GetRgba());
-								pTopColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-								pTopNode.AppendChild(pTopColorNode);
-							}
-						}
-						pBorderNode.AppendChild(pTopNode);
-						Secret.XmlNode pBottomNode = pStylesXml.CreateElement("bottom");
-						if (pBorder.GetBottomBorderLine().GetType() != Line.Type.TYPE_NONE)
-						{
-							Secret.XmlNode pBottomStyleNode = pStylesXml.CreateElement("style");
-							switch (pBorder.GetBottomBorderLine().GetType())
-							{
-								case Line.Type.TYPE_THIN:
-								{
-									pBottomStyleNode.SetText("thin");
-									break;
-								}
-
-								case Line.Type.TYPE_MEDIUM:
-								{
-									pBottomStyleNode.SetText("medium");
-									break;
-								}
-
-								case Line.Type.TYPE_THICK:
-								{
-									pBottomStyleNode.SetText("thick");
-									break;
-								}
-
-								case Line.Type.TYPE_DASHED:
-								{
-									pBottomStyleNode.SetText("dashed");
-									break;
-								}
-
-								case Line.Type.TYPE_DOTTED:
-								{
-									pBottomStyleNode.SetText("dotted");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT:
-								{
-									pBottomStyleNode.SetText("dashDot");
-									break;
-								}
-
-								case Line.Type.TYPE_DASH_DOT_DOT:
-								{
-									pBottomStyleNode.SetText("dashDotDot");
-									break;
-								}
-
-								default:
-								{
-									pBottomStyleNode.SetText("thin");
-									break;
-								}
-
-							}
-							pBottomNode.AppendChild(pBottomStyleNode);
-							Color pBottomColor = pBorder.GetBottomBorderLine().GetColor();
-							if (pBottomColor != null)
-							{
-								Secret.XmlNode pBottomColorNode = pStylesXml.CreateElement("color");
-								sTemp.Set("");
-								sTemp.AppendHex(pBottomColor.GetRgba());
-								pBottomColorNode.SetAttribute("rgb", sTemp.GetExternalString());
-								pBottomNode.AppendChild(pBottomColorNode);
-							}
-						}
-						pBorderNode.AppendChild(pBottomNode);
-						Secret.XmlNode pDiagonalNode = pStylesXml.CreateElement("diagonal");
-						pBorderNode.AppendChild(pDiagonalNode);
-						pBordersNode.AppendChild(pBorderNode);
-					}
-					pStyleSheetNode.AppendChild(pBordersNode);
-					Secret.XmlNode pCellStyleXfsNode = pStylesXml.CreateElement("cellStyleXfs");
-					pCellStyleXfsNode.SetAttribute("count", "1");
-					Secret.XmlNode pXfStyleNode = pStylesXml.CreateElement("xf");
-					pXfStyleNode.SetAttribute("numFmtId", "0");
-					pXfStyleNode.SetAttribute("fontId", "0");
-					pXfStyleNode.SetAttribute("fillId", "0");
-					pXfStyleNode.SetAttribute("borderId", "0");
-					pCellStyleXfsNode.AppendChild(pXfStyleNode);
-					pStyleSheetNode.AppendChild(pCellStyleXfsNode);
-					Secret.XmlNode pCellXfsNode = pStylesXml.CreateElement("cellXfs");
-					sTemp.Set("");
-					sTemp.AppendInt(m_pImpl.m_pWorkbookGlobals.GetNumStyle());
-					pCellXfsNode.SetAttribute("count", sTemp.GetExternalString());
-					for (int i = 0; i < m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
-					{
-						Style pStyle = m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
-						Secret.XmlNode pXfNode = pStylesXml.CreateElement("xf");
-						string szFormat = pStyle.GetFormat();
-						ushort nFormatIndex = 0;
-						for (int j = 0; j < pFormatVector.GetSize(); j++)
-						{
-							if (Secret.ExternalString.Equal(pFormatVector.Get(j), szFormat))
-							{
-								nFormatIndex = (ushort)(j);
-								break;
-							}
-						}
-						Font pStyleFont = pStyle.GetFont();
-						ushort nFontIndex = 0;
-						for (int j = 0; j < pFontVector.GetSize(); j++)
-						{
-							Font pTestFont = pFontVector.Get(j);
-							if (Secret.ExternalString.Equal(pTestFont.GetName(), pStyleFont.GetName()) && pTestFont.GetSize() == pStyleFont.GetSize() && pTestFont.GetBold() == pStyleFont.GetBold() && pTestFont.GetItalic() == pStyleFont.GetItalic() && pTestFont.GetUnderline() == pStyleFont.GetUnderline())
-							{
-								nFontIndex = (ushort)(j);
-								break;
-							}
-						}
-						Color pBackgroundColor = pStyle.GetBackgroundColor(false);
-						Style.FillPattern eFillPattern = pStyle.GetFillPattern();
-						Color pFillPatternColor = pStyle.GetFillPatternColor(false);
-						ushort nFillIndex = 0;
-						for (int j = 0; j < pFillVector.GetSize(); j++)
-						{
-							Style pTestStyle = pFillVector.Get(j);
-							Color pTestBackgroundColor = pTestStyle.GetBackgroundColor(false);
-							Color pTestFillPatternColor = pTestStyle.GetFillPatternColor(false);
-							if (eFillPattern == pTestStyle.GetFillPattern() && ((pBackgroundColor == null && pTestBackgroundColor == null) || (pBackgroundColor != null && pTestBackgroundColor != null && pBackgroundColor.Equals(pTestBackgroundColor))) && ((pFillPatternColor == null && pTestFillPatternColor == null) || (pFillPatternColor != null && pTestFillPatternColor != null && pFillPatternColor.Equals(pTestFillPatternColor))))
-							{
-								nFillIndex = (ushort)(j);
-								break;
-							}
-						}
-						ushort nBorderIndex = 0;
-						for (int j = 0; j < pBorderVector.GetSize(); j++)
-						{
-							Style pTestStyle = pBorderVector.Get(j);
-							if (pStyle.GetTopBorderLine().GetType() == pTestStyle.GetTopBorderLine().GetType() && pStyle.GetRightBorderLine().GetType() == pTestStyle.GetRightBorderLine().GetType() && pStyle.GetBottomBorderLine().GetType() == pTestStyle.GetBottomBorderLine().GetType() && pStyle.GetLeftBorderLine().GetType() == pTestStyle.GetLeftBorderLine().GetType())
-							{
-								nBorderIndex = (ushort)(j);
-								break;
-							}
-						}
-						sTemp.Set("");
-						sTemp.AppendUint32(nFormatIndex);
-						pXfNode.SetAttribute("numFmtId", sTemp.GetExternalString());
-						sTemp.Set("");
-						sTemp.AppendUint32(nFontIndex);
-						pXfNode.SetAttribute("fontId", sTemp.GetExternalString());
-						{
-							pXfNode.SetAttribute("applyFont", "1");
-						}
-						sTemp.Set("");
-						sTemp.AppendUint32(nFillIndex);
-						pXfNode.SetAttribute("fillId", sTemp.GetExternalString());
-						{
-							pXfNode.SetAttribute("applyFill", "1");
-						}
-						sTemp.Set("");
-						sTemp.AppendUint32(nBorderIndex);
-						pXfNode.SetAttribute("borderId", sTemp.GetExternalString());
-						{
-							pXfNode.SetAttribute("applyBorder", "1");
-						}
-						pXfNode.SetAttribute("xfId", "0");
-						pCellXfsNode.AppendChild(pXfNode);
-					}
-					pStyleSheetNode.AppendChild(pCellXfsNode);
-					pStylesXml.AppendChild(pStyleSheetNode);
-					pStylesXml.Save(pStylesBlob.GetBlobView());
-					NumberDuck.Blob __2643745192 = pStylesBlob;
-					pStylesBlob = null;
-					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/styles.xml", __2643745192);
-					for (int i = 0; i < m_pImpl.m_pWorksheetVector.GetSize(); i++)
-					{
-						Worksheet pWorksheet = m_pImpl.m_pWorksheetVector.Get(i);
-						bSuccess = bSuccess && Secret.XlsxWorksheet.Write(pWorksheet, m_pImpl.m_pWorkbookGlobals, pZipWriter, i);
-					}
-					if (bSuccess)
-					{
-						Blob pSharedStringsBlob = new Blob(true);
-						Secret.XmlFile pSharedStringsXml = new Secret.XmlFile();
-						Secret.XmlNode pSstNode = pSharedStringsXml.CreateElement("sst");
-						pSstNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-						int nStringCount = m_pImpl.m_pWorkbookGlobals.m_pSharedStringContainer.GetSize();
-						sTemp.Set("");
-						sTemp.AppendInt(nStringCount);
-						pSstNode.SetAttribute("count", sTemp.GetExternalString());
-						pSstNode.SetAttribute("uniqueCount", sTemp.GetExternalString());
-						for (int i = 0; i < nStringCount; i++)
-						{
-							Secret.XmlNode pSiNode = pSharedStringsXml.CreateElement("si");
-							Secret.XmlNode pTNode = pSharedStringsXml.CreateElement("t");
-							string szString = m_pImpl.m_pWorkbookGlobals.GetSharedStringByIndex((uint)(i));
-							pTNode.SetText(szString);
-							pSiNode.AppendChild(pTNode);
-							pSstNode.AppendChild(pSiNode);
-						}
-						pSharedStringsXml.AppendChild(pSstNode);
-						pSharedStringsXml.Save(pSharedStringsBlob.GetBlobView());
-						NumberDuck.Blob __440057784 = pSharedStringsBlob;
-						pSharedStringsBlob = null;
-						bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/sharedStrings.xml", __440057784);
-					}
-					Blob pZipBlob = new Blob(true);
-					bSuccess = bSuccess && pZipWriter.SaveBlobView(pZipBlob.GetBlobView());
-					if (bSuccess)
-					{
-						pZipBlob.Save(szFileName);
-					}
-					return bSuccess;
+					return Secret.XlsxWorkbook.Save(this, szFileName);
 				}
 				else
 				{
@@ -3089,9 +2042,9 @@ namespace NumberDuck
 					break;
 			}
 			Worksheet pTempWorksheet = pWorksheet;
-			NumberDuck.Worksheet __4263111556 = pWorksheet;
+			NumberDuck.Worksheet __1372792658 = pWorksheet;
 			pWorksheet = null;
-			m_pImpl.m_pWorksheetVector.PushBack(__4263111556);
+			m_pImpl.m_pWorksheetVector.PushBack(__1372792658);
 			return pTempWorksheet;
 		}
 
@@ -8289,7 +7242,7 @@ namespace NumberDuck
 							nFontIndex -= 1;
 						FontRecord pFontRecord = pFontRecordVector.Get(nFontIndex);
 						pStyle.GetFont().SetName(pFontRecord.GetName());
-						pStyle.GetFont().m_pImpl.m_nSizeTwips = pFontRecord.GetSizeTwips();
+						pStyle.GetFont().m_pImpl.m_fSizePts = (float)(pFontRecord.GetSizeTwips()) / 20.0f;
 						pStyle.GetFont().SetBold(pFontRecord.GetBold());
 						pStyle.GetFont().SetItalic(pFontRecord.GetItalic());
 						pStyle.GetFont().SetUnderline(pFontRecord.GetUnderline());
@@ -8559,7 +7512,7 @@ namespace NumberDuck
 				{
 					FontRecord pFontRecord = pFontRecordVector.Get(0);
 					m_pHeaderFont.SetName(pFontRecord.GetName());
-					m_pHeaderFont.m_pImpl.m_nSizeTwips = pFontRecord.GetSizeTwips();
+					m_pHeaderFont.m_pImpl.m_fSizePts = (float)(pFontRecord.GetSizeTwips()) / 20.0f;
 					m_pHeaderFont.SetBold(pFontRecord.GetBold());
 					m_pHeaderFont.SetItalic(pFontRecord.GetItalic());
 					m_pHeaderFont.SetUnderline(pFontRecord.GetUnderline());
@@ -8607,7 +7560,7 @@ namespace NumberDuck
 				pBiffRecordContainer.AddBiffRecord(new BookBool());
 				{
 					Font pHeaderFont = pWorkbookGlobals.m_pHeaderFont;
-					pBiffRecordContainer.AddBiffRecord(new FontRecord(pHeaderFont.GetName(), (ushort)(pHeaderFont.m_pImpl.m_nSizeTwips), PALETTE_INDEX_DEFAULT_FONT_AUTOMATIC, pHeaderFont.GetBold(), pHeaderFont.GetItalic(), pHeaderFont.GetUnderline()));
+					pBiffRecordContainer.AddBiffRecord(new FontRecord(pHeaderFont.GetName(), (ushort)(pHeaderFont.m_pImpl.m_fSizePts * 20.0f), PALETTE_INDEX_DEFAULT_FONT_AUTOMATIC, pHeaderFont.GetBold(), pHeaderFont.GetItalic(), pHeaderFont.GetUnderline()));
 				}
 				for (int i = 0; i < pWorkbookGlobals.m_pStyleVector.GetSize(); i++)
 				{
@@ -8615,7 +7568,7 @@ namespace NumberDuck
 					ushort nPaletteIndex = SnapToPalette(pStyle.GetFont().GetColor(false));
 					if (nPaletteIndex == PALETTE_INDEX_DEFAULT)
 						nPaletteIndex = PALETTE_INDEX_DEFAULT_FONT_AUTOMATIC;
-					pBiffRecordContainer.AddBiffRecord(new FontRecord(pStyle.GetFont().GetName(), (ushort)(pStyle.GetFont().m_pImpl.m_nSizeTwips), nPaletteIndex, pStyle.GetFont().GetBold(), pStyle.GetFont().GetItalic(), pStyle.GetFont().GetUnderline()));
+					pBiffRecordContainer.AddBiffRecord(new FontRecord(pStyle.GetFont().GetName(), (ushort)(pStyle.GetFont().m_pImpl.m_fSizePts * 20.0f), nPaletteIndex, pStyle.GetFont().GetBold(), pStyle.GetFont().GetItalic(), pStyle.GetFont().GetUnderline()));
 				}
 				ushort nFormatIndex = 164;
 				for (int i = 0; i < pWorkbookGlobals.m_pStyleVector.GetSize(); i++)
@@ -23003,8 +21956,9 @@ namespace NumberDuck
 							ColInfoRecord pColInfoRecord = (ColInfoRecord)(pBiffRecord);
 							for (ushort j = pColInfoRecord.GetFirstColumn(); j <= pColInfoRecord.GetLastColumn(); j++)
 							{
-								SetColumnWidth(j, (ushort)(((uint)(pColInfoRecord.GetColumnWidth()) * 1789 + 65426 / 2) / 65426));
-								SetColumnHidden(j, pColInfoRecord.GetHidden());
+								ColumnInfo pColumnInfo = m_pImpl.GetOrCreateColumnInfo(j);
+								pColumnInfo.m_fWidth = (double)(pColInfoRecord.GetColumnWidth()) * (141.0 / 6874.0);
+								pColumnInfo.m_bHidden = pColInfoRecord.GetHidden();
 							}
 							break;
 						}
@@ -23246,9 +22200,9 @@ namespace NumberDuck
 																pPicture.SetWidth((ushort)(nWidth));
 																pPicture.SetHeight((ushort)(nHeight));
 																pPicture.SetUrl(sUrl.GetExternalString());
-																NumberDuck.Picture __712015281 = pPicture;
+																NumberDuck.Picture __1735425088 = pPicture;
 																pPicture = null;
-																m_pImpl.m_pPictureVector.PushBack(__712015281);
+																m_pImpl.m_pPictureVector.PushBack(__1735425088);
 																{
 																	sUrl = null;
 																}
@@ -23415,20 +22369,20 @@ namespace NumberDuck
 																				if (pValuesFormula != null)
 																				{
 																					Series pSeries;
-																					NumberDuck.Secret.Formula __169641457 = pValuesFormula;
+																					NumberDuck.Secret.Formula __2770109937 = pValuesFormula;
 																					pValuesFormula = null;
-																					pSeries = pChart.m_pImpl.CreateSeries(__169641457);
+																					pSeries = pChart.m_pImpl.CreateSeries(__2770109937);
 																					if (pNameFormula != null)
 																					{
-																						NumberDuck.Secret.Formula __2958736552 = pNameFormula;
+																						NumberDuck.Secret.Formula __526040232 = pNameFormula;
 																						pNameFormula = null;
-																						pSeries.m_pImpl.SetNameFormula(__2958736552);
+																						pSeries.m_pImpl.SetNameFormula(__526040232);
 																					}
 																					if (pCategoriesFormula != null)
 																					{
-																						NumberDuck.Secret.Formula __1497865396 = pCategoriesFormula;
+																						NumberDuck.Secret.Formula __4131888308 = pCategoriesFormula;
 																						pCategoriesFormula = null;
-																						pChart.m_pImpl.SetCategoriesFormula(__1497865396);
+																						pChart.m_pImpl.SetCategoriesFormula(__4131888308);
 																					}
 																					pSeries.m_pImpl.SetClassicStyle(pChart.GetType(), (ushort)(pChart.GetNumSeries() - 1));
 																					if (pDefaultLineFormatRecord != null)
@@ -23635,9 +22589,9 @@ namespace NumberDuck
 																	if (pBiffRecord.GetType() == BiffRecord.Type.TYPE_EOF)
 																		break;
 															}
-															NumberDuck.Chart __1687521994 = pChart;
+															NumberDuck.Chart __3415575242 = pChart;
 															pChart = null;
-															m_pImpl.m_pChartVector.PushBack(__1687521994);
+															m_pImpl.m_pChartVector.PushBack(__3415575242);
 														}
 													}
 												}
@@ -23700,9 +22654,9 @@ namespace NumberDuck
 					}
 				}
 				DefColWidthRecord pDefColWidth = new DefColWidthRecord(8);
-				NumberDuck.Secret.DefColWidthRecord __3271316325 = pDefColWidth;
+				NumberDuck.Secret.DefColWidthRecord __4160508039 = pDefColWidth;
 				pDefColWidth = null;
-				pBiffRecordContainer.AddBiffRecord(__3271316325);
+				pBiffRecordContainer.AddBiffRecord(__4160508039);
 				{
 					int i = 0;
 					while (true)
@@ -23716,17 +22670,17 @@ namespace NumberDuck
 							if (i == pWorksheet.m_pImpl.m_pColumnInfoTable.GetSize() - 1)
 								break;
 							TableElement<ColumnInfo> pNext = pWorksheet.m_pImpl.m_pColumnInfoTable.GetByIndex(i + 1);
-							if (pNext.m_xObject.m_nWidth != pCurrent.m_xObject.m_nWidth)
+							if (pNext.m_xObject.m_fWidth != pCurrent.m_xObject.m_fWidth)
 								break;
 							if (pNext.m_xObject.m_bHidden != pCurrent.m_xObject.m_bHidden)
 								break;
 							pLast = pNext;
 							i++;
 						}
-						ColInfoRecord pColInfo = new ColInfoRecord((ushort)(pCurrent.m_nColumn), (ushort)(pLast.m_nColumn), (ushort)((uint)(pCurrent.m_xObject.m_nWidth) * 65426 / 1789), pCurrent.m_xObject.m_bHidden);
-						NumberDuck.Secret.ColInfoRecord __1539927052 = pColInfo;
+						ColInfoRecord pColInfo = new ColInfoRecord((ushort)(pCurrent.m_nColumn), (ushort)(pLast.m_nColumn), (ushort)(pCurrent.m_xObject.m_fWidth / (141.0 / 6874.0)), pCurrent.m_xObject.m_bHidden);
+						NumberDuck.Secret.ColInfoRecord __4106841100 = pColInfo;
 						pColInfo = null;
-						pBiffRecordContainer.AddBiffRecord(__1539927052);
+						pBiffRecordContainer.AddBiffRecord(__4106841100);
 						i++;
 					}
 				}
@@ -23760,9 +22714,9 @@ namespace NumberDuck
 										pLastRow = pCurrentRow;
 										RowRecord pOwnedRowRecord = new RowRecord((ushort)(pRowElement.m_nRow), (ushort)((uint)(pRowElement.m_xObject.m_nHeight) * 8190 / 546));
 										pCurrentRow = pOwnedRowRecord;
-										NumberDuck.Secret.RowRecord __1024030321 = pOwnedRowRecord;
+										NumberDuck.Secret.RowRecord __2450093681 = pOwnedRowRecord;
 										pOwnedRowRecord = null;
-										pRowRecordVector.PushBack(__1024030321);
+										pRowRecordVector.PushBack(__2450093681);
 										if (pLastRow != null && pCurrentRow.GetRow() == pLastRow.GetRow() + 1 && pLastRow.GetBottomThick())
 											pCurrentRow.SetTopThick();
 									}
@@ -23773,9 +22727,9 @@ namespace NumberDuck
 									pLastRow = pCurrentRow;
 									RowRecord pOwnedRowRecord = new RowRecord((ushort)(pElement.m_nRow), (ushort)(DEFAULT_ROW_HEIGHT * 8190 / 546));
 									pCurrentRow = pOwnedRowRecord;
-									NumberDuck.Secret.RowRecord __2131329160 = pOwnedRowRecord;
+									NumberDuck.Secret.RowRecord __3490283656 = pOwnedRowRecord;
 									pOwnedRowRecord = null;
-									pRowRecordVector.PushBack(__2131329160);
+									pRowRecordVector.PushBack(__3490283656);
 									if (pLastRow != null && pCurrentRow.GetRow() == pLastRow.GetRow() + 1 && pLastRow.GetBottomThick())
 										pCurrentRow.SetTopThick();
 								}
@@ -23903,9 +22857,9 @@ namespace NumberDuck
 								pLastRow = pCurrentRow;
 								RowRecord pOwnedRowRecord = new RowRecord((ushort)(pRowElement.m_nRow), (ushort)((uint)(pRowElement.m_xObject.m_nHeight) * 8190 / 546));
 								pCurrentRow = pOwnedRowRecord;
-								NumberDuck.Secret.RowRecord __4112012816 = pOwnedRowRecord;
+								NumberDuck.Secret.RowRecord __1511544336 = pOwnedRowRecord;
 								pOwnedRowRecord = null;
-								pRowRecordVector.PushBack(__4112012816);
+								pRowRecordVector.PushBack(__1511544336);
 								if (pLastRow != null && pCurrentRow.GetRow() == pLastRow.GetRow() + 1 && pLastRow.GetBottomThick())
 									pCurrentRow.SetTopThick();
 							}
@@ -23938,9 +22892,9 @@ namespace NumberDuck
 					OfficeArtSpContainerRecord pOfficeArtSpContainerRecord = new OfficeArtSpContainerRecord();
 					pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtFSPGRRecord());
 					pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtFSPRecord(0, 1024, 1, 1, 0, 0));
-					NumberDuck.Secret.OfficeArtSpContainerRecord __4290075639 = pOfficeArtSpContainerRecord;
+					NumberDuck.Secret.OfficeArtSpContainerRecord __1354062839 = pOfficeArtSpContainerRecord;
 					pOfficeArtSpContainerRecord = null;
-					pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__4290075639);
+					pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__1354062839);
 					nIndex = 0;
 					for (ushort i = 0; i < pWorksheet.GetNumPicture(); i++)
 					{
@@ -23988,9 +22942,9 @@ namespace NumberDuck
 						{
 							pOfficeArtFOPTRecord.AddProperty((ushort)(OfficeArtRecord.OPIDType.OPID_GROUP_SHAPE_BOOLEAN_PROPERTIES), 0, 131072);
 						}
-						NumberDuck.Secret.OfficeArtFOPTRecord __1066641846 = pOfficeArtFOPTRecord;
+						NumberDuck.Secret.OfficeArtFOPTRecord __2425596342 = pOfficeArtFOPTRecord;
 						pOfficeArtFOPTRecord = null;
-						pOfficeArtSpContainerRecord.AddOfficeArtRecord(__1066641846);
+						pOfficeArtSpContainerRecord.AddOfficeArtRecord(__2425596342);
 						OfficeArtDimensions pDimensions = ComputeDimensions(pWorksheet, (ushort)(pPicture.GetX()), (ushort)(pPicture.GetSubX()), (ushort)(pPicture.GetWidth()), (ushort)(pPicture.GetY()), (ushort)(pPicture.GetSubY()), (ushort)(pPicture.GetHeight()));
 						pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtClientAnchorSheetRecord(pDimensions.m_nCellX1, pDimensions.m_nSubCellX1, pDimensions.m_nCellY1, pDimensions.m_nSubCellY1, pDimensions.m_nCellX2, pDimensions.m_nSubCellX2, pDimensions.m_nCellY2, pDimensions.m_nSubCellY2));
 						{
@@ -23998,9 +22952,9 @@ namespace NumberDuck
 						}
 						pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtClientDataRecord());
 						pOfficeArtSpContainerRecordVector.PushBack(pOfficeArtSpContainerRecord);
-						NumberDuck.Secret.OfficeArtSpContainerRecord __4139018850 = pOfficeArtSpContainerRecord;
+						NumberDuck.Secret.OfficeArtSpContainerRecord __1504995938 = pOfficeArtSpContainerRecord;
 						pOfficeArtSpContainerRecord = null;
-						pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__4139018850);
+						pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__1504995938);
 						if (nIndex == 0)
 							nFirstOffset = pOfficeArtDgContainerRecord.GetRecursiveSize() + pOfficeArtSpgrContainerRecord.GetRecursiveSize();
 						nIndex++;
@@ -24017,9 +22971,9 @@ namespace NumberDuck
 						pOfficeArtFOPTRecord.AddProperty((ushort)(OfficeArtRecord.OPIDType.OPID_FILL_STYLE_BOOLEAN_PROPERTIES), 0, 1048592);
 						pOfficeArtFOPTRecord.AddStringProperty((ushort)(OfficeArtRecord.OPIDType.OPID_WZ_NAME), "Chart 1");
 						pOfficeArtFOPTRecord.AddProperty((ushort)(OfficeArtRecord.OPIDType.OPID_GROUP_SHAPE_BOOLEAN_PROPERTIES), 0, 131072);
-						NumberDuck.Secret.OfficeArtFOPTRecord __1082302810 = pOfficeArtFOPTRecord;
+						NumberDuck.Secret.OfficeArtFOPTRecord __4018315610 = pOfficeArtFOPTRecord;
 						pOfficeArtFOPTRecord = null;
-						pOfficeArtSpContainerRecord.AddOfficeArtRecord(__1082302810);
+						pOfficeArtSpContainerRecord.AddOfficeArtRecord(__4018315610);
 						OfficeArtDimensions pDimensions = ComputeDimensions(pWorksheet, (ushort)(pChart.GetX()), (ushort)(pChart.GetSubX()), (ushort)(pChart.GetWidth()), (ushort)(pChart.GetY()), (ushort)(pChart.GetSubY()), (ushort)(pChart.GetHeight()));
 						pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtClientAnchorSheetRecord(pDimensions.m_nCellX1, pDimensions.m_nSubCellX1, pDimensions.m_nCellY1, pDimensions.m_nSubCellY1, pDimensions.m_nCellX2, pDimensions.m_nSubCellX2, pDimensions.m_nCellY2, pDimensions.m_nSubCellY2));
 						{
@@ -24027,16 +22981,16 @@ namespace NumberDuck
 						}
 						pOfficeArtSpContainerRecord.AddOfficeArtRecord(new OfficeArtClientDataRecord());
 						pOfficeArtSpContainerRecordVector.PushBack(pOfficeArtSpContainerRecord);
-						NumberDuck.Secret.OfficeArtSpContainerRecord __3617940001 = pOfficeArtSpContainerRecord;
+						NumberDuck.Secret.OfficeArtSpContainerRecord __2024104481 = pOfficeArtSpContainerRecord;
 						pOfficeArtSpContainerRecord = null;
-						pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__3617940001);
+						pOfficeArtSpgrContainerRecord.AddOfficeArtRecord(__2024104481);
 						if (nIndex == 0)
 							nFirstOffset = pOfficeArtDgContainerRecord.GetRecursiveSize() + pOfficeArtSpgrContainerRecord.GetRecursiveSize();
 						nIndex++;
 					}
-					NumberDuck.Secret.OfficeArtSpgrContainerRecord __3771744244 = pOfficeArtSpgrContainerRecord;
+					NumberDuck.Secret.OfficeArtSpgrContainerRecord __2630935356 = pOfficeArtSpgrContainerRecord;
 					pOfficeArtSpgrContainerRecord = null;
-					pOfficeArtDgContainerRecord.AddOfficeArtRecord(__3771744244);
+					pOfficeArtDgContainerRecord.AddOfficeArtRecord(__2630935356);
 					nIndex = 0;
 					for (ushort i = 0; i < pWorksheet.GetNumPicture(); i++)
 					{
@@ -24308,9 +23262,9 @@ namespace NumberDuck
 					nRowHeight = pWorksheet.GetRowHeight(pDimensions.m_nCellY2);
 				}
 				pDimensions.m_nSubCellY2 = (ushort)((pDimensions.m_nSubCellY2 * 256 + nRowHeight / 2) / nRowHeight);
-				NumberDuck.Secret.OfficeArtDimensions __2448664441 = pDimensions;
+				NumberDuck.Secret.OfficeArtDimensions __1056155513 = pDimensions;
 				pDimensions = null;
-				return __2448664441;
+				return __1056155513;
 			}
 
 			public int LoopToEnd(int i, BiffRecordContainer pBiffRecordContainer)
@@ -29765,6 +28719,48 @@ namespace NumberDuck
 				pSheetFormatPrNode.SetAttribute("defaultRowHeight", sTemp.GetExternalString());
 				pSheetFormatPrNode.SetAttribute("x14ac:dyDescent", "0.25");
 				pWorksheetNode.AppendChild(pSheetFormatPrNode);
+				if (pWorksheet.m_pImpl.m_pColumnInfoTable.GetSize() > 0)
+				{
+					XmlNode pColsNode = pWorksheetXml.CreateElement("cols");
+					{
+						int i = 0;
+						while (true)
+						{
+							if (i >= pWorksheet.m_pImpl.m_pColumnInfoTable.GetSize())
+								break;
+							TableElement<ColumnInfo> pCurrent = pWorksheet.m_pImpl.m_pColumnInfoTable.GetByIndex(i);
+							TableElement<ColumnInfo> pLast = pWorksheet.m_pImpl.m_pColumnInfoTable.GetByIndex(i);
+							while (true)
+							{
+								if (i == pWorksheet.m_pImpl.m_pColumnInfoTable.GetSize() - 1)
+									break;
+								TableElement<ColumnInfo> pNext = pWorksheet.m_pImpl.m_pColumnInfoTable.GetByIndex(i + 1);
+								if (pNext.m_xObject.m_fWidth != pCurrent.m_xObject.m_fWidth)
+									break;
+								if (pNext.m_xObject.m_bHidden != pCurrent.m_xObject.m_bHidden)
+									break;
+								pLast = pNext;
+								i++;
+							}
+							XmlNode pColNode = pWorksheetXml.CreateElement("col");
+							sTemp.Set("");
+							sTemp.AppendUint32((uint)(pCurrent.m_nColumn + 1));
+							pColNode.SetAttribute("min", sTemp.GetExternalString());
+							sTemp.Set("");
+							sTemp.AppendUint32((uint)(pLast.m_nColumn + 1));
+							pColNode.SetAttribute("max", sTemp.GetExternalString());
+							sTemp.Set("");
+							sTemp.AppendDouble(pCurrent.m_xObject.m_fWidth);
+							pColNode.SetAttribute("width", sTemp.GetExternalString());
+							pColNode.SetAttribute("customWidth", "1");
+							if (pCurrent.m_xObject.m_bHidden)
+								pColNode.SetAttribute("hidden", "1");
+							pColsNode.AppendChild(pColNode);
+							i++;
+						}
+					}
+					pWorksheetNode.AppendChild(pColsNode);
+				}
 				XmlNode pSheetDataNode = pWorksheetXml.CreateElement("sheetData");
 				XmlNode pCurrentRowNode = null;
 				int nCurrentRow = 0xFFFF;
@@ -29856,6 +28852,26 @@ namespace NumberDuck
 					}
 				}
 				pWorksheetNode.AppendChild(pSheetDataNode);
+				if (pWorksheet.m_pImpl.m_pMergedCellVector.GetSize() > 0)
+				{
+					XmlNode pMergeCellsNode = pWorksheetXml.CreateElement("mergeCells");
+					for (int i = 0; i < pWorksheet.m_pImpl.m_pMergedCellVector.GetSize(); i++)
+					{
+						MergedCell pMergedCell = pWorksheet.m_pImpl.m_pMergedCellVector.Get(i);
+						XmlNode pMergeCellNode = pWorksheetXml.CreateElement("mergeCell");
+						{
+							Coordinate pTopLeft = new Coordinate((ushort)(pMergedCell.GetX()), (ushort)(pMergedCell.GetY()));
+							Coordinate pBottomRight = new Coordinate((ushort)(pMergedCell.GetX() + pMergedCell.GetWidth() - 1), (ushort)(pMergedCell.GetY() + pMergedCell.GetHeight() - 1));
+							sTemp.Set("");
+							WorksheetImplementation.CoordinateToAddress(pTopLeft, sTemp);
+							sTemp.AppendString(":");
+							WorksheetImplementation.CoordinateToAddress(pBottomRight, sTemp);
+							pMergeCellNode.SetAttribute("ref", sTemp.GetExternalString());
+						}
+						pMergeCellsNode.AppendChild(pMergeCellNode);
+					}
+					pWorksheetNode.AppendChild(pMergeCellsNode);
+				}
 				XmlNode pPageMarginsNode = pWorksheetXml.CreateElement("pageMargins");
 				pPageMarginsNode.SetAttribute("left", "0.7");
 				pPageMarginsNode.SetAttribute("right", "0.7");
@@ -29870,9 +28886,9 @@ namespace NumberDuck
 				sTemp.AppendInt(nWorksheetIndex + 1);
 				sTemp.AppendString(".xml");
 				bool bSuccess;
-				NumberDuck.Blob __3081971269 = pWorksheetBlob;
+				NumberDuck.Blob __3649257369 = pWorksheetBlob;
 				pWorksheetBlob = null;
-				bSuccess = pZipWriter.AddFileFromBlob(sTemp.GetExternalString(), __3081971269);
+				bSuccess = pZipWriter.AddFileFromBlob(sTemp.GetExternalString(), __3649257369);
 				return bSuccess;
 			}
 
@@ -29912,8 +28928,9 @@ namespace NumberDuck
 								bHidden = true;
 							for (ushort i = nMin; i <= nMax; i++)
 							{
-								SetColumnWidth((ushort)(i - 1), (ushort)(dWidth * 7.01));
-								SetColumnHidden((ushort)(i - 1), bHidden);
+								ColumnInfo pColumnInfo = m_pImpl.GetOrCreateColumnInfo((ushort)(i - 1));
+								pColumnInfo.m_fWidth = dWidth;
+								pColumnInfo.m_bHidden = bHidden;
 							}
 							pColNode = pColNode.GetNextSiblingElement("col");
 						}
@@ -30061,9 +29078,7 @@ namespace NumberDuck
 						string szVal = pSzElement.GetAttribute("val");
 						if (szVal == null)
 							return false;
-						double dPoints = (double)(ExternalString.atof(szVal));
-						double dPixels = (dPoints * 96.0 + 72.0 / 2.0) / 72.0;
-						pFont.SetSize((byte)(dPixels));
+						pFont.m_pImpl.m_fSizePts = (float)(ExternalString.atof(szVal));
 					}
 				}
 				{
@@ -30213,6 +29228,16 @@ namespace NumberDuck
 				LoadVector(pCellXfVector, pStyleSheetNode, "cellXfs", "xf");
 				LoadVector(pCellStyleVector, pStyleSheetNode, "cellStyles", "cellStyle");
 				bResult = SubParseStyles(pWorkbookGlobals, pStyleSheetNode, pNumFmtVector, pFontVector, pFillVector, pBorderVector, pCellStyleXfVector, pCellXfVector, pCellStyleVector);
+				if (pWorkbookGlobals.m_pStyleVector.GetSize() > 0)
+				{
+					Style pStyle = pWorkbookGlobals.m_pStyleVector.Get(0);
+					Font pFont = pStyle.GetFont();
+					pWorkbookGlobals.m_pHeaderFont.SetName(pFont.GetName());
+					pWorkbookGlobals.m_pHeaderFont.m_pImpl.m_fSizePts = pFont.m_pImpl.m_fSizePts;
+					pWorkbookGlobals.m_pHeaderFont.SetBold(pFont.GetBold());
+					pWorkbookGlobals.m_pHeaderFont.SetItalic(pFont.GetItalic());
+					pWorkbookGlobals.m_pHeaderFont.SetUnderline(pFont.GetUnderline());
+				}
 				{
 					pNumFmtVector = null;
 				}
@@ -30569,6 +29594,1067 @@ namespace NumberDuck
 			}
 
 		}
+		class XlsxWorkbook
+		{
+			public static bool Save(Workbook pWorkbook, string szFileName)
+			{
+				InternalString sTemp = new InternalString("");
+				ZipWriter pZipWriter = new ZipWriter();
+				bool bSuccess = true;
+				Blob pContentTypesBlob = new Blob(true);
+				XmlFile pContentTypesXml = new XmlFile();
+				XmlNode pTypesNode = pContentTypesXml.CreateElement("Types");
+				pTypesNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/content-types");
+				XmlNode pDefaultXml = pContentTypesXml.CreateElement("Default");
+				pDefaultXml.SetAttribute("Extension", "xml");
+				pDefaultXml.SetAttribute("ContentType", "application/xml");
+				pTypesNode.AppendChild(pDefaultXml);
+				XmlNode pDefaultRels = pContentTypesXml.CreateElement("Default");
+				pDefaultRels.SetAttribute("Extension", "rels");
+				pDefaultRels.SetAttribute("ContentType", "application/vnd.openxmlformats-package.relationships+xml");
+				pTypesNode.AppendChild(pDefaultRels);
+				XmlNode pOverrideWorkbook = pContentTypesXml.CreateElement("Override");
+				pOverrideWorkbook.SetAttribute("PartName", "/xl/workbook.xml");
+				pOverrideWorkbook.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
+				pTypesNode.AppendChild(pOverrideWorkbook);
+				XmlNode pOverrideStyles = pContentTypesXml.CreateElement("Override");
+				pOverrideStyles.SetAttribute("PartName", "/xl/styles.xml");
+				pOverrideStyles.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml");
+				pTypesNode.AppendChild(pOverrideStyles);
+				XmlNode pOverrideSharedStrings = pContentTypesXml.CreateElement("Override");
+				pOverrideSharedStrings.SetAttribute("PartName", "/xl/sharedStrings.xml");
+				pOverrideSharedStrings.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml");
+				pTypesNode.AppendChild(pOverrideSharedStrings);
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorksheetVector.GetSize(); i++)
+				{
+					XmlNode pOverrideWorksheet = pContentTypesXml.CreateElement("Override");
+					sTemp.Set("/xl/worksheets/sheet");
+					sTemp.AppendInt(i + 1);
+					sTemp.AppendString(".xml");
+					pOverrideWorksheet.SetAttribute("PartName", sTemp.GetExternalString());
+					pOverrideWorksheet.SetAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+					pTypesNode.AppendChild(pOverrideWorksheet);
+				}
+				pContentTypesXml.AppendChild(pTypesNode);
+				pContentTypesXml.Save(pContentTypesBlob.GetBlobView());
+				NumberDuck.Blob __3416822681 = pContentTypesBlob;
+				pContentTypesBlob = null;
+				bSuccess = bSuccess && pZipWriter.AddFileFromBlob("[Content_Types].xml", __3416822681);
+				Blob pRelsBlob = new Blob(true);
+				XmlFile pRelsXml = new XmlFile();
+				XmlNode pRelationshipsNode = pRelsXml.CreateElement("Relationships");
+				pRelationshipsNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
+				XmlNode pRelationshipNode = pRelsXml.CreateElement("Relationship");
+				pRelationshipNode.SetAttribute("Id", "rId1");
+				pRelationshipNode.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument");
+				pRelationshipNode.SetAttribute("Target", "xl/workbook.xml");
+				pRelationshipsNode.AppendChild(pRelationshipNode);
+				pRelsXml.AppendChild(pRelationshipsNode);
+				pRelsXml.Save(pRelsBlob.GetBlobView());
+				NumberDuck.Blob __3587816521 = pRelsBlob;
+				pRelsBlob = null;
+				bSuccess = bSuccess && pZipWriter.AddFileFromBlob("_rels/.rels", __3587816521);
+				Blob pWorkbookRelsBlob = new Blob(true);
+				XmlFile pWorkbookRelsXml = new XmlFile();
+				XmlNode pWorkbookRelationshipsNode = pWorkbookRelsXml.CreateElement("Relationships");
+				pWorkbookRelationshipsNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
+				XmlNode pStylesRelationship = pWorkbookRelsXml.CreateElement("Relationship");
+				pStylesRelationship.SetAttribute("Id", "rId1");
+				pStylesRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles");
+				pStylesRelationship.SetAttribute("Target", "styles.xml");
+				pWorkbookRelationshipsNode.AppendChild(pStylesRelationship);
+				XmlNode pSharedStringsRelationship = pWorkbookRelsXml.CreateElement("Relationship");
+				pSharedStringsRelationship.SetAttribute("Id", "rId2");
+				pSharedStringsRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings");
+				pSharedStringsRelationship.SetAttribute("Target", "sharedStrings.xml");
+				pWorkbookRelationshipsNode.AppendChild(pSharedStringsRelationship);
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorksheetVector.GetSize(); i++)
+				{
+					XmlNode pWorksheetRelationship = pWorkbookRelsXml.CreateElement("Relationship");
+					sTemp.Set("rId");
+					sTemp.AppendInt(i + 3);
+					pWorksheetRelationship.SetAttribute("Id", sTemp.GetExternalString());
+					pWorksheetRelationship.SetAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
+					sTemp.Set("worksheets/sheet");
+					sTemp.AppendInt(i + 1);
+					sTemp.Append(".xml");
+					pWorksheetRelationship.SetAttribute("Target", sTemp.GetExternalString());
+					pWorkbookRelationshipsNode.AppendChild(pWorksheetRelationship);
+				}
+				pWorkbookRelsXml.AppendChild(pWorkbookRelationshipsNode);
+				pWorkbookRelsXml.Save(pWorkbookRelsBlob.GetBlobView());
+				NumberDuck.Blob __51248825 = pWorkbookRelsBlob;
+				pWorkbookRelsBlob = null;
+				bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/_rels/workbook.xml.rels", __51248825);
+				Blob pWorkbookBlob = new Blob(true);
+				XmlFile pWorkbookXml = new XmlFile();
+				XmlNode pWorkbookNode = pWorkbookXml.CreateElement("workbook");
+				pWorkbookNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+				pWorkbookNode.SetAttribute("xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+				XmlNode pSheetsNode = pWorkbookXml.CreateElement("sheets");
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorksheetVector.GetSize(); i++)
+				{
+					Worksheet pWorksheet = pWorkbook.m_pImpl.m_pWorksheetVector.Get(i);
+					XmlNode pSheetNode = pWorkbookXml.CreateElement("sheet");
+					pSheetNode.SetAttribute("name", pWorksheet.GetName());
+					sTemp.Set("");
+					sTemp.AppendInt(i + 1);
+					pSheetNode.SetAttribute("sheetId", sTemp.GetExternalString());
+					sTemp.Set("rId");
+					sTemp.AppendInt(i + 3);
+					pSheetNode.SetAttribute("r:id", sTemp.GetExternalString());
+					pSheetsNode.AppendChild(pSheetNode);
+				}
+				pWorkbookNode.AppendChild(pSheetsNode);
+				pWorkbookXml.AppendChild(pWorkbookNode);
+				pWorkbookXml.Save(pWorkbookBlob.GetBlobView());
+				NumberDuck.Blob __1700593568 = pWorkbookBlob;
+				pWorkbookBlob = null;
+				bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/workbook.xml", __1700593568);
+				Blob pStylesBlob = new Blob(true);
+				XmlFile pStylesXml = new XmlFile();
+				XmlNode pStyleSheetNode = pStylesXml.CreateElement("styleSheet");
+				pStyleSheetNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+				Vector<string> pFormatVector = new Vector<string>();
+				Vector<ushort> pFormatIndexVector = new Vector<ushort>();
+				pFormatVector.PushBack("General");
+				pFormatIndexVector.PushBack(0);
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
+				{
+					Style pStyle = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
+					string szFormat = pStyle.GetFormat();
+					bool bFound = false;
+					for (int j = 0; j < pFormatVector.GetSize(); j++)
+					{
+						if (ExternalString.Equal(pFormatVector.Get(j), szFormat))
+						{
+							bFound = true;
+							break;
+						}
+					}
+					if (!bFound)
+					{
+						pFormatVector.PushBack(szFormat);
+						pFormatIndexVector.PushBack((ushort)(pFormatVector.GetSize() - 1));
+					}
+				}
+				XmlNode pNumFmtsNode = pStylesXml.CreateElement("numFmts");
+				sTemp.Set("");
+				sTemp.AppendInt(pFormatVector.GetSize());
+				pNumFmtsNode.SetAttribute("count", sTemp.GetExternalString());
+				for (int i = 0; i < pFormatVector.GetSize(); i++)
+				{
+					XmlNode pNumFmtNode = pStylesXml.CreateElement("numFmt");
+					sTemp.Set("");
+					sTemp.AppendInt(i);
+					pNumFmtNode.SetAttribute("numFmtId", sTemp.GetExternalString());
+					pNumFmtNode.SetAttribute("formatCode", pFormatVector.Get(i));
+					pNumFmtsNode.AppendChild(pNumFmtNode);
+				}
+				pStyleSheetNode.AppendChild(pNumFmtsNode);
+				OwnedVector<Font> pFontVector = new OwnedVector<Font>();
+				{
+					Font pDefaultFont = new Font();
+					pDefaultFont.SetName(pWorkbook.m_pImpl.m_pWorkbookGlobals.m_pHeaderFont.GetName());
+					pDefaultFont.m_pImpl.m_fSizePts = pWorkbook.m_pImpl.m_pWorkbookGlobals.m_pHeaderFont.m_pImpl.m_fSizePts;
+					NumberDuck.Font __1794065049 = pDefaultFont;
+					pDefaultFont = null;
+					pFontVector.PushBack(__1794065049);
+				}
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
+				{
+					Style pStyle = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
+					Font pStyleFont = pStyle.GetFont();
+					bool bFound = false;
+					for (int j = 0; j < pFontVector.GetSize(); j++)
+					{
+						Font pTestFont = pFontVector.Get(j);
+						if (ExternalString.Equal(pTestFont.GetName(), pStyleFont.GetName()) && pTestFont.GetSize() == pStyleFont.GetSize() && pTestFont.GetBold() == pStyleFont.GetBold() && pTestFont.GetItalic() == pStyleFont.GetItalic() && pTestFont.GetUnderline() == pStyleFont.GetUnderline())
+						{
+							bFound = true;
+							break;
+						}
+					}
+					if (!bFound)
+					{
+						Font pNewFont = new Font();
+						pNewFont.SetName(pStyleFont.GetName());
+						pNewFont.m_pImpl.m_fSizePts = pStyleFont.m_pImpl.m_fSizePts;
+						pNewFont.SetBold(pStyleFont.GetBold());
+						pNewFont.SetItalic(pStyleFont.GetItalic());
+						pNewFont.SetUnderline(pStyleFont.GetUnderline());
+						Color pFontColor = pStyleFont.GetColor(false);
+						if (pFontColor != null)
+						{
+							pNewFont.GetColor(true).SetFromColor(pFontColor);
+						}
+						NumberDuck.Font __2020089986 = pNewFont;
+						pNewFont = null;
+						pFontVector.PushBack(__2020089986);
+					}
+				}
+				XmlNode pFontsNode = pStylesXml.CreateElement("fonts");
+				sTemp.Set("");
+				sTemp.AppendInt(pFontVector.GetSize());
+				pFontsNode.SetAttribute("count", sTemp.GetExternalString());
+				for (int i = 0; i < pFontVector.GetSize(); i++)
+				{
+					Font pFont = pFontVector.Get(i);
+					XmlNode pFontNode = pStylesXml.CreateElement("font");
+					XmlNode pSzNode = pStylesXml.CreateElement("sz");
+					sTemp.Set("");
+					sTemp.AppendDouble((double)(pFont.m_pImpl.m_fSizePts));
+					pSzNode.SetAttribute("val", sTemp.GetExternalString());
+					pFontNode.AppendChild(pSzNode);
+					XmlNode pNameNode = pStylesXml.CreateElement("name");
+					pNameNode.SetAttribute("val", pFont.GetName());
+					pFontNode.AppendChild(pNameNode);
+					if (pFont.GetBold())
+					{
+						XmlNode pBoldNode = pStylesXml.CreateElement("b");
+						pFontNode.AppendChild(pBoldNode);
+					}
+					if (pFont.GetItalic())
+					{
+						XmlNode pItalicNode = pStylesXml.CreateElement("i");
+						pFontNode.AppendChild(pItalicNode);
+					}
+					if (pFont.GetUnderline() != Font.Underline.UNDERLINE_NONE)
+					{
+						XmlNode pUnderlineNode = pStylesXml.CreateElement("u");
+						pFontNode.AppendChild(pUnderlineNode);
+					}
+					Color pFontColor = pFont.GetColor(false);
+					if (pFontColor != null)
+					{
+						XmlNode pColorNode = pStylesXml.CreateElement("color");
+						sTemp.Set("");
+						sTemp.AppendHex(pFontColor.GetRgba());
+						pColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+						pFontNode.AppendChild(pColorNode);
+					}
+					pFontsNode.AppendChild(pFontNode);
+				}
+				pStyleSheetNode.AppendChild(pFontsNode);
+				OwnedVector<Style> pFillVector = new OwnedVector<Style>();
+				{
+					Style pDefaultFill = new Style();
+					NumberDuck.Style __2779467523 = pDefaultFill;
+					pDefaultFill = null;
+					pFillVector.PushBack(__2779467523);
+					Style pGrayFill = new Style();
+					pGrayFill.SetFillPattern(Style.FillPattern.FILL_PATTERN_125);
+					NumberDuck.Style __2568059706 = pGrayFill;
+					pGrayFill = null;
+					pFillVector.PushBack(__2568059706);
+				}
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
+				{
+					Style pStyle = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
+					Color pBackgroundColor = pStyle.GetBackgroundColor(false);
+					Style.FillPattern eFillPattern = pStyle.GetFillPattern();
+					Color pFillPatternColor = pStyle.GetFillPatternColor(false);
+					bool bFound = false;
+					for (int j = 0; j < pFillVector.GetSize(); j++)
+					{
+						Style pTestStyle = pFillVector.Get(j);
+						Color pTestBackgroundColor = pTestStyle.GetBackgroundColor(false);
+						Color pTestFillPatternColor = pTestStyle.GetFillPatternColor(false);
+						if (eFillPattern == pTestStyle.GetFillPattern() && ((pBackgroundColor == null && pTestBackgroundColor == null) || (pBackgroundColor != null && pTestBackgroundColor != null && pBackgroundColor.Equals(pTestBackgroundColor))) && ((pFillPatternColor == null && pTestFillPatternColor == null) || (pFillPatternColor != null && pTestFillPatternColor != null && pFillPatternColor.Equals(pTestFillPatternColor))))
+						{
+							bFound = true;
+							break;
+						}
+					}
+					if (!bFound)
+					{
+						Style pNewFill = new Style();
+						pNewFill.SetFillPattern(eFillPattern);
+						if (pBackgroundColor != null)
+							pNewFill.GetBackgroundColor(true).SetFromColor(pBackgroundColor);
+						if (pFillPatternColor != null)
+							pNewFill.GetFillPatternColor(true).SetFromColor(pFillPatternColor);
+						NumberDuck.Style __1428958441 = pNewFill;
+						pNewFill = null;
+						pFillVector.PushBack(__1428958441);
+					}
+				}
+				XmlNode pFillsNode = pStylesXml.CreateElement("fills");
+				sTemp.Set("");
+				sTemp.AppendInt(pFillVector.GetSize());
+				pFillsNode.SetAttribute("count", sTemp.GetExternalString());
+				for (int i = 0; i < pFillVector.GetSize(); i++)
+				{
+					Style pFill = pFillVector.Get(i);
+					XmlNode pFillNode = pStylesXml.CreateElement("fill");
+					XmlNode pPatternFillNode = pStylesXml.CreateElement("patternFill");
+					switch (pFill.GetFillPattern())
+					{
+						case Style.FillPattern.FILL_PATTERN_NONE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "solid");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_50:
+						{
+							pPatternFillNode.SetAttribute("patternType", "mediumGray");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_75:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkGray");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_25:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightGray");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_HORIZONTAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkHorizontal");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_VARTICAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkVertical");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_REVERSE_DIAGONAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkDown");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_DIAGONAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkUp");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_DIAGONAL_CROSSHATCH:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkGrid");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THICK_DIAGONAL_CROSSHATCH:
+						{
+							pPatternFillNode.SetAttribute("patternType", "darkTrellis");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_HORIZONTAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightHorizontal");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_VERTICAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightVertical");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_REVERSE_VERTICAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightDown");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_DIAGONAL_STRIPE:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightUp");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_HORIZONTAL_CROSSHATCH:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightGrid");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_THIN_DIAGONAL_CROSSHATCH:
+						{
+							pPatternFillNode.SetAttribute("patternType", "lightTrellis");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_125:
+						{
+							pPatternFillNode.SetAttribute("patternType", "gray125");
+							break;
+						}
+
+						case Style.FillPattern.FILL_PATTERN_625:
+						{
+							pPatternFillNode.SetAttribute("patternType", "gray0625");
+							break;
+						}
+
+						default:
+						{
+							pPatternFillNode.SetAttribute("patternType", "none");
+							break;
+						}
+
+					}
+					Color pBackgroundColor = pFill.GetBackgroundColor(false);
+					if (pBackgroundColor != null)
+					{
+						XmlNode pFgColorNode = pStylesXml.CreateElement("fgColor");
+						sTemp.Set("");
+						XlsxUtils.WriteBgra(pBackgroundColor.GetRgba(), sTemp);
+						pFgColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+						pPatternFillNode.AppendChild(pFgColorNode);
+					}
+					Color pFillPatternColor = pFill.GetFillPatternColor(false);
+					if (pFillPatternColor != null)
+					{
+						XmlNode pBgColorNode = pStylesXml.CreateElement("bgColor");
+						sTemp.Set("");
+						XlsxUtils.WriteBgra(pFillPatternColor.GetRgba(), sTemp);
+						pBgColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+						pPatternFillNode.AppendChild(pBgColorNode);
+					}
+					pFillNode.AppendChild(pPatternFillNode);
+					pFillsNode.AppendChild(pFillNode);
+				}
+				pStyleSheetNode.AppendChild(pFillsNode);
+				OwnedVector<Style> pBorderVector = new OwnedVector<Style>();
+				{
+					Style pDefaultBorder = new Style();
+					NumberDuck.Style __3179463993 = pDefaultBorder;
+					pDefaultBorder = null;
+					pBorderVector.PushBack(__3179463993);
+				}
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
+				{
+					Style pStyle = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
+					bool bFound = false;
+					for (int j = 0; j < pBorderVector.GetSize(); j++)
+					{
+						Style pTestStyle = pBorderVector.Get(j);
+						if (pStyle.GetTopBorderLine().GetType() == pTestStyle.GetTopBorderLine().GetType() && pStyle.GetRightBorderLine().GetType() == pTestStyle.GetRightBorderLine().GetType() && pStyle.GetBottomBorderLine().GetType() == pTestStyle.GetBottomBorderLine().GetType() && pStyle.GetLeftBorderLine().GetType() == pTestStyle.GetLeftBorderLine().GetType())
+						{
+							bFound = true;
+							break;
+						}
+					}
+					if (!bFound)
+					{
+						Style pNewBorder = new Style();
+						pNewBorder.GetTopBorderLine().SetType(pStyle.GetTopBorderLine().GetType());
+						pNewBorder.GetRightBorderLine().SetType(pStyle.GetRightBorderLine().GetType());
+						pNewBorder.GetBottomBorderLine().SetType(pStyle.GetBottomBorderLine().GetType());
+						pNewBorder.GetLeftBorderLine().SetType(pStyle.GetLeftBorderLine().GetType());
+						Color pTopColor = pStyle.GetTopBorderLine().GetColor();
+						if (pTopColor != null)
+							pNewBorder.GetTopBorderLine().GetColor().SetFromColor(pTopColor);
+						Color pRightColor = pStyle.GetRightBorderLine().GetColor();
+						if (pRightColor != null)
+							pNewBorder.GetRightBorderLine().GetColor().SetFromColor(pRightColor);
+						Color pBottomColor = pStyle.GetBottomBorderLine().GetColor();
+						if (pBottomColor != null)
+							pNewBorder.GetBottomBorderLine().GetColor().SetFromColor(pBottomColor);
+						Color pLeftColor = pStyle.GetLeftBorderLine().GetColor();
+						if (pLeftColor != null)
+							pNewBorder.GetLeftBorderLine().GetColor().SetFromColor(pLeftColor);
+						NumberDuck.Style __59243595 = pNewBorder;
+						pNewBorder = null;
+						pBorderVector.PushBack(__59243595);
+					}
+				}
+				XmlNode pBordersNode = pStylesXml.CreateElement("borders");
+				sTemp.Set("");
+				sTemp.AppendInt(pBorderVector.GetSize());
+				pBordersNode.SetAttribute("count", sTemp.GetExternalString());
+				for (int i = 0; i < pBorderVector.GetSize(); i++)
+				{
+					Style pBorder = pBorderVector.Get(i);
+					XmlNode pBorderNode = pStylesXml.CreateElement("border");
+					XmlNode pLeftNode = pStylesXml.CreateElement("left");
+					if (pBorder.GetLeftBorderLine().GetType() != Line.Type.TYPE_NONE)
+					{
+						XmlNode pLeftStyleNode = pStylesXml.CreateElement("style");
+						switch (pBorder.GetLeftBorderLine().GetType())
+						{
+							case Line.Type.TYPE_THIN:
+							{
+								pLeftStyleNode.SetText("thin");
+								break;
+							}
+
+							case Line.Type.TYPE_MEDIUM:
+							{
+								pLeftStyleNode.SetText("medium");
+								break;
+							}
+
+							case Line.Type.TYPE_THICK:
+							{
+								pLeftStyleNode.SetText("thick");
+								break;
+							}
+
+							case Line.Type.TYPE_DASHED:
+							{
+								pLeftStyleNode.SetText("dashed");
+								break;
+							}
+
+							case Line.Type.TYPE_DOTTED:
+							{
+								pLeftStyleNode.SetText("dotted");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT:
+							{
+								pLeftStyleNode.SetText("dashDot");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT_DOT:
+							{
+								pLeftStyleNode.SetText("dashDotDot");
+								break;
+							}
+
+							default:
+							{
+								pLeftStyleNode.SetText("thin");
+								break;
+							}
+
+						}
+						pLeftNode.AppendChild(pLeftStyleNode);
+						Color pLeftColor = pBorder.GetLeftBorderLine().GetColor();
+						if (pLeftColor != null)
+						{
+							XmlNode pLeftColorNode = pStylesXml.CreateElement("color");
+							sTemp.Set("");
+							sTemp.AppendHex(pLeftColor.GetRgba());
+							pLeftColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+							pLeftNode.AppendChild(pLeftColorNode);
+						}
+					}
+					pBorderNode.AppendChild(pLeftNode);
+					XmlNode pRightNode = pStylesXml.CreateElement("right");
+					if (pBorder.GetRightBorderLine().GetType() != Line.Type.TYPE_NONE)
+					{
+						XmlNode pRightStyleNode = pStylesXml.CreateElement("style");
+						switch (pBorder.GetRightBorderLine().GetType())
+						{
+							case Line.Type.TYPE_THIN:
+							{
+								pRightStyleNode.SetText("thin");
+								break;
+							}
+
+							case Line.Type.TYPE_MEDIUM:
+							{
+								pRightStyleNode.SetText("medium");
+								break;
+							}
+
+							case Line.Type.TYPE_THICK:
+							{
+								pRightStyleNode.SetText("thick");
+								break;
+							}
+
+							case Line.Type.TYPE_DASHED:
+							{
+								pRightStyleNode.SetText("dashed");
+								break;
+							}
+
+							case Line.Type.TYPE_DOTTED:
+							{
+								pRightStyleNode.SetText("dotted");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT:
+							{
+								pRightStyleNode.SetText("dashDot");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT_DOT:
+							{
+								pRightStyleNode.SetText("dashDotDot");
+								break;
+							}
+
+							default:
+							{
+								pRightStyleNode.SetText("thin");
+								break;
+							}
+
+						}
+						pRightNode.AppendChild(pRightStyleNode);
+						Color pRightColor = pBorder.GetRightBorderLine().GetColor();
+						if (pRightColor != null)
+						{
+							XmlNode pRightColorNode = pStylesXml.CreateElement("color");
+							sTemp.Set("");
+							sTemp.AppendHex(pRightColor.GetRgba());
+							pRightColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+							pRightNode.AppendChild(pRightColorNode);
+						}
+					}
+					pBorderNode.AppendChild(pRightNode);
+					XmlNode pTopNode = pStylesXml.CreateElement("top");
+					if (pBorder.GetTopBorderLine().GetType() != Line.Type.TYPE_NONE)
+					{
+						XmlNode pTopStyleNode = pStylesXml.CreateElement("style");
+						switch (pBorder.GetTopBorderLine().GetType())
+						{
+							case Line.Type.TYPE_THIN:
+							{
+								pTopStyleNode.SetText("thin");
+								break;
+							}
+
+							case Line.Type.TYPE_MEDIUM:
+							{
+								pTopStyleNode.SetText("medium");
+								break;
+							}
+
+							case Line.Type.TYPE_THICK:
+							{
+								pTopStyleNode.SetText("thick");
+								break;
+							}
+
+							case Line.Type.TYPE_DASHED:
+							{
+								pTopStyleNode.SetText("dashed");
+								break;
+							}
+
+							case Line.Type.TYPE_DOTTED:
+							{
+								pTopStyleNode.SetText("dotted");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT:
+							{
+								pTopStyleNode.SetText("dashDot");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT_DOT:
+							{
+								pTopStyleNode.SetText("dashDotDot");
+								break;
+							}
+
+							default:
+							{
+								pTopStyleNode.SetText("thin");
+								break;
+							}
+
+						}
+						pTopNode.AppendChild(pTopStyleNode);
+						Color pTopColor = pBorder.GetTopBorderLine().GetColor();
+						if (pTopColor != null)
+						{
+							XmlNode pTopColorNode = pStylesXml.CreateElement("color");
+							sTemp.Set("");
+							sTemp.AppendHex(pTopColor.GetRgba());
+							pTopColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+							pTopNode.AppendChild(pTopColorNode);
+						}
+					}
+					pBorderNode.AppendChild(pTopNode);
+					XmlNode pBottomNode = pStylesXml.CreateElement("bottom");
+					if (pBorder.GetBottomBorderLine().GetType() != Line.Type.TYPE_NONE)
+					{
+						XmlNode pBottomStyleNode = pStylesXml.CreateElement("style");
+						switch (pBorder.GetBottomBorderLine().GetType())
+						{
+							case Line.Type.TYPE_THIN:
+							{
+								pBottomStyleNode.SetText("thin");
+								break;
+							}
+
+							case Line.Type.TYPE_MEDIUM:
+							{
+								pBottomStyleNode.SetText("medium");
+								break;
+							}
+
+							case Line.Type.TYPE_THICK:
+							{
+								pBottomStyleNode.SetText("thick");
+								break;
+							}
+
+							case Line.Type.TYPE_DASHED:
+							{
+								pBottomStyleNode.SetText("dashed");
+								break;
+							}
+
+							case Line.Type.TYPE_DOTTED:
+							{
+								pBottomStyleNode.SetText("dotted");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT:
+							{
+								pBottomStyleNode.SetText("dashDot");
+								break;
+							}
+
+							case Line.Type.TYPE_DASH_DOT_DOT:
+							{
+								pBottomStyleNode.SetText("dashDotDot");
+								break;
+							}
+
+							default:
+							{
+								pBottomStyleNode.SetText("thin");
+								break;
+							}
+
+						}
+						pBottomNode.AppendChild(pBottomStyleNode);
+						Color pBottomColor = pBorder.GetBottomBorderLine().GetColor();
+						if (pBottomColor != null)
+						{
+							XmlNode pBottomColorNode = pStylesXml.CreateElement("color");
+							sTemp.Set("");
+							sTemp.AppendHex(pBottomColor.GetRgba());
+							pBottomColorNode.SetAttribute("rgb", sTemp.GetExternalString());
+							pBottomNode.AppendChild(pBottomColorNode);
+						}
+					}
+					pBorderNode.AppendChild(pBottomNode);
+					XmlNode pDiagonalNode = pStylesXml.CreateElement("diagonal");
+					pBorderNode.AppendChild(pDiagonalNode);
+					pBordersNode.AppendChild(pBorderNode);
+				}
+				pStyleSheetNode.AppendChild(pBordersNode);
+				XmlNode pCellStyleXfsNode = pStylesXml.CreateElement("cellStyleXfs");
+				pCellStyleXfsNode.SetAttribute("count", "1");
+				XmlNode pXfStyleNode = pStylesXml.CreateElement("xf");
+				pXfStyleNode.SetAttribute("numFmtId", "0");
+				pXfStyleNode.SetAttribute("fontId", "0");
+				pXfStyleNode.SetAttribute("fillId", "0");
+				pXfStyleNode.SetAttribute("borderId", "0");
+				pCellStyleXfsNode.AppendChild(pXfStyleNode);
+				pStyleSheetNode.AppendChild(pCellStyleXfsNode);
+				XmlNode pCellXfsNode = pStylesXml.CreateElement("cellXfs");
+				sTemp.Set("");
+				sTemp.AppendInt(pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle());
+				pCellXfsNode.SetAttribute("count", sTemp.GetExternalString());
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorkbookGlobals.GetNumStyle(); i++)
+				{
+					Style pStyle = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetStyleByIndex((ushort)(i));
+					XmlNode pXfNode = pStylesXml.CreateElement("xf");
+					string szFormat = pStyle.GetFormat();
+					ushort nFormatIndex = 0;
+					for (int j = 0; j < pFormatVector.GetSize(); j++)
+					{
+						if (ExternalString.Equal(pFormatVector.Get(j), szFormat))
+						{
+							nFormatIndex = (ushort)(j);
+							break;
+						}
+					}
+					Font pStyleFont = pStyle.GetFont();
+					ushort nFontIndex = 0;
+					for (int j = 0; j < pFontVector.GetSize(); j++)
+					{
+						Font pTestFont = pFontVector.Get(j);
+						if (ExternalString.Equal(pTestFont.GetName(), pStyleFont.GetName()) && pTestFont.GetSize() == pStyleFont.GetSize() && pTestFont.GetBold() == pStyleFont.GetBold() && pTestFont.GetItalic() == pStyleFont.GetItalic() && pTestFont.GetUnderline() == pStyleFont.GetUnderline())
+						{
+							nFontIndex = (ushort)(j);
+							break;
+						}
+					}
+					Color pBackgroundColor = pStyle.GetBackgroundColor(false);
+					Style.FillPattern eFillPattern = pStyle.GetFillPattern();
+					Color pFillPatternColor = pStyle.GetFillPatternColor(false);
+					ushort nFillIndex = 0;
+					for (int j = 0; j < pFillVector.GetSize(); j++)
+					{
+						Style pTestStyle = pFillVector.Get(j);
+						Color pTestBackgroundColor = pTestStyle.GetBackgroundColor(false);
+						Color pTestFillPatternColor = pTestStyle.GetFillPatternColor(false);
+						if (eFillPattern == pTestStyle.GetFillPattern() && ((pBackgroundColor == null && pTestBackgroundColor == null) || (pBackgroundColor != null && pTestBackgroundColor != null && pBackgroundColor.Equals(pTestBackgroundColor))) && ((pFillPatternColor == null && pTestFillPatternColor == null) || (pFillPatternColor != null && pTestFillPatternColor != null && pFillPatternColor.Equals(pTestFillPatternColor))))
+						{
+							nFillIndex = (ushort)(j);
+							break;
+						}
+					}
+					ushort nBorderIndex = 0;
+					for (int j = 0; j < pBorderVector.GetSize(); j++)
+					{
+						Style pTestStyle = pBorderVector.Get(j);
+						if (pStyle.GetTopBorderLine().GetType() == pTestStyle.GetTopBorderLine().GetType() && pStyle.GetRightBorderLine().GetType() == pTestStyle.GetRightBorderLine().GetType() && pStyle.GetBottomBorderLine().GetType() == pTestStyle.GetBottomBorderLine().GetType() && pStyle.GetLeftBorderLine().GetType() == pTestStyle.GetLeftBorderLine().GetType())
+						{
+							nBorderIndex = (ushort)(j);
+							break;
+						}
+					}
+					sTemp.Set("");
+					sTemp.AppendUint32(nFormatIndex);
+					pXfNode.SetAttribute("numFmtId", sTemp.GetExternalString());
+					sTemp.Set("");
+					sTemp.AppendUint32(nFontIndex);
+					pXfNode.SetAttribute("fontId", sTemp.GetExternalString());
+					{
+						pXfNode.SetAttribute("applyFont", "1");
+					}
+					sTemp.Set("");
+					sTemp.AppendUint32(nFillIndex);
+					pXfNode.SetAttribute("fillId", sTemp.GetExternalString());
+					{
+						pXfNode.SetAttribute("applyFill", "1");
+					}
+					sTemp.Set("");
+					sTemp.AppendUint32(nBorderIndex);
+					pXfNode.SetAttribute("borderId", sTemp.GetExternalString());
+					{
+						pXfNode.SetAttribute("applyBorder", "1");
+					}
+					pXfNode.SetAttribute("xfId", "0");
+					pCellXfsNode.AppendChild(pXfNode);
+				}
+				pStyleSheetNode.AppendChild(pCellXfsNode);
+				pStylesXml.AppendChild(pStyleSheetNode);
+				pStylesXml.Save(pStylesBlob.GetBlobView());
+				NumberDuck.Blob __1557403725 = pStylesBlob;
+				pStylesBlob = null;
+				bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/styles.xml", __1557403725);
+				for (int i = 0; i < pWorkbook.m_pImpl.m_pWorksheetVector.GetSize(); i++)
+				{
+					Worksheet pWorksheet = pWorkbook.m_pImpl.m_pWorksheetVector.Get(i);
+					bSuccess = bSuccess && XlsxWorksheet.Write(pWorksheet, pWorkbook.m_pImpl.m_pWorkbookGlobals, pZipWriter, i);
+				}
+				if (bSuccess)
+				{
+					Blob pSharedStringsBlob = new Blob(true);
+					XmlFile pSharedStringsXml = new XmlFile();
+					XmlNode pSstNode = pSharedStringsXml.CreateElement("sst");
+					pSstNode.SetAttribute("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+					int nStringCount = pWorkbook.m_pImpl.m_pWorkbookGlobals.m_pSharedStringContainer.GetSize();
+					sTemp.Set("");
+					sTemp.AppendInt(nStringCount);
+					pSstNode.SetAttribute("count", sTemp.GetExternalString());
+					pSstNode.SetAttribute("uniqueCount", sTemp.GetExternalString());
+					for (int i = 0; i < nStringCount; i++)
+					{
+						XmlNode pSiNode = pSharedStringsXml.CreateElement("si");
+						XmlNode pTNode = pSharedStringsXml.CreateElement("t");
+						string szString = pWorkbook.m_pImpl.m_pWorkbookGlobals.GetSharedStringByIndex((uint)(i));
+						pTNode.SetText(szString);
+						pSiNode.AppendChild(pTNode);
+						pSstNode.AppendChild(pSiNode);
+					}
+					pSharedStringsXml.AppendChild(pSstNode);
+					pSharedStringsXml.Save(pSharedStringsBlob.GetBlobView());
+					NumberDuck.Blob __964362156 = pSharedStringsBlob;
+					pSharedStringsBlob = null;
+					bSuccess = bSuccess && pZipWriter.AddFileFromBlob("xl/sharedStrings.xml", __964362156);
+				}
+				Blob pZipBlob = new Blob(true);
+				bSuccess = bSuccess && pZipWriter.SaveBlobView(pZipBlob.GetBlobView());
+				if (bSuccess)
+				{
+					pZipBlob.Save(szFileName);
+				}
+				return bSuccess;
+			}
+
+			public static bool Load(Workbook pWorkbook, string szFileName)
+			{
+				InternalString sFileName = new InternalString("");
+				Zip pZip = new Zip();
+				bool bContinue = pZip.LoadFile(szFileName);
+				if (bContinue)
+				{
+					OwnedVector<InternalString> sNameVector = new OwnedVector<InternalString>();
+					{
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						if (pZip.ExtractFileByName("[Content_Types].xml", pXmlBlobView))
+						{
+							XmlFile pXmlFile = new XmlFile();
+							pXmlBlobView.SetOffset(0);
+							pXmlFile.Load(pXmlBlobView);
+						}
+					}
+					pWorkbook.m_pImpl.m_pWorkbookGlobals = new XlsxWorkbookGlobals();
+					if (bContinue)
+					{
+						XmlFile pXmlFile = new XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						XmlNode pWorkbookNode = null;
+						XmlNode pSheetsNode = null;
+						XmlNode pSheetNode = null;
+						bContinue = bContinue && pZip.ExtractFileByName("xl/workbook.xml", pXmlBlobView);
+						if (bContinue)
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pWorkbookNode = pXmlFile.GetFirstChildElement("workbook");
+							if (pWorkbookNode == null)
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSheetsNode = pWorkbookNode.GetFirstChildElement("sheets");
+							if (pSheetsNode == null)
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pSheetNode = pSheetsNode.GetFirstChildElement("sheet");
+							while (pSheetNode != null)
+							{
+								string szName = pSheetNode.GetAttribute("name");
+								if (szName == null)
+								{
+									bContinue = false;
+									break;
+								}
+								sNameVector.PushBack(new InternalString(szName));
+								pSheetNode = pSheetNode.GetNextSiblingElement("sheet");
+							}
+						}
+					}
+					if (bContinue)
+					{
+						XmlFile pXmlFile = new XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						XmlNode pSstNode = null;
+						XmlNode pSiNode = null;
+						if (pZip.ExtractFileByName("xl/sharedStrings.xml", pXmlBlobView))
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+							if (bContinue)
+							{
+								pSstNode = pXmlFile.GetFirstChildElement("sst");
+								if (pSstNode == null)
+									bContinue = false;
+							}
+							if (bContinue)
+							{
+								pSiNode = pSstNode.GetFirstChildElement("si");
+							}
+							while (bContinue && pSiNode != null)
+							{
+								XmlNode pTNode;
+								pTNode = pSiNode.GetFirstChildElement("t");
+								if (pTNode == null)
+								{
+									bContinue = false;
+									break;
+								}
+								string szTemp = pTNode.GetText();
+								pWorkbook.m_pImpl.m_pWorkbookGlobals.PushSharedString(szTemp);
+								pSiNode = pSiNode.GetNextSiblingElement("si");
+							}
+						}
+					}
+					if (bContinue)
+					{
+						XmlFile pXmlFile = new XmlFile();
+						Blob pXmlBlob = new Blob(true);
+						BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+						XmlNode pStyleSheetNode = null;
+						bContinue = bContinue && pZip.ExtractFileByName("xl/styles.xml", pXmlBlobView);
+						if (bContinue)
+						{
+							pXmlBlobView.SetOffset(0);
+							if (!pXmlFile.Load(pXmlBlobView))
+								bContinue = false;
+						}
+						if (bContinue)
+						{
+							pStyleSheetNode = pXmlFile.GetFirstChildElement("styleSheet");
+							if (pStyleSheetNode == null)
+								bContinue = false;
+						}
+						bContinue = bContinue && XlsxWorkbookGlobals.ParseStyles(pWorkbook.m_pImpl.m_pWorkbookGlobals, pStyleSheetNode);
+					}
+					if (bContinue)
+					{
+						int nWorksheetIndex = 0;
+						int nNumFail = 0;
+						while (bContinue)
+						{
+							sFileName.Set("xl/worksheets/sheet");
+							sFileName.AppendInt(nWorksheetIndex);
+							sFileName.AppendString(".xml");
+							XmlFile pXmlFile = new XmlFile();
+							Blob pXmlBlob = new Blob(true);
+							BlobView pXmlBlobView = pXmlBlob.GetBlobView();
+							if (!pZip.ExtractFileByName(sFileName.GetExternalString(), pXmlBlobView))
+							{
+								nNumFail++;
+								if (nNumFail > 5)
+								{
+									break;
+								}
+							}
+							else
+							{
+								XmlNode pWorksheetNode;
+								pXmlBlobView.SetOffset(0);
+								if (!pXmlFile.Load(pXmlBlobView))
+								{
+									bContinue = false;
+									break;
+								}
+								pWorksheetNode = pXmlFile.GetFirstChildElement("worksheet");
+								XlsxWorksheet pWorksheet = new XlsxWorksheet(pWorkbook);
+								pWorksheet.SetName(sNameVector.Get(pWorkbook.m_pImpl.m_pWorksheetVector.GetSize()).GetExternalString());
+								if (!pWorksheet.Parse((XlsxWorkbookGlobals)(pWorkbook.m_pImpl.m_pWorkbookGlobals), pWorksheetNode))
+								{
+									bContinue = false;
+									break;
+								}
+								NumberDuck.Secret.XlsxWorksheet __3026778354 = pWorksheet;
+								pWorksheet = null;
+								pWorkbook.m_pImpl.m_pWorksheetVector.PushBack(__3026778354);
+							}
+							nWorksheetIndex++;
+						}
+					}
+					sNameVector.Clear();
+				}
+				return bContinue;
+			}
+
+		}
 		class XlsxUtils
 		{
 			public static void WriteBgra(uint nRgba, InternalString sOut)
@@ -30596,7 +30682,7 @@ namespace NumberDuck
 		}
 		class ColumnInfo
 		{
-			public ushort m_nWidth;
+			public double m_fWidth;
 			public bool m_bHidden;
 			public ColumnInfo()
 			{
@@ -31051,7 +31137,7 @@ namespace NumberDuck
 				{
 					ColumnInfo pColumnInfo = new ColumnInfo();
 					pColumnInfo.m_bHidden = false;
-					pColumnInfo.m_nWidth = Worksheet.DEFAULT_COLUMN_WIDTH;
+					pColumnInfo.m_fWidth = Worksheet.DEFAULT_COLUMN_WIDTH * 15.0f / 20.0f;
 					NumberDuck.Secret.ColumnInfo __518549535 = pColumnInfo;
 					pColumnInfo = null;
 					pElement.m_xObject = __518549535;
@@ -31699,7 +31785,7 @@ namespace NumberDuck
 		class FontImplementation
 		{
 			public InternalString m_sName;
-			public int m_nSizeTwips;
+			public float m_fSizePts;
 			public Color m_pColor;
 			public bool m_bBold;
 			public bool m_bItalic;
@@ -31707,7 +31793,7 @@ namespace NumberDuck
 			public FontImplementation()
 			{
 				m_sName = new InternalString("Calibri");
-				m_nSizeTwips = 15 * 15;
+				m_fSizePts = 15.0f * 15.0f / 20.0f;
 				m_pColor = null;
 				m_bBold = false;
 				m_bItalic = false;
