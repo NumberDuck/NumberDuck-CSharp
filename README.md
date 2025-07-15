@@ -1,5 +1,5 @@
 # Number Duck
-v3.0.10 [J193]
+v3.1.0 [J204]
 
 Copyright (C) 2012-2025, File Scribe
 
